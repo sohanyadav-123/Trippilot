@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # MongoDB Local Database (Optional - can also connect to MongoDB Atlas)
+  mongodb:
+    image: mongo:7.0
+    container_name: trippilot-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: trippilot
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Flask Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: trippilot-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - MONGO_URI=mongodb://mongodb:27017/trippilot
+      - SECRET_KEY=production-secret-key-change-me
+      - JWT_SECRET_KEY=production-jwt-secret-key-change-me
+      - GROK_API_KEY=${GROK_API_KEY:-}
+      - GROK_MODEL=grok-3-mini
+      - FRONTEND_URL=http://localhost:5173
+      - PAYMENT_MODE=mock
+      - CURRENCY=INR
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+volumes:
+  mongodb_data:
+    driver: local

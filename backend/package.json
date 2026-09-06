@@ -1,0 +1,9 @@
+{
+  "name": "trippilot-backend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "venv/bin/python run.py",
+    "start": "venv/bin/python run.py"
+  }
+}
