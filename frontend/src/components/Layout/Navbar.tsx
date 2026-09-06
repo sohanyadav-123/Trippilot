@@ -144,7 +144,6 @@ export const Navbar: React.FC = () => {
     { label: t('nav.my_bookings', 'My Bookings'), desc: t('nav.my_bookings_desc', 'Confirmed trips, tickets & vouchers'), href: '/my-bookings', icon: Luggage },
     { label: t('nav.shared_trips', 'Shared Trips'), desc: t('nav.shared_trips_desc', 'Group trip co-planning & invitation manager'), href: '/shared-trips', icon: Users },
     { label: t('nav.packing', 'Packing Assistant'), desc: t('nav.packing_desc', 'Weather & style aware luggage checklist'), href: '/packing-assistant', icon: ShoppingBag },
-    { label: t('nav.documents', 'Documents Checklist'), desc: t('nav.documents_desc', 'Flight tickets, ID & insurance readiness'), href: '/documents-checklist', icon: ShieldCheck },
     { label: t('nav.travel_help', 'Emergency & Help'), desc: t('nav.travel_help_desc', 'Verified helpline numbers, hospital & airline support'), href: '/travel-help', icon: ShieldCheck },
   ];
 
