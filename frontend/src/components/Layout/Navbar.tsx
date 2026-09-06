@@ -27,13 +27,17 @@ import {
   Accessibility,
   Route,
   Users,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useCart } from '../../hooks/useCart';
 import { useWishlist } from '../../context/WishlistContext';
 import { useTravelSettings, LanguageCode, TravelMode } from '../../context/TravelSettingsContext';
+import { useTheme } from '../../context/ThemeContext';
 
 export const Navbar: React.FC = () => {
+  const { theme, toggleTheme } = useTheme();
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
   const { itemCount } = useCart();
   const { items: wishlistItems } = useWishlist();
@@ -671,7 +675,7 @@ export const Navbar: React.FC = () => {
             {/* Cart Icon */}
             <Link
               to="/cart"
-              className="relative p-2 rounded-xl border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors"
+              className="relative p-2 rounded-xl border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors"
               title="Cart / Checkout"
             >
               <ShoppingBag className="w-4 h-4" />
@@ -681,6 +685,21 @@ export const Navbar: React.FC = () => {
                 </span>
               )}
             </Link>
+
+            {/* Theme Toggle Button (Light / Dark) */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="p-2 rounded-xl border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition-all flex items-center justify-center"
+              title={theme === 'dark' ? 'Switch to Bright Theme' : 'Switch to Dark Theme'}
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? (
+                <Sun className="w-4 h-4 text-amber-400 hover:rotate-45 transition-transform" />
+              ) : (
+                <Moon className="w-4 h-4 text-slate-700 hover:-rotate-12 transition-transform" />
+              )}
+            </button>
 
             {/* User Profile / Auth Button */}
             {isAuthenticated ? (
@@ -820,7 +839,22 @@ export const Navbar: React.FC = () => {
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="xl:hidden mt-3 pt-3 border-t border-slate-200 space-y-4 pb-4 animate-in fade-in">
+          <div className="xl:hidden mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 space-y-4 pb-4 animate-in fade-in">
+            {/* Mobile Theme Toggle */}
+            <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-100 dark:border-slate-700">
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                {theme === 'dark' ? <Moon className="w-4 h-4 text-amber-400" /> : <Sun className="w-4 h-4 text-amber-500" />}
+                <span>{theme === 'dark' ? 'Dark Theme' : 'Bright Theme'}</span>
+              </span>
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="px-3 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-600 shadow-xs flex items-center gap-1.5"
+              >
+                {theme === 'dark' ? 'Switch to Bright' : 'Switch to Dark'}
+              </button>
+            </div>
+
             {/* Mobile Travel Mode Selection */}
             <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
