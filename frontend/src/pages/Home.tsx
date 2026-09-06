@@ -300,38 +300,37 @@ export const Home: React.FC = () => {
             {t('hero.subtitle', 'Discover destinations, build intelligent itineraries, and book every part of your trip in one place.')}
           </p>
 
-          {/* Choose Language Hero Selector */}
-          <div className="flex items-center justify-center gap-2 pt-2">
-            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:border-slate-300 transition-all">
+          {/* Hero Preferences Toolbar: Language & Experience Mode */}
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            {/* Choose Language */}
+            <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:border-slate-300 transition-all">
               <Globe2 className="w-4 h-4 text-[#C8A96B]" />
-              <span className="text-xs sm:text-sm font-bold text-slate-700">{t('hero.choose_language', 'Choose Language')}:</span>
+              <span className="text-sm font-bold text-slate-700">{t('hero.choose_language', 'Language')}:</span>
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value as any)}
-                className="bg-transparent text-xs sm:text-sm font-black text-slate-900 focus:outline-none cursor-pointer pr-1"
+                className="bg-transparent text-sm font-black text-slate-900 focus:outline-none cursor-pointer pr-1"
                 aria-label={t('hero.choose_language', 'Choose Language')}
               >
                 <option value="en">🌐 English</option>
                 <option value="hi">🌐 हिन्दी (Hindi)</option>
-                <option value="te">🌐 తెలుగు (Telugu)</option>
+                <option value="te">🌐 Telugu (తెలుగు)</option>
               </select>
             </div>
-          </div>
 
-          {/* Travel Experience Mode Hero Switcher */}
-          <div className="flex flex-col items-center justify-center gap-2.5 pt-1">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-              <Compass className="w-3.5 h-3.5 text-[#C8A96B]" />
-              {t('mode.title', 'Travel Experience Mode')}
-            </span>
+            {/* Travel Experience Mode Switcher */}
             <div className="inline-flex flex-wrap items-center justify-center p-1.5 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-xs gap-1.5">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider pl-2.5 pr-1 flex items-center gap-1.5 hidden sm:inline-flex">
+                <Compass className="w-3.5 h-3.5 text-[#C8A96B]" />
+                {t('mode.title', 'Mode')}:
+              </span>
               <button
                 type="button"
                 onClick={() => {
                   setTravelMode('standard');
                   toast.success('Active: Standard Travel (Full Inventory)', { id: 'home-mode', icon: '✈️' });
                 }}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
+                className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 ${
                   travelMode === 'standard'
                     ? 'bg-blue-600 text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
@@ -346,7 +345,7 @@ export const Home: React.FC = () => {
                   setTravelMode('family');
                   toast.success('Active: Family with Kids (Kid-Safe Resorts & Family Seats)', { id: 'home-mode', icon: '👨‍👩‍👧' });
                 }}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
+                className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 ${
                   travelMode === 'family'
                     ? 'bg-amber-600 text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
@@ -361,7 +360,7 @@ export const Home: React.FC = () => {
                   setTravelMode('accessibility');
                   toast.success('Active: Accessibility Mode (Wheelchair & Step-Free)', { id: 'home-mode', icon: '♿' });
                 }}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
+                className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 ${
                   travelMode === 'accessibility'
                     ? 'bg-indigo-600 text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'

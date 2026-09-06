@@ -174,18 +174,18 @@ export const Navbar: React.FC = () => {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between gap-4 min-h-[50px]">
+        <div className="flex items-center justify-between gap-4 min-h-[56px]">
           {/* ─── 1. LEFT: LUXURY BRAND LOGO ─── */}
-          <Link to="/" className="flex items-center gap-3 group flex-shrink-0">
-            <TripPilotLogo size={50} className="group-hover:scale-105 transition-transform duration-200" />
-            <div className="flex flex-col">
+          <Link to="/" className="flex items-center gap-3.5 group flex-shrink-0">
+            <TripPilotLogo size={52} className="group-hover:scale-105 transition-transform duration-200" />
+            <div className="flex flex-col justify-center">
               <div className="flex items-center gap-1.5">
-                <span className="text-2xl font-black tracking-tight text-[#0B1220] leading-none">
+                <span className="text-2xl sm:text-[26px] font-black tracking-tight text-[#0B1220] leading-tight">
                   TripPilot
                 </span>
-                <span className="w-1.5 h-1.5 rounded-full bg-[#C8A96B] mb-0.5" />
+                <span className="w-2 h-2 rounded-full bg-[#C8A96B]" />
               </div>
-              <span className="text-[8.5px] tracking-[0.2em] text-slate-500 uppercase font-bold mt-1">
+              <span className="text-[10.5px] tracking-[0.2em] text-slate-500 uppercase font-bold mt-0.5">
                 INTELLIGENT TRAVEL
               </span>
             </div>
@@ -202,10 +202,10 @@ export const Navbar: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setActiveDropdown(activeDropdown === 'explore' ? null : 'explore')}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm sm:text-[15px] font-bold transition-all ${
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-base font-bold transition-all ${
                   activeDropdown === 'explore' || isGroupActive(exploreLinks)
-                    ? 'text-[#0B1220] bg-slate-50 font-extrabold'
-                    : 'text-slate-600 hover:text-[#0B1220] hover:bg-slate-50/80'
+                    ? 'text-[#0B1220] bg-slate-100/80 font-extrabold'
+                    : 'text-slate-700 hover:text-[#0B1220] hover:bg-slate-50'
                 }`}
               >
                 <span>{t('nav.explore', 'Explore')}</span>
@@ -213,8 +213,8 @@ export const Navbar: React.FC = () => {
               </button>
 
               {activeDropdown === 'explore' && (
-                <div className="absolute top-full left-0 mt-1 w-80 bg-white rounded-2xl shadow-luxury border border-slate-200/90 p-2.5 z-50 animate-in fade-in slide-in-from-top-1">
-                  <div className="space-y-1">
+                <div className="absolute top-full left-0 mt-1 w-88 bg-white rounded-2xl shadow-luxury border border-slate-200/90 p-3 z-50 animate-in fade-in slide-in-from-top-1">
+                  <div className="space-y-1.5">
                     {exploreLinks.map((item) => {
                       const Icon = item.icon;
                       const active = isLinkActive(item.href);
@@ -223,7 +223,7 @@ export const Navbar: React.FC = () => {
                           key={item.href}
                           to={item.href}
                           onClick={() => setActiveDropdown(null)}
-                          className={`flex items-start gap-3 p-2.5 rounded-xl transition-all ${
+                          className={`flex items-start gap-3.5 p-2.5 rounded-xl transition-all ${
                             active ? 'bg-slate-50 text-[#0B1220]' : 'hover:bg-slate-50 text-slate-700'
                           }`}
                         >
@@ -231,8 +231,8 @@ export const Navbar: React.FC = () => {
                             <Icon className="w-4 h-4" />
                           </div>
                           <div>
-                            <div className="text-xs font-bold text-[#0B1220]">{item.label}</div>
-                            <p className="text-[11px] text-slate-500 leading-snug">{item.desc}</p>
+                            <div className="text-sm font-bold text-[#0B1220]">{item.label}</div>
+                            <p className="text-xs text-slate-500 leading-snug mt-0.5">{item.desc}</p>
                           </div>
                         </Link>
                       );
@@ -251,10 +251,10 @@ export const Navbar: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setActiveDropdown(activeDropdown === 'plan' ? null : 'plan')}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm sm:text-[15px] font-bold transition-all ${
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-base font-bold transition-all ${
                   activeDropdown === 'plan' || isGroupActive(planLinks)
-                    ? 'text-[#0B1220] bg-slate-50 font-extrabold'
-                    : 'text-slate-600 hover:text-[#0B1220] hover:bg-slate-50/80'
+                    ? 'text-[#0B1220] bg-slate-100/80 font-extrabold'
+                    : 'text-slate-700 hover:text-[#0B1220] hover:bg-slate-50'
                 }`}
               >
                 <span>{t('nav.plan', 'Plan')}</span>
@@ -263,8 +263,8 @@ export const Navbar: React.FC = () => {
               </button>
 
               {activeDropdown === 'plan' && (
-                <div className="absolute top-full left-0 mt-1 w-84 bg-white rounded-2xl shadow-luxury border border-slate-200/90 p-2.5 z-50 animate-in fade-in slide-in-from-top-1">
-                  <div className="space-y-1">
+                <div className="absolute top-full left-0 mt-1 w-88 bg-white rounded-2xl shadow-luxury border border-slate-200/90 p-3 z-50 animate-in fade-in slide-in-from-top-1">
+                  <div className="space-y-1.5">
                     {planLinks.map((item) => {
                       const Icon = item.icon;
                       const active = isLinkActive(item.href);
@@ -273,7 +273,7 @@ export const Navbar: React.FC = () => {
                           key={item.href}
                           to={item.href}
                           onClick={() => setActiveDropdown(null)}
-                          className={`flex items-start gap-3 p-2.5 rounded-xl transition-all ${
+                          className={`flex items-start gap-3.5 p-2.5 rounded-xl transition-all ${
                             active ? 'bg-slate-50 text-[#0B1220]' : 'hover:bg-slate-50 text-slate-700'
                           }`}
                         >
@@ -281,20 +281,20 @@ export const Navbar: React.FC = () => {
                             <Icon className="w-4 h-4" />
                           </div>
                           <div>
-                            <div className="text-xs font-bold text-[#0B1220] flex items-center gap-1.5">
+                            <div className="text-sm font-bold text-[#0B1220] flex items-center gap-1.5">
                               <span>{item.label}</span>
                               {item.label.includes('AI') && (
-                                <span className="text-[9px] font-bold text-[#C8A96B] uppercase tracking-wider">
+                                <span className="text-[10px] font-bold text-[#C8A96B] uppercase tracking-wider">
                                   Smart
                                 </span>
                               )}
                               {item.href === '/weather' && (
-                                <span className="text-[9px] font-bold text-sky-600 bg-sky-50 px-1.5 py-0.5 rounded-full uppercase tracking-wider border border-sky-200/60">
+                                <span className="text-[10px] font-bold text-sky-600 bg-sky-50 px-1.5 py-0.5 rounded-full uppercase tracking-wider border border-sky-200/60">
                                   Live
                                 </span>
                               )}
                             </div>
-                            <p className="text-[11px] text-slate-500 leading-snug">{item.desc}</p>
+                            <p className="text-xs text-slate-500 leading-snug mt-0.5">{item.desc}</p>
                           </div>
                         </Link>
                       );
@@ -313,10 +313,10 @@ export const Navbar: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setActiveDropdown(activeDropdown === 'book' ? null : 'book')}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm sm:text-[15px] font-bold transition-all ${
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-base font-bold transition-all ${
                   activeDropdown === 'book' || isGroupActive(bookLinks)
-                    ? 'text-[#0B1220] bg-slate-50 font-extrabold'
-                    : 'text-slate-600 hover:text-[#0B1220] hover:bg-slate-50/80'
+                    ? 'text-[#0B1220] bg-slate-100/80 font-extrabold'
+                    : 'text-slate-700 hover:text-[#0B1220] hover:bg-slate-50'
                 }`}
               >
                 <span>{t('nav.book', 'Book')}</span>
@@ -324,8 +324,8 @@ export const Navbar: React.FC = () => {
               </button>
 
               {activeDropdown === 'book' && (
-                <div className="absolute top-full left-0 mt-1 w-80 bg-white rounded-2xl shadow-luxury border border-slate-200/90 p-2.5 z-50 animate-in fade-in slide-in-from-top-1">
-                  <div className="space-y-1">
+                <div className="absolute top-full left-0 mt-1 w-88 bg-white rounded-2xl shadow-luxury border border-slate-200/90 p-3 z-50 animate-in fade-in slide-in-from-top-1">
+                  <div className="space-y-1.5">
                     {bookLinks.map((item) => {
                       const Icon = item.icon;
                       const active = isLinkActive(item.href);
@@ -334,7 +334,7 @@ export const Navbar: React.FC = () => {
                           key={item.href}
                           to={item.href}
                           onClick={() => setActiveDropdown(null)}
-                          className={`flex items-start gap-3 p-2.5 rounded-xl transition-all ${
+                          className={`flex items-start gap-3.5 p-2.5 rounded-xl transition-all ${
                             active ? 'bg-slate-50 text-[#0B1220]' : 'hover:bg-slate-50 text-slate-700'
                           }`}
                         >
@@ -342,8 +342,8 @@ export const Navbar: React.FC = () => {
                             <Icon className="w-4 h-4" />
                           </div>
                           <div>
-                            <div className="text-xs font-bold text-[#0B1220]">{item.label}</div>
-                            <p className="text-[11px] text-slate-500 leading-snug">{item.desc}</p>
+                            <div className="text-sm font-bold text-[#0B1220]">{item.label}</div>
+                            <p className="text-xs text-slate-500 leading-snug mt-0.5">{item.desc}</p>
                           </div>
                         </Link>
                       );
@@ -362,10 +362,10 @@ export const Navbar: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setActiveDropdown(activeDropdown === 'trips' ? null : 'trips')}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm sm:text-[15px] font-bold transition-all ${
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-base font-bold transition-all ${
                   activeDropdown === 'trips' || isGroupActive(tripsLinks)
-                    ? 'text-[#0B1220] bg-slate-50 font-extrabold'
-                    : 'text-slate-600 hover:text-[#0B1220] hover:bg-slate-50/80'
+                    ? 'text-[#0B1220] bg-slate-100/80 font-extrabold'
+                    : 'text-slate-700 hover:text-[#0B1220] hover:bg-slate-50'
                 }`}
               >
                 <span>{t('nav.trips', 'Trips')}</span>
@@ -373,8 +373,8 @@ export const Navbar: React.FC = () => {
               </button>
 
               {activeDropdown === 'trips' && (
-                <div className="absolute top-full left-0 mt-1 w-80 bg-white rounded-2xl shadow-luxury border border-slate-200/90 p-2.5 z-50 animate-in fade-in slide-in-from-top-1">
-                  <div className="space-y-1">
+                <div className="absolute top-full left-0 mt-1 w-88 bg-white rounded-2xl shadow-luxury border border-slate-200/90 p-3 z-50 animate-in fade-in slide-in-from-top-1">
+                  <div className="space-y-1.5">
                     {tripsLinks.map((item) => {
                       const Icon = item.icon;
                       const active = isLinkActive(item.href);
@@ -383,7 +383,7 @@ export const Navbar: React.FC = () => {
                           key={item.href}
                           to={item.href}
                           onClick={() => setActiveDropdown(null)}
-                          className={`flex items-start gap-3 p-2.5 rounded-xl transition-all ${
+                          className={`flex items-start gap-3.5 p-2.5 rounded-xl transition-all ${
                             active ? 'bg-slate-50 text-[#0B1220]' : 'hover:bg-slate-50 text-slate-700'
                           }`}
                         >
@@ -391,8 +391,8 @@ export const Navbar: React.FC = () => {
                             <Icon className="w-4 h-4" />
                           </div>
                           <div>
-                            <div className="text-xs font-bold text-[#0B1220]">{item.label}</div>
-                            <p className="text-[11px] text-slate-500 leading-snug">{item.desc}</p>
+                            <div className="text-sm font-bold text-[#0B1220]">{item.label}</div>
+                            <p className="text-xs text-slate-500 leading-snug mt-0.5">{item.desc}</p>
                           </div>
                         </Link>
                       );
@@ -411,10 +411,10 @@ export const Navbar: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setActiveDropdown(activeDropdown === 'budget' ? null : 'budget')}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm sm:text-[15px] font-bold transition-all ${
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-base font-bold transition-all ${
                   activeDropdown === 'budget' || isGroupActive(budgetLinks)
-                    ? 'text-[#0B1220] bg-slate-50 font-extrabold'
-                    : 'text-slate-600 hover:text-[#0B1220] hover:bg-slate-50/80'
+                    ? 'text-[#0B1220] bg-slate-100/80 font-extrabold'
+                    : 'text-slate-700 hover:text-[#0B1220] hover:bg-slate-50'
                 }`}
               >
                 <span>{t('nav.budget', 'Budget')}</span>
@@ -422,8 +422,8 @@ export const Navbar: React.FC = () => {
               </button>
 
               {activeDropdown === 'budget' && (
-                <div className="absolute top-full left-0 mt-1 w-80 bg-white rounded-2xl shadow-luxury border border-slate-200/90 p-2.5 z-50 animate-in fade-in slide-in-from-top-1">
-                  <div className="space-y-1">
+                <div className="absolute top-full left-0 mt-1 w-88 bg-white rounded-2xl shadow-luxury border border-slate-200/90 p-3 z-50 animate-in fade-in slide-in-from-top-1">
+                  <div className="space-y-1.5">
                     {budgetLinks.map((item) => {
                       const Icon = item.icon;
                       const active = isLinkActive(item.href);
@@ -432,7 +432,7 @@ export const Navbar: React.FC = () => {
                           key={item.href}
                           to={item.href}
                           onClick={() => setActiveDropdown(null)}
-                          className={`flex items-start gap-3 p-2.5 rounded-xl transition-all ${
+                          className={`flex items-start gap-3.5 p-2.5 rounded-xl transition-all ${
                             active ? 'bg-slate-50 text-[#0B1220]' : 'hover:bg-slate-50 text-slate-700'
                           }`}
                         >
@@ -440,8 +440,8 @@ export const Navbar: React.FC = () => {
                             <Icon className="w-4 h-4" />
                           </div>
                           <div>
-                            <div className="text-xs font-bold text-[#0B1220]">{item.label}</div>
-                            <p className="text-[11px] text-slate-500 leading-snug">{item.desc}</p>
+                            <div className="text-sm font-bold text-[#0B1220]">{item.label}</div>
+                            <p className="text-xs text-slate-500 leading-snug mt-0.5">{item.desc}</p>
                           </div>
                         </Link>
                       );

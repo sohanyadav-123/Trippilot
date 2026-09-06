@@ -27,14 +27,14 @@ export const Footer: React.FC = () => {
           <div className="lg:col-span-2 space-y-4">
             <Link to="/" className="flex items-center gap-3">
               <TripPilotLogo size={50} />
-              <div className="flex flex-col">
+              <div className="flex flex-col justify-center">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-2xl font-black tracking-tight text-white leading-none">
+                  <span className="text-2xl font-black tracking-tight text-white leading-tight">
                     TripPilot
                   </span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#C8A96B] mb-0.5" />
+                  <span className="w-2 h-2 rounded-full bg-[#C8A96B]" />
                 </div>
-                <span className="text-[8.5px] tracking-[0.2em] text-[#C8A96B] uppercase font-bold mt-1">
+                <span className="text-[10.5px] tracking-[0.2em] text-[#C8A96B] uppercase font-bold mt-0.5">
                   INTELLIGENT TRAVEL
                 </span>
               </div>
