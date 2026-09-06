@@ -210,18 +210,42 @@ export const WeatherPage: React.FC = () => {
               <div className="absolute left-4 pointer-events-none" style={{ color: 'var(--text-faint)' }}>
                 <Search className="w-5 h-5" />
               </div>
-              <input
-                type="text"
-                value={cityInput}
-                onChange={(e) => setCityInput(e.target.value)}
-                placeholder="Search any destination (e.g. Goa, Manali, Paris, Tokyo, London)..."
-                className="w-full pl-12 pr-32 py-3.5 rounded-2xl text-sm font-medium focus:outline-none transition-all"
-                style={{
-                  backgroundColor: 'var(--input-bg)',
-                  border: '1px solid var(--input-border)',
-                  color: 'var(--input-text)',
-                }}
-              />
+                              <input
+                  type="text"
+                  value={cityInput}
+                  onChange={handleInputChange}
+                  placeholder="Search any destination (e.g. Goa, Manali, Paris, Tokyo, London)..."
+                  className="w-full pl-12 pr-32 py-3.5 rounded-2xl text-sm font-medium focus:outline-none transition-all"
+                  style={{
+                    backgroundColor: 'var(--input-bg)',
+                    border: '1px solid var(--input-border)',
+                    color: 'var(--input-text)',
+                  }}
+                />
+                {/* Autocomplete suggestions */}
+                {suggestions.length > 0 && (
+                  <ul
+                    className="absolute left-0 right-0 top-full mt-1 rounded-xl shadow-lg z-10"
+                    style={{
+                      backgroundColor: 'var(--bg-surface-3)',
+                      border: '1px solid var(--border-base)',
+                    }}
+                  >
+                    {suggestions.map((s) => (
+                      <li
+                        key={s}
+                        className="px-4 py-2 cursor-pointer"
+                        style={{
+                          color: 'var(--text-primary)',
+                        }}
+                        onClick={() => handleSuggestionClick(s)}
+                        onMouseDown={(e) => e.preventDefault()}
+                      >
+                        {s}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               <button
                 type="submit"
                 className="absolute right-2 px-5 py-2 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] hover:from-blue-600 hover:to-blue-700 text-white text-xs font-bold transition-all shadow-md"
