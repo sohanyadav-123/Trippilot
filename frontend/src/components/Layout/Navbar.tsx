@@ -35,6 +35,7 @@ import { useCart } from '../../hooks/useCart';
 import { useWishlist } from '../../context/WishlistContext';
 import { useTravelSettings, LanguageCode, TravelMode } from '../../context/TravelSettingsContext';
 import { useTheme } from '../../context/ThemeContext';
+import { ThemeToggleSwitch } from '../Common/ThemeToggleSwitch';
 
 export const Navbar: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
@@ -686,20 +687,10 @@ export const Navbar: React.FC = () => {
               )}
             </Link>
 
-            {/* Theme Toggle Button (Light / Dark) */}
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="p-2 rounded-xl border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition-all flex items-center justify-center"
-              title={theme === 'dark' ? 'Switch to Bright Theme' : 'Switch to Dark Theme'}
-              aria-label="Toggle theme"
-            >
-              {theme === 'dark' ? (
-                <Sun className="w-4 h-4 text-amber-400 hover:rotate-45 transition-transform" />
-              ) : (
-                <Moon className="w-4 h-4 text-slate-700 hover:-rotate-12 transition-transform" />
-              )}
-            </button>
+            {/* Theme Toggle Slide Switch (Light / Dark) */}
+            <div className="flex items-center">
+              <ThemeToggleSwitch />
+            </div>
 
             {/* User Profile / Auth Button */}
             {isAuthenticated ? (
@@ -840,19 +831,12 @@ export const Navbar: React.FC = () => {
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
           <div className="xl:hidden mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 space-y-4 pb-4 animate-in fade-in">
-            {/* Mobile Theme Toggle */}
+            {/* Mobile Theme Toggle Slide Switch */}
             <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-100 dark:border-slate-700">
-              <span className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
-                {theme === 'dark' ? <Moon className="w-4 h-4 text-amber-400" /> : <Sun className="w-4 h-4 text-amber-500" />}
-                <span>{theme === 'dark' ? 'Dark Theme' : 'Bright Theme'}</span>
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                Theme Mode
               </span>
-              <button
-                type="button"
-                onClick={toggleTheme}
-                className="px-3 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-600 shadow-xs flex items-center gap-1.5"
-              >
-                {theme === 'dark' ? 'Switch to Bright' : 'Switch to Dark'}
-              </button>
+              <ThemeToggleSwitch showLabel />
             </div>
 
             {/* Mobile Travel Mode Selection */}
