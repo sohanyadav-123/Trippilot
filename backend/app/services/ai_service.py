@@ -5,6 +5,7 @@ The GROK_API_KEY is read server-side only. Never exposed to frontend.
 import json
 import re
 import logging
+import httpx
 from typing import Optional
 from config import current_config
 
@@ -45,44 +46,66 @@ def _clean_json_text(text: str) -> str:
 
 def _call_grok(system_prompt: str, user_message: str, json_mode: bool = True) -> Optional[dict]:
     client = _get_client()
-    if not client:
-        return None
-
-    # Groq requires the word 'json' in messages when json_object response format is active
+    # Ensure the request mentions JSON when needed
     if json_mode and "json" not in system_prompt.lower() and "json" not in user_message.lower():
         user_message += "\nRespond ONLY in valid JSON format."
 
     models_to_try = [current_config.GROK_MODEL, "openai/gpt-oss-20b"]
-
-    for model_name in models_to_try:
-        try:
-            messages = [
+    # First, try using the OpenAI client (if it was created successfully)
+    if client:
+        for model_name in models_to_try:
+            try:
+                messages = [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_message},
+                ]
+                kwargs = {
+                    "model": model_name,
+                    "messages": messages,
+                    "max_tokens": 2048,
+                    "temperature": 0.7,
+                }
+                if json_mode:
+                    kwargs["response_format"] = {"type": "json_object"}
+                response = client.chat.completions.create(**kwargs)
+                content = response.choices[0].message.content
+                if not content:
+                    continue
+                if json_mode:
+                    cleaned = _clean_json_text(content)
+                    return json.loads(cleaned)
+                return {"text": content}
+            except Exception as e:
+                logger.warning(f"Groq API call with model {model_name} via OpenAI client failed: {e}. Trying next model/fallback.")
+                continue
+    # If the OpenAI client failed (or was not created), fall back to a direct HTTP request using httpx
+    try:
+        url = f"{current_config.GROK_BASE_URL.rstrip('/')}/chat/completions"
+        headers = {"Authorization": f"Bearer {current_config.GROK_API_KEY}", "Content-Type": "application/json"}
+        payload = {
+            "model": models_to_try[0],
+            "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_message},
-            ]
-            kwargs = {
-                "model": model_name,
-                "messages": messages,
-                "max_tokens": 2048,
-                "temperature": 0.7,
-            }
-            if json_mode:
-                kwargs["response_format"] = {"type": "json_object"}
-
-            response = client.chat.completions.create(**kwargs)
-            content = response.choices[0].message.content
-            if not content:
-                continue
-
-            if json_mode:
-                cleaned = _clean_json_text(content)
-                return json.loads(cleaned)
-            return {"text": content}
-        except Exception as e:
-            logger.warning(f"Groq API call with {model_name} failed: {e}. Trying fallback if available.")
-            continue
-
-    return None
+            ],
+            "max_tokens": 2048,
+            "temperature": 0.7,
+        }
+        if json_mode:
+            payload["response_format"] = {"type": "json_object"}
+        response = httpx.post(url, headers=headers, json=payload, timeout=30.0)
+        response.raise_for_status()
+        data = response.json()
+        content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+        if not content:
+            return None
+        if json_mode:
+            cleaned = _clean_json_text(content)
+            return json.loads(cleaned)
+        return {"text": content}
+    except Exception as e:
+        logger.error(f"Direct HTTP call to Groq failed: {e}")
+        return None
 
 
 # ── Destination Recommendations ──────────────────────────────────────────────
