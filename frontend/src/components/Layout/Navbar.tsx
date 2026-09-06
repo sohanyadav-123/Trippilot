@@ -121,17 +121,6 @@ export const Navbar: React.FC = () => {
     { code: 'en', label: 'English', flag: '🇬🇧' },
     { code: 'hi', label: 'हिन्दी (Hindi)', flag: '🇮🇳' },
     { code: 'te', label: 'తెలుగు (Telugu)', flag: '🇮🇳' },
-    { code: 'ta', label: 'தமிழ் (Tamil)', flag: '🇮🇳' },
-    { code: 'kn', label: 'ಕನ್ನಡ (Kannada)', flag: '🇮🇳' },
-    { code: 'ml', label: 'മലയാളം (Malayalam)', flag: '🇮🇳' },
-    { code: 'bn', label: 'বাংলা (Bengali)', flag: '🇮🇳' },
-    { code: 'mr', label: 'मराठी (Marathi)', flag: '🇮🇳' },
-    { code: 'gu', label: 'ગુજરાતી (Gujarati)', flag: '🇮🇳' },
-    { code: 'pa', label: 'ਪੰਜਾਬੀ (Punjabi)', flag: '🇮🇳' },
-    { code: 'es', label: 'Español', flag: '🇪🇸' },
-    { code: 'fr', label: 'Français', flag: '🇫🇷' },
-    { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
-    { code: 'ar', label: 'العربية (Arabic)', flag: '🇦🇪' },
   ];
 
   const travelModes: { mode: TravelMode; key: string; icon: React.FC<{ className?: string }>; descKey: string }[] = [

@@ -3,21 +3,7 @@ import { authService } from '../services/authService';
 import { TRANSLATIONS } from '../i18n/translations';
 import { translatePlace, translateRoute, normalizePlaceKey, PLACE_TRANSLATIONS } from '../i18n/places';
 
-export type LanguageCode =
-  | 'en'
-  | 'hi'
-  | 'te'
-  | 'ta'
-  | 'kn'
-  | 'ml'
-  | 'bn'
-  | 'mr'
-  | 'gu'
-  | 'pa'
-  | 'es'
-  | 'fr'
-  | 'de'
-  | 'ar';
+export type LanguageCode = 'en' | 'hi' | 'te';
 export type TravelMode = 'standard' | 'family' | 'accessibility';
 
 export interface SmartNotification {
@@ -136,7 +122,8 @@ const TravelSettingsContext = createContext<TravelSettingsContextType | undefine
 
 export const TravelSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<LanguageCode>(() => {
-    return (localStorage.getItem('trippilot_language') as LanguageCode) || 'en';
+    const saved = localStorage.getItem('trippilot_language') as LanguageCode;
+    return saved && ['en', 'hi', 'te'].includes(saved) ? saved : 'en';
   });
 
   const [travelMode, setTravelModeState] = useState<TravelMode>(() => {
@@ -152,11 +139,11 @@ export const TravelSettingsProvider: React.FC<{ children: React.ReactNode }> = (
     }
   });
 
-  // Apply RTL direction and document language automatically
+  // Apply document language automatically
   useEffect(() => {
     if (typeof document !== 'undefined') {
       document.documentElement.lang = language;
-      document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
+      document.documentElement.dir = 'ltr';
     }
   }, [language]);
 
@@ -169,7 +156,7 @@ export const TravelSettingsProvider: React.FC<{ children: React.ReactNode }> = (
           const res = await authService.getMe();
           if (res.success && res.data && res.data.preferences) {
             const prefs = res.data.preferences as any;
-            if (prefs.language && ['en', 'hi', 'es', 'fr', 'de', 'ar', 'ta', 'te'].includes(prefs.language)) {
+            if (prefs.language && ['en', 'hi', 'te'].includes(prefs.language)) {
               setLanguageState(prefs.language);
               localStorage.setItem('trippilot_language', prefs.language);
             }

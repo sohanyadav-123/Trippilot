@@ -314,17 +314,6 @@ export const Home: React.FC = () => {
                 <option value="en">🌐 English</option>
                 <option value="hi">🌐 हिन्दी (Hindi)</option>
                 <option value="te">🌐 తెలుగు (Telugu)</option>
-                <option value="ta">🌐 தமிழ் (Tamil)</option>
-                <option value="kn">🌐 ಕನ್ನಡ (Kannada)</option>
-                <option value="ml">🌐 മലയാളം (Malayalam)</option>
-                <option value="bn">🌐 বাংলা (Bengali)</option>
-                <option value="mr">🌐 मराठी (Marathi)</option>
-                <option value="gu">🌐 ગુજરાતી (Gujarati)</option>
-                <option value="pa">🌐 ਪੰਜਾਬੀ (Punjabi)</option>
-                <option value="es">🌐 Español</option>
-                <option value="fr">🌐 Français</option>
-                <option value="de">🌐 Deutsch</option>
-                <option value="ar">🌐 العربية (Arabic)</option>
               </select>
             </div>
           </div>
