@@ -14,6 +14,24 @@
     <title>TripPilot AI — Intelligent Travel Planning</title>
   </head>
   <body>
+    <!-- ── Flash-Of-Wrong-Theme Prevention ── -->
+    <!-- Must run synchronously before any render so the correct theme class
+         is already on <html> when CSS is first parsed. -->
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('trippilot_theme');
+          var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var theme = saved || (prefersDark ? 'dark' : 'light');
+          if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {}
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
