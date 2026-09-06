@@ -212,7 +212,7 @@ export const Navbar: React.FC = () => {
           </Link>
 
           {/* ─── 2. CENTER: STREAMLINED 4-PILLAR NAVIGATION ─── */}
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className="hidden xl:flex items-center gap-1">
             {/* EXPLORE Dropdown */}
             <div
               className="relative"
@@ -810,7 +810,7 @@ export const Navbar: React.FC = () => {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50"
+              className="xl:hidden p-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50"
               aria-label="Toggle mobile menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -820,7 +820,7 @@ export const Navbar: React.FC = () => {
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="lg:hidden mt-3 pt-3 border-t border-slate-200 space-y-4 pb-4 animate-in fade-in">
+          <div className="xl:hidden mt-3 pt-3 border-t border-slate-200 space-y-4 pb-4 animate-in fade-in">
             {/* Mobile Travel Mode Selection */}
             <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">

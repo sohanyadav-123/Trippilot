@@ -53,7 +53,7 @@ export const Home: React.FC = () => {
       inclusions: ['5★ Beach Resort', 'Daily Buffet Breakfast', 'South Goa Private Tour', 'Airport Transfers'],
       theme: 'Luxury',
       highlights: ['Baga Beach', 'Private Pool', 'Dolphin Tour'],
-      tag: 'Best Seller',
+      tag: t('tag.best_seller', 'Best Seller'),
     },
     {
       id: 'pkg-2',
@@ -69,7 +69,7 @@ export const Home: React.FC = () => {
       inclusions: ['4★ City Hotel', 'Desert Safari + BBQ Dinner', 'Burj Khalifa At The Top', 'Marina Dhow Cruise'],
       theme: 'Luxury',
       highlights: ['Burj Khalifa', 'Desert Safari', 'Dubai Mall'],
-      tag: 'Trending',
+      tag: t('tag.trending', 'Trending'),
     },
     {
       id: 'pkg-3',
@@ -205,7 +205,7 @@ export const Home: React.FC = () => {
     {
       city: 'Goa',
       country: 'India',
-      tag: 'Sun, Sand & Heritage',
+      tag: t('trending.goa.tag', 'Sun, Sand & Heritage'),
       startingPrice: 3499,
       bestSeason: 'Nov – Mar',
       image: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=800&auto=format&fit=crop&q=80',
@@ -214,7 +214,7 @@ export const Home: React.FC = () => {
     {
       city: 'Dubai',
       country: 'United Arab Emirates',
-      tag: 'Futuristic Luxury & Skylines',
+      tag: t('trending.dubai.tag', 'Futuristic Luxury & Skylines'),
       startingPrice: 10999,
       bestSeason: 'Oct – Apr',
       image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&auto=format&fit=crop&q=80',
@@ -223,7 +223,7 @@ export const Home: React.FC = () => {
     {
       city: 'Bali',
       country: 'Indonesia',
-      tag: 'Tropical Villas & Waterfalls',
+      tag: t('trending.bali.tag', 'Tropical Villas & Waterfalls'),
       startingPrice: 15499,
       bestSeason: 'Apr – Oct',
       image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&auto=format&fit=crop&q=80',
@@ -232,7 +232,7 @@ export const Home: React.FC = () => {
     {
       city: 'Singapore',
       country: 'Singapore',
-      tag: 'Gardens, Cuisine & Marina Bay',
+      tag: t('trending.singapore.tag', 'Gardens, Cuisine & Marina Bay'),
       startingPrice: 12999,
       bestSeason: 'Year-round',
       image: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=800&auto=format&fit=crop&q=80',
@@ -241,7 +241,7 @@ export const Home: React.FC = () => {
     {
       city: 'Paris',
       country: 'France',
-      tag: 'Art, Cafes & Architecture',
+      tag: t('trending.paris.tag', 'Art, Cafes & Architecture'),
       startingPrice: 28999,
       bestSeason: 'Apr – Jun',
       image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&auto=format&fit=crop&q=80',
@@ -250,7 +250,7 @@ export const Home: React.FC = () => {
     {
       city: 'Maldives',
       country: 'Maldives',
-      tag: 'Overwater Bungalows & Reefs',
+      tag: t('trending.maldives.tag', 'Overwater Bungalows & Reefs'),
       startingPrice: 34999,
       bestSeason: 'Dec – Apr',
       image: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=800&auto=format&fit=crop&q=80',
@@ -561,50 +561,50 @@ export const Home: React.FC = () => {
           {[
             {
               type: 'STAY',
-              title: 'Taj Exotica Resort & Spa',
-              location: 'South Goa, India',
+              title: t('picks.stay.title', 'Taj Exotica Resort & Spa'),
+              location: tPlace('South Goa, India'),
               image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&auto=format&fit=crop&q=80',
               rating: 4.9,
               price: 14500,
-              priceUnit: '/ night',
-              rationale: 'Matches your budget & 1.2 km from private beach',
-              badge: 'Luxury Villa',
+              priceUnit: t('picks.price_unit_night', '/ night'),
+              rationale: t('picks.stay.rationale', 'Matches your budget & 1.2 km from private beach'),
+              badge: t('picks.stay.badge', 'Luxury Villa'),
               link: '/hotels?city=Goa',
             },
             {
               type: 'ACTIVITY',
-              title: 'Red Dune Desert Safari & BBQ',
-              location: 'Lahbab Desert, Dubai',
+              title: t('picks.activity.title', 'Red Dune Desert Safari & BBQ'),
+              location: tPlace('Lahbab Desert, Dubai'),
               image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&auto=format&fit=crop&q=80',
               rating: 4.9,
               price: 3450,
-              priceUnit: '/ person',
-              rationale: 'Popular with families • 5★ Buffet included',
-              badge: 'Top Experience',
+              priceUnit: t('picks.price_unit_person', '/ person'),
+              rationale: t('picks.activity.rationale', 'Popular with families • 5★ Buffet included'),
+              badge: t('picks.activity.badge', 'Top Experience'),
               link: '/activities',
             },
             {
               type: 'DINING',
-              title: 'Thalassa Greek Taverna',
-              location: 'Vagator Cliff, Goa',
+              title: t('picks.dining.title', 'Thalassa Greek Taverna'),
+              location: tPlace('Vagator Cliff, Goa'),
               image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&auto=format&fit=crop&q=80',
               rating: 4.9,
               price: 2200,
-              priceUnit: 'avg for two',
-              rationale: 'Iconic sunset views • High local rating',
-              badge: 'Romantic Dinner',
+              priceUnit: t('picks.price_unit_two', 'avg for two'),
+              rationale: t('picks.dining.rationale', 'Iconic sunset views • High local rating'),
+              badge: t('picks.dining.badge', 'Romantic Dinner'),
               link: '/restaurants',
             },
             {
               type: 'GEM',
-              title: 'Fontainhas Heritage Bakery Walk',
-              location: 'Old Latin Quarter, Panjim',
+              title: t('picks.gem.title', 'Fontainhas Heritage Bakery Walk'),
+              location: tPlace('Old Latin Quarter, Panjim'),
               image: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=800&auto=format&fit=crop&q=80',
               rating: 4.8,
               price: 0,
-              priceUnit: 'Free walk',
-              rationale: 'Uncrowded authentic spot • 18th-century charm',
-              badge: 'Hidden Gem',
+              priceUnit: t('picks.price_unit_free', 'Free walk'),
+              rationale: t('picks.gem.rationale', 'Uncrowded authentic spot • 18th-century charm'),
+              badge: t('picks.gem.badge', 'Hidden Gem'),
               link: '/hidden-gems',
             },
           ].map((item) => (
@@ -639,7 +639,7 @@ export const Home: React.FC = () => {
 
                   {/* Rationale pill */}
                   <div className="p-2 rounded-lg bg-slate-50 border border-slate-100 text-[10.5px] text-slate-600 leading-snug">
-                    <span className="text-[#C8A96B] font-bold">Why it fits: </span>
+                    <span className="text-[#C8A96B] font-bold">{t('picks.why_it_fits', 'Why it fits:')} </span>
                     {item.rationale}
                   </div>
                 </div>
@@ -775,20 +775,20 @@ export const Home: React.FC = () => {
               <div className="w-9 h-9 rounded-xl bg-slate-100 text-[#0B1220] flex items-center justify-center">
                 <Navigation className="w-4 h-4" />
               </div>
-              <h3 className="text-base font-bold text-[#0B1220]">Smart Route & Transit Optimization</h3>
+              <h3 className="text-base font-bold text-[#0B1220]">{t('intel.route.title', 'Smart Route & Transit Optimization')}</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Automatically calculates shortest transit paths between beaches, heritage forts, and dining spots to minimize cross-city road travel.
+                {t('intel.route.desc', 'Automatically calculates shortest transit paths between beaches, heritage forts, and dining spots to minimize cross-city road travel.')}
               </p>
 
               <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 text-xs space-y-2">
                 <div className="flex items-center justify-between font-bold text-[#0B1220]">
-                  <span>Day 1: North Goa Coastal Path</span>
+                  <span>{t('intel.route.day1', 'Day 1: North Goa Coastal Path')}</span>
                   <span className="text-[#158A6A] font-bold bg-[#F0FDF4] px-2 py-0.5 rounded border border-[#BBF7D0]">
-                    Saves 35 mins
+                    {t('intel.route.saves', 'Saves 35 mins')}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-[11px] text-slate-500">
-                  <span>Hotel</span> → <span>Fort Aguada</span> → <span>Baga Beach</span> → <span>Waterfront Dinner</span>
+                  <span>{t('intel.route.loc1', 'Hotel')}</span> → <span>{t('intel.route.loc2', 'Fort Aguada')}</span> → <span>{t('intel.route.loc3', 'Baga Beach')}</span> → <span>{t('intel.route.loc4', 'Waterfront Dinner')}</span>
                 </div>
               </div>
             </div>
@@ -797,7 +797,7 @@ export const Home: React.FC = () => {
               to="/ai-planner?destination=Goa"
               className="text-xs font-bold text-[#0B1220] hover:text-[#2563EB] inline-flex items-center gap-1 pt-2"
             >
-              <span>Try Route Optimizer in AI Planner</span>
+              <span>{t('intel.route.link', 'Try Route Optimizer in AI Planner')}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -808,20 +808,20 @@ export const Home: React.FC = () => {
               <div className="w-9 h-9 rounded-xl bg-slate-100 text-[#0B1220] flex items-center justify-center">
                 <CloudSun className="w-4 h-4" />
               </div>
-              <h3 className="text-base font-bold text-[#0B1220]">Weather-Aware Adaptive Planning</h3>
+              <h3 className="text-base font-bold text-[#0B1220]">{t('intel.weather.title', 'Weather-Aware Adaptive Planning')}</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Intelligently detects sudden afternoon coastal showers and suggests moving outdoor watersports to morning with indoor heritage galleries in the afternoon.
+                {t('intel.weather.desc', 'Intelligently detects sudden afternoon coastal showers and suggests moving outdoor watersports to morning with indoor heritage galleries in the afternoon.')}
               </p>
 
               <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 text-xs space-y-1.5">
                 <div className="flex items-center justify-between font-bold text-[#0B1220]">
-                  <span>Rain Forecast Advisory</span>
+                  <span>{t('intel.weather.advisory', 'Rain Forecast Advisory')}</span>
                   <span className="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded font-bold">
-                    Automatic Suggestion
+                    {t('intel.weather.badge', 'Automatic Suggestion')}
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-600">
-                  "Shifted parasailing to 10:00 AM. Scheduled Museum of Goa for 03:00 PM."
+                  {t('intel.weather.quote', '"Shifted parasailing to 10:00 AM. Scheduled Museum of Goa for 03:00 PM."')}
                 </p>
               </div>
             </div>
@@ -830,7 +830,7 @@ export const Home: React.FC = () => {
               to="/ai-planner?destination=Goa"
               className="text-xs font-bold text-[#0B1220] hover:text-[#2563EB] inline-flex items-center gap-1 pt-2"
             >
-              <span>Explore Weather-Aware Blueprints</span>
+              <span>{t('intel.weather.link', 'Explore Weather-Aware Blueprints')}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -841,18 +841,18 @@ export const Home: React.FC = () => {
               <div className="w-9 h-9 rounded-xl bg-slate-100 text-[#0B1220] flex items-center justify-center">
                 <TrendingDown className="w-4 h-4" />
               </div>
-              <h3 className="text-base font-bold text-[#0B1220]">AI Budget Optimizer & Smart Swaps</h3>
+              <h3 className="text-base font-bold text-[#0B1220]">{t('intel.budget.title', 'AI Budget Optimizer & Smart Swaps')}</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Pinpoints budget-heavy categories and recommends 1-click alternative flight slots or vetted luxury stays with identical ratings to save thousands.
+                {t('intel.budget.desc', 'Pinpoints budget-heavy categories and recommends 1-click alternative flight slots or vetted luxury stays with identical ratings to save thousands.')}
               </p>
 
               <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 text-xs flex items-center justify-between">
                 <div>
-                  <span className="font-bold text-[#0B1220] block">Recommended Alternative</span>
-                  <span className="text-[11px] text-slate-600">Switch to Heritage Boutique Resort & Spa</span>
+                  <span className="font-bold text-[#0B1220] block">{t('intel.budget.alt', 'Recommended Alternative')}</span>
+                  <span className="text-[11px] text-slate-600">{t('intel.budget.alt_desc', 'Switch to Heritage Boutique Resort & Spa')}</span>
                 </div>
                 <span className="font-black text-sm text-[#158A6A] bg-white px-2.5 py-1 rounded-xl border border-slate-200 shadow-xs">
-                  Save ₹4,500
+                  {t('intel.budget.save', 'Save ₹4,500')}
                 </span>
               </div>
             </div>
@@ -861,7 +861,7 @@ export const Home: React.FC = () => {
               to="/budget"
               className="text-xs font-bold text-[#0B1220] hover:text-[#2563EB] inline-flex items-center gap-1 pt-2"
             >
-              <span>Open Budget Optimization Hub</span>
+              <span>{t('intel.budget.link', 'Open Budget Optimization Hub')}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -872,14 +872,14 @@ export const Home: React.FC = () => {
               <div className="w-9 h-9 rounded-xl bg-slate-100 text-[#0B1220] flex items-center justify-center">
                 <Users className="w-4 h-4" />
               </div>
-              <h3 className="text-base font-bold text-[#0B1220]">Collaborative Group Trips & Voting</h3>
+              <h3 className="text-base font-bold text-[#0B1220]">{t('intel.group.title', 'Collaborative Group Trips & Voting')}</h3>
               <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 text-xs space-y-1.5">
                 <div className="flex items-center justify-between font-bold text-[#0B1220]">
-                  <span>Day 2 Activity Poll: Winner</span>
-                  <span className="text-[10px] text-[#158A6A] font-bold">4 of 5 Votes</span>
+                  <span>{t('intel.group.poll', 'Day 2 Activity Poll: Winner')}</span>
+                  <span className="text-[10px] text-[#158A6A] font-bold">{t('intel.group.votes', '4 of 5 Votes')}</span>
                 </div>
                 <p className="text-[11px] text-slate-600">
-                  "Grande Island Dolphin Sightseeing & Sunset Cruise"
+                  {t('intel.group.quote', '"Grande Island Dolphin Sightseeing & Sunset Cruise"')}
                 </p>
               </div>
             </div>
@@ -888,7 +888,7 @@ export const Home: React.FC = () => {
               to="/ai-planner?tab=group"
               className="text-xs font-bold text-[#0B1220] hover:text-[#2563EB] inline-flex items-center gap-1 pt-2"
             >
-              <span>Collaborate on Group Trips</span>
+              <span>{t('intel.group.link', 'Collaborate on Group Trips')}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>

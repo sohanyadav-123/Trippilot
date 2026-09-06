@@ -7,7 +7,7 @@ const __dirname = path.dirname(decodeURIComponent(new URL(import.meta.url).pathn
 const localesDir = path.resolve(__dirname, '..', 'src', 'i18n', 'locales');
 console.log('Locales directory resolved to:', localesDir);
 const sourceLang = 'en';
-const targetLangs = ['ar', 'bn', 'de', 'es', 'fr', 'gu', 'hi', 'kn', 'ml', 'mr', 'pa', 'ta', 'te']; // exclude en
+const targetLangs = ['hi']; // exclude en
 const apiUrl = 'https://libretranslate.com/translate';
 
 // Helper to parse a locale file into a plain object
