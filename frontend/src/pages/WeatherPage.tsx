@@ -54,7 +54,7 @@ export const WeatherPage: React.FC = () => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const [suggestions, setSuggestions] = useState<string[]>([]);
   const fetchWeather = async (targetCity: string) => {
     setLoading(true);
     setError(null);
@@ -76,12 +76,59 @@ export const WeatherPage: React.FC = () => {
     fetchWeather(selectedCity);
   }, [selectedCity]);
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setCityInput(val);
+    if (val.trim().length > 0) {
+      const lower = val.toLowerCase();
+      const matches = POPULAR_DESTINATIONS.filter((d) =>
+        d.toLowerCase().startsWith(lower)
+      );
+      setSuggestions(matches.slice(0, 5));
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+  const handleSuggestionClick = (city: string) => {
+    setCityInput(city);
+    setSuggestions([]);
+    setSelectedCity(city);
+    setSearchParams({ city });
+  };
+
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!cityInput.trim()) return;
     const clean = cityInput.trim();
-    setSelectedCity(clean);
-    setSearchParams({ city: clean });
+    // Auto-correct: find closest match from popular destinations
+    const lower = clean.toLowerCase();
+    let corrected = clean;
+    let bestDist = Infinity;
+    for (const dest of POPULAR_DESTINATIONS) {
+      const dl = dest.toLowerCase();
+      if (dl === lower) { corrected = dest; bestDist = 0; break; }
+      // Simple Levenshtein
+      const a = lower, b = dl;
+      const matrix: number[][] = Array.from({ length: a.length + 1 }, () => []);
+      for (let i = 0; i <= a.length; i++) matrix[i][0] = i;
+      for (let j = 0; j <= b.length; j++) matrix[0][j] = j;
+      for (let i = 1; i <= a.length; i++) {
+        for (let j = 1; j <= b.length; j++) {
+          matrix[i][j] = a[i-1] === b[j-1]
+            ? matrix[i-1][j-1]
+            : Math.min(matrix[i-1][j]+1, matrix[i][j-1]+1, matrix[i-1][j-1]+1);
+        }
+      }
+      const dist = matrix[a.length][b.length];
+      if (dist < bestDist && dist <= 2) {
+        bestDist = dist;
+        corrected = dest;
+      }
+    }
+    setSuggestions([]);
+    setSelectedCity(corrected);
+    setSearchParams({ city: corrected });
   };
 
   const handleSelectQuickCity = (city: string) => {
