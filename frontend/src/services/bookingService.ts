@@ -51,4 +51,9 @@ export const bookingService = {
     }>>('/bookings/calculate', { selected_items, travellers });
     return res.data;
   },
+
+  async getLiveStatus(id: string) {
+    const res = await api.get<ApiResponse<any>>(`/bookings/${id}/live-status`);
+    return res.data;
+  },
 };

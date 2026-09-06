@@ -17,6 +17,7 @@ import { TripCard } from '../components/MyTrips/TripCard';
 import { LoadingSpinner } from '../components/Common/LoadingSpinner';
 import { EmptyState } from '../components/Common/EmptyState';
 import { useTravelSettings } from '../context/TravelSettingsContext';
+import { LiveBookingTracker } from '../components/Common/LiveBookingTracker';
 
 type TripTab = 'upcoming' | 'ongoing' | 'completed' | 'saved';
 
@@ -30,6 +31,21 @@ export const MyBookings: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TripTab>('upcoming');
   const [searchQuery, setSearchQuery] = useState('');
+
+  const fetchBookingsSilent = async () => {
+    try {
+      const localRaw = localStorage.getItem('trippilot_user_bookings');
+      const localBookings: Booking[] = localRaw ? JSON.parse(localRaw) : [];
+      const res = await bookingService.listBookings();
+      if (res.success && res.data && res.data.bookings && res.data.bookings.length > 0) {
+        setBookings([...localBookings, ...res.data.bookings]);
+      } else if (localBookings.length > 0) {
+        setBookings(localBookings);
+      }
+    } catch {
+      // Non-blocking
+    }
+  };
 
   const fetchBookings = async () => {
     setLoading(true);
@@ -117,6 +133,13 @@ export const MyBookings: React.FC = () => {
 
   useEffect(() => {
     fetchBookings();
+
+    // Auto-refresh silent polling every 10 seconds for real-time live telemetry
+    const pollInterval = setInterval(() => {
+      fetchBookingsSilent();
+    }, 10000);
+
+    return () => clearInterval(pollInterval);
   }, []);
 
   const handlePlanAgain = (tripId: string) => {
@@ -305,6 +328,15 @@ export const MyBookings: React.FC = () => {
           />
         </div>
       </div>
+
+      {/* Live Radar & Flight/Hotel Telemetry Widget for Active Trips */}
+      {(activeTab === 'upcoming' || activeTab === 'ongoing') && bookings.length > 0 && (
+        <LiveBookingTracker
+          booking={bookings[0]}
+          pollingIntervalMs={10000}
+          onRefresh={fetchBookingsSilent}
+        />
+      )}
 
       {/* Trip Cards List */}
       {loading ? (

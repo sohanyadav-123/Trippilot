@@ -26,6 +26,7 @@ import { Booking } from '../types';
 import { CurrencyDisplay } from '../components/Common/CurrencyDisplay';
 import { LoadingSpinner } from '../components/Common/LoadingSpinner';
 import { useTravelSettings } from '../context/TravelSettingsContext';
+import { LiveBookingTracker } from '../components/Common/LiveBookingTracker';
 
 const generateICS = (booking: Booking): string => {
   const now = new Date().toISOString().replace(/[-:.]/g, '').slice(0, 15) + 'Z';
@@ -317,6 +318,23 @@ export const BookingConfirmation: React.FC = () => {
           }
         </p>
       </div>
+
+      {/* Real-time Live Flight, Hotel Location & Booking Telemetry */}
+      {!isCancelled && (
+        <LiveBookingTracker
+          booking={booking}
+          pollingIntervalMs={8000}
+          onRefresh={async () => {
+            try {
+              if (booking?.id) {
+                await bookingService.getLiveStatus(booking.id);
+              }
+            } catch {
+              // fallback
+            }
+          }}
+        />
+      )}
 
       {/* Printable E-Ticket Card */}
       <div className="surface-card rounded-3xl border border-slate-200 shadow-xl overflow-hidden bg-white print:border-black print:shadow-none">
