@@ -33,6 +33,27 @@ import { searchService } from '../services/searchService';
 import { Destination, Offer, HolidayPackage } from '../types';
 import { CurrencyDisplay } from '../components/Common/CurrencyDisplay';
 import { useTravelSettings } from '../context/TravelSettingsContext';
+import { motion } from 'framer-motion';
+
+const heroContainerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.09,
+      delayChildren: 0.05,
+    },
+  },
+};
+
+const heroItemVariants = {
+  hidden: { opacity: 0, y: 22 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] },
+  },
+};
 
 export const Home: React.FC = () => {
   const { language, setLanguage, travelMode, setTravelMode, t, tPlace, tRoute } = useTravelSettings();
@@ -285,23 +306,28 @@ export const Home: React.FC = () => {
     <div className="space-y-16 sm:space-y-24 pb-20">
       {/* ─── 1. LUXURY EDITORIAL HERO & CENTRAL SEARCH ENGINE ─── */}
       <section className="relative pt-12 sm:pt-20 lg:pt-24 pb-8 sm:pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="text-center max-w-4xl mx-auto space-y-6 sm:space-y-7 mb-10 sm:mb-16">
-          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-slate-100 text-[#0B1220] text-xs sm:text-sm font-bold tracking-wider">
+        <motion.div
+          variants={heroContainerVariants}
+          initial="hidden"
+          animate="visible"
+          className="text-center max-w-4xl mx-auto space-y-6 sm:space-y-7 mb-10 sm:mb-16"
+        >
+          <motion.div variants={heroItemVariants} className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-slate-100 text-[#0B1220] text-xs sm:text-sm font-bold tracking-wider">
             <span className="w-2 h-2 rounded-full bg-[#C8A96B]" />
             <span>{t('hero.badge', 'INTELLIGENT TRAVEL ORCHESTRATION')}</span>
-          </div>
+          </motion.div>
 
-          <h1 className="font-editorial text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tight text-[#0B1220] leading-[1.08]">
+          <motion.h1 variants={heroItemVariants} className="font-editorial text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tight text-[#0B1220] leading-[1.08]">
             {t('hero.title_p1', 'Your journey,')} <br />
             <span className="italic font-normal">{t('hero.title_p2', 'beautifully planned.')}</span>
-          </h1>
+          </motion.h1>
 
-          <p className="text-base sm:text-lg lg:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed font-normal">
+          <motion.p variants={heroItemVariants} className="text-base sm:text-lg lg:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed font-normal">
             {t('hero.subtitle', 'Discover destinations, build intelligent itineraries, and book every part of your trip in one place.')}
-          </p>
+          </motion.p>
 
           {/* Hero Preferences Toolbar: Language & Experience Mode */}
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+          <motion.div variants={heroItemVariants} className="flex flex-wrap items-center justify-center gap-3 pt-2">
             {/* Choose Language */}
             <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:border-slate-300 transition-all">
               <Globe2 className="w-4 h-4 text-[#C8A96B]" />
@@ -370,23 +396,23 @@ export const Home: React.FC = () => {
                 <span>{t('mode.accessibility', 'Accessibility Mode')}</span>
               </button>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="flex items-center justify-center gap-3.5 pt-3">
+          <motion.div variants={heroItemVariants} className="flex items-center justify-center gap-3.5 pt-3">
             <button
               onClick={() => navigate('/ai-planner')}
-              className="btn-primary text-sm sm:text-base !py-3.5 px-8 font-bold shadow-md rounded-2xl"
+              className="btn-primary text-sm sm:text-base !py-3.5 px-8 font-bold shadow-md rounded-2xl active:scale-98 transition-transform"
             >
               {t('hero.start_planning', 'Start Planning')}
             </button>
             <button
               onClick={() => navigate('/destinations')}
-              className="btn-secondary text-sm sm:text-base !py-3.5 px-8 font-bold shadow-xs rounded-2xl"
+              className="btn-secondary text-sm sm:text-base !py-3.5 px-8 font-bold shadow-xs rounded-2xl active:scale-98 transition-transform"
             >
               {t('hero.explore_destinations', 'Explore Destinations')}
             </button>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Active Travel Experience Mode Dynamic Notification & Feature Banner */}
         {travelMode !== 'standard' && (
@@ -458,13 +484,24 @@ export const Home: React.FC = () => {
         )}
 
         {/* Search Engine Centerpiece */}
-        <div className="max-w-6xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 28, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          className="max-w-6xl mx-auto"
+        >
           <SearchWidget />
-        </div>
+        </motion.div>
       </section>
 
       {/* ─── 2. TRENDING DESTINATIONS (LARGE EDITORIAL PHOTOGRAPHY) ─── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <motion.section
+        initial={{ opacity: 0, y: 28 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-60px' }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+      >
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
@@ -487,9 +524,14 @@ export const Home: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {trendingDestinations.map((dest) => (
-            <div
+          {trendingDestinations.map((dest, idx) => (
+            <motion.div
               key={dest.city}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.45, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
+              whileHover={{ y: -6, transition: { duration: 0.22, ease: 'easeOut' } }}
               onClick={() => navigate(`/hotels?city=${encodeURIComponent(dest.city)}`)}
               className="surface-card-hover rounded-2xl overflow-hidden cursor-pointer group flex flex-col bg-white"
             >
@@ -531,13 +573,19 @@ export const Home: React.FC = () => {
                   </button>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
-      </section>
+      </motion.section>
 
       {/* ─── 3. EXPLORE BY TRAVEL STYLE ("Find a trip that feels like you") ─── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <motion.section
+        initial={{ opacity: 0, y: 28 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-60px' }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+      >
         <div className="text-center max-w-2xl mx-auto mb-8 space-y-2">
           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
             {t('style.badge', 'Tailored Experiences')}
@@ -558,9 +606,14 @@ export const Home: React.FC = () => {
             { label: t('style.family', 'Family Vacations'), image: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=600&auto=format&fit=crop&q=80', query: 'family' },
             { label: t('style.romantic', 'Romantic Escapes'), image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600&auto=format&fit=crop&q=80', query: 'romantic' },
             { label: t('style.culture', 'Culture & Heritage'), image: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=600&auto=format&fit=crop&q=80', query: 'cultural' },
-          ].map((style) => (
-            <div
+          ].map((style, idx) => (
+            <motion.div
               key={style.label}
+              initial={{ opacity: 0, scale: 0.94 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.35, delay: idx * 0.05 }}
+              whileHover={{ y: -5, scale: 1.02, transition: { duration: 0.2 } }}
               onClick={() => navigate(`/destinations?style=${style.query}`)}
               className="group relative h-48 rounded-2xl overflow-hidden cursor-pointer shadow-sm hover:shadow-md transition-all"
             >
@@ -576,13 +629,19 @@ export const Home: React.FC = () => {
                   {t('action.browse', 'Browse')} →
                 </span>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
-      </section>
+      </motion.section>
 
       {/* ─── DIRECT FLIGHT DEALS ─── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <motion.section
+        initial={{ opacity: 0, y: 28 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-60px' }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+      >
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
@@ -605,9 +664,14 @@ export const Home: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {popularFlightDeals.map((flight) => (
-            <div
+          {popularFlightDeals.map((flight, idx) => (
+            <motion.div
               key={flight.flightNumber}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: idx * 0.08, ease: [0.16, 1, 0.3, 1] }}
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
               onClick={() => {
                 const orig = flight.origin.split(' ')[0];
                 const dest = flight.destination.split(' ')[0];
@@ -651,13 +715,19 @@ export const Home: React.FC = () => {
                   {t('action.book_now', 'Book')} <ArrowRight className="w-3 h-3" />
                 </span>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
-      </section>
+      </motion.section>
 
       {/* ─── 4. PERSONALIZED RECOMMENDATIONS ("Picked for you") ─── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <motion.section
+        initial={{ opacity: 0, y: 28 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-60px' }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+      >
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#C8A96B] block mb-1">
@@ -722,9 +792,14 @@ export const Home: React.FC = () => {
               badge: t('picks.gem.badge', 'Hidden Gem'),
               link: '/hidden-gems',
             },
-          ].map((item) => (
-            <div
+          ].map((item, idx) => (
+            <motion.div
               key={item.title}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.45, delay: idx * 0.08, ease: [0.16, 1, 0.3, 1] }}
+              whileHover={{ y: -6, transition: { duration: 0.22, ease: 'easeOut' } }}
               onClick={() => navigate(item.link)}
               className="surface-card-hover rounded-2xl overflow-hidden cursor-pointer flex flex-col justify-between group bg-white"
             >
@@ -778,13 +853,19 @@ export const Home: React.FC = () => {
                   {t('action.view', 'View')}
                 </button>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
-      </section>
+      </motion.section>
 
       {/* ─── 5. CURATED HOLIDAY PACKAGES ─── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <motion.section
+        initial={{ opacity: 0, y: 28 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-60px' }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+      >
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
@@ -807,9 +888,14 @@ export const Home: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {holidayPackages.map((pkg) => (
-            <div
+          {holidayPackages.map((pkg, idx) => (
+            <motion.div
               key={pkg.id}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.45, delay: idx * 0.08, ease: [0.16, 1, 0.3, 1] }}
+              whileHover={{ y: -6, transition: { duration: 0.22, ease: 'easeOut' } }}
               onClick={() => navigate(`/ai-planner?destination=${encodeURIComponent(pkg.destination)}`)}
               className="surface-card-hover rounded-2xl overflow-hidden cursor-pointer group transition-all flex flex-col justify-between bg-white"
             >
@@ -863,13 +949,19 @@ export const Home: React.FC = () => {
                   {t('action.customize', 'Customize')}
                 </button>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
-      </section>
+      </motion.section>
 
       {/* ─── 6. INTELLIGENT TRAVEL ECOSYSTEM SHOWCASE ─── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <motion.section
+        initial={{ opacity: 0, y: 28 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-60px' }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8"
+      >
         <div className="text-center max-w-2xl mx-auto space-y-2">
           <span className="text-[11px] font-bold uppercase tracking-wider text-[#C8A96B] block">
             {t('intel.badge', 'TripPilot Intelligence')}
@@ -885,7 +977,10 @@ export const Home: React.FC = () => {
         {/* 4 Core Interactive Pillars Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* 1. Route Optimization */}
-          <div className="surface-card p-6 sm:p-7 rounded-2xl bg-white space-y-4 flex flex-col justify-between">
+          <motion.div
+            whileHover={{ y: -4, transition: { duration: 0.2 } }}
+            className="surface-card p-6 sm:p-7 rounded-2xl bg-white space-y-4 flex flex-col justify-between"
+          >
             <div className="space-y-2.5">
               <div className="w-9 h-9 rounded-xl bg-slate-100 text-[#0B1220] flex items-center justify-center">
                 <Navigation className="w-4 h-4" />
@@ -915,10 +1010,13 @@ export const Home: React.FC = () => {
               <span>{t('intel.route.link', 'Try Route Optimizer in AI Planner')}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
-          </div>
+          </motion.div>
 
           {/* 2. Weather-Based Itinerary Adaptation */}
-          <div className="surface-card p-6 sm:p-7 rounded-2xl bg-white space-y-4 flex flex-col justify-between">
+          <motion.div
+            whileHover={{ y: -4, transition: { duration: 0.2 } }}
+            className="surface-card p-6 sm:p-7 rounded-2xl bg-white space-y-4 flex flex-col justify-between"
+          >
             <div className="space-y-2.5">
               <div className="w-9 h-9 rounded-xl bg-slate-100 text-[#0B1220] flex items-center justify-center">
                 <CloudSun className="w-4 h-4" />
@@ -948,10 +1046,13 @@ export const Home: React.FC = () => {
               <span>{t('intel.weather.link', 'Explore Weather-Aware Blueprints')}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
-          </div>
+          </motion.div>
 
           {/* 3. AI Budget Optimizer & Smart Swaps */}
-          <div className="surface-card p-6 sm:p-7 rounded-2xl bg-white space-y-4 flex flex-col justify-between">
+          <motion.div
+            whileHover={{ y: -4, transition: { duration: 0.2 } }}
+            className="surface-card p-6 sm:p-7 rounded-2xl bg-white space-y-4 flex flex-col justify-between"
+          >
             <div className="space-y-2.5">
               <div className="w-9 h-9 rounded-xl bg-slate-100 text-[#0B1220] flex items-center justify-center">
                 <TrendingDown className="w-4 h-4" />
@@ -979,10 +1080,13 @@ export const Home: React.FC = () => {
               <span>{t('intel.budget.link', 'Open Budget Optimization Hub')}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
-          </div>
+          </motion.div>
 
           {/* 4. Group Planning & Expense Split */}
-          <div className="surface-card p-6 sm:p-7 rounded-2xl bg-white space-y-4 flex flex-col justify-between">
+          <motion.div
+            whileHover={{ y: -4, transition: { duration: 0.2 } }}
+            className="surface-card p-6 sm:p-7 rounded-2xl bg-white space-y-4 flex flex-col justify-between"
+          >
             <div className="space-y-2.5">
               <div className="w-9 h-9 rounded-xl bg-slate-100 text-[#0B1220] flex items-center justify-center">
                 <Users className="w-4 h-4" />
@@ -1006,15 +1110,21 @@ export const Home: React.FC = () => {
               <span>{t('intel.group.link', 'Collaborate on Group Trips')}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* ─── 7. GLOBAL TRAVEL STANDARDS & TRUST ─── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <motion.section
+        initial={{ opacity: 0, y: 28 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-60px' }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+      >
         <div className="surface-card p-8 sm:p-12 rounded-3xl bg-white border border-slate-200 shadow-sm">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="space-y-2">
+            <motion.div whileHover={{ y: -3, transition: { duration: 0.2 } }} className="space-y-2">
               <div className="w-10 h-10 rounded-xl bg-slate-100 text-[#0B1220] flex items-center justify-center font-bold text-sm">
                 01
               </div>
@@ -1022,9 +1132,9 @@ export const Home: React.FC = () => {
               <p className="text-xs text-slate-500 leading-relaxed">
                 {t('trust.1.desc', 'Every luxury resort and boutique villa is verified for safety, cleanliness, and authentic guest standards.')}
               </p>
-            </div>
+            </motion.div>
 
-            <div className="space-y-2">
+            <motion.div whileHover={{ y: -3, transition: { duration: 0.2 } }} className="space-y-2">
               <div className="w-10 h-10 rounded-xl bg-slate-100 text-[#0B1220] flex items-center justify-center font-bold text-sm">
                 02
               </div>
@@ -1032,9 +1142,9 @@ export const Home: React.FC = () => {
               <p className="text-xs text-slate-500 leading-relaxed">
                 {t('trust.2.desc', 'Clear, transparent fare breakdowns including taxes, baggage allowances, and carrier surcharges.')}
               </p>
-            </div>
+            </motion.div>
 
-            <div className="space-y-2">
+            <motion.div whileHover={{ y: -3, transition: { duration: 0.2 } }} className="space-y-2">
               <div className="w-10 h-10 rounded-xl bg-slate-100 text-[#0B1220] flex items-center justify-center font-bold text-sm">
                 03
               </div>
@@ -1042,9 +1152,9 @@ export const Home: React.FC = () => {
               <p className="text-xs text-slate-500 leading-relaxed">
                 {t('trust.3.desc', 'Change flight dates or stay duration with minimal hassle and instant digital voucher generation.')}
               </p>
-            </div>
+            </motion.div>
 
-            <div className="space-y-2">
+            <motion.div whileHover={{ y: -3, transition: { duration: 0.2 } }} className="space-y-2">
               <div className="w-10 h-10 rounded-xl bg-slate-100 text-[#0B1220] flex items-center justify-center font-bold text-sm">
                 04
               </div>
@@ -1052,10 +1162,10 @@ export const Home: React.FC = () => {
               <p className="text-xs text-slate-500 leading-relaxed">
                 {t('trust.4.desc', 'Real-time concierge assistance for flight rescheduling, hotel check-in support, and trip advice.')}
               </p>
-            </div>
+            </motion.div>
           </div>
         </div>
-      </section>
+      </motion.section>
     </div>
   );
 };

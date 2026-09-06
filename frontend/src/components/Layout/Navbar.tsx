@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { TripPilotLogo } from '../Brand/TripPilotLogo';
 import toast from 'react-hot-toast';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plane,
   Building2,
@@ -211,68 +212,77 @@ export const Navbar: React.FC = () => {
                 <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === 'explore' ? 'rotate-180 text-[#0B1220]' : 'text-slate-400'}`} />
               </button>
 
-              {activeDropdown === 'explore' && (
-                <div className="absolute top-full left-0 mt-2 w-[760px] bg-white rounded-3xl shadow-2xl border border-slate-200/90 p-7 z-50 animate-dropdown">
-                  <div className="grid grid-cols-12 gap-6">
-                    {/* Left Showcase Spotlight Column */}
-                    <div className="col-span-5 pr-4 border-r border-slate-100 flex flex-col justify-between">
-                      <div>
-                        <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#C8A96B] mb-2 block">
-                          World Discovery
-                        </span>
-                        <h3 className="font-bold text-2xl text-[#0B1220] leading-tight">
-                          Explore our curated global destinations
-                        </h3>
-                        <p className="text-xs text-slate-500 leading-relaxed mt-2.5">
-                          Handpicked holiday spots, offbeat escapes, seasonal guides, and verified dining across 40+ destinations.
-                        </p>
+              <AnimatePresence>
+                {activeDropdown === 'explore' && (
+                  <motion.div
+                    key="explore-mega-menu"
+                    initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                    transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                    className="absolute top-full left-0 mt-2 w-[760px] bg-white rounded-3xl shadow-2xl border border-slate-200/90 p-7 z-50 before:absolute before:-top-3 before:left-0 before:right-0 before:h-3 before:content-['']"
+                  >
+                    <div className="grid grid-cols-12 gap-6">
+                      {/* Left Showcase Spotlight Column */}
+                      <div className="col-span-5 pr-4 border-r border-slate-100 flex flex-col justify-between">
+                        <div>
+                          <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#C8A96B] mb-2 block">
+                            World Discovery
+                          </span>
+                          <h3 className="font-bold text-2xl text-[#0B1220] leading-tight">
+                            Explore our curated global destinations
+                          </h3>
+                          <p className="text-xs text-slate-500 leading-relaxed mt-2.5">
+                            Handpicked holiday spots, offbeat escapes, seasonal guides, and verified dining across 40+ destinations.
+                          </p>
+                        </div>
+
+                        <div className="pt-6">
+                          <Link
+                            to="/destinations"
+                            onClick={() => setActiveDropdown(null)}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-800 transition-colors"
+                          >
+                            <span>See all destinations</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </Link>
+                        </div>
                       </div>
 
-                      <div className="pt-6">
-                        <Link
-                          to="/destinations"
-                          onClick={() => setActiveDropdown(null)}
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-800 transition-colors"
-                        >
-                          <span>See all destinations</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </Link>
+                      {/* Right Items Grid */}
+                      <div className="col-span-7">
+                        <div className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 mb-3 px-2">
+                          Categories & Highlights
+                        </div>
+                        <div className="grid grid-cols-2 gap-1.5">
+                          {exploreLinks.map((item) => {
+                            const Icon = item.icon;
+                            const active = isLinkActive(item.href);
+                            return (
+                              <Link
+                                key={item.href}
+                                to={item.href}
+                                onClick={() => setActiveDropdown(null)}
+                                className={`flex items-start gap-2.5 p-2 rounded-xl transition-all ${
+                                  active ? 'bg-slate-100 text-[#0B1220] font-bold' : 'hover:bg-slate-50 text-slate-700'
+                                }`}
+                              >
+                                <div className="w-8 h-8 rounded-lg bg-slate-100 text-[#0B1220] flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <Icon className="w-4 h-4" />
+                                </div>
+                                <div className="min-w-0">
+                                  <div className="text-xs font-bold text-[#0B1220] truncate">{item.label}</div>
+                                  <p className="text-[11px] text-slate-500 leading-snug line-clamp-1 mt-0.5">{item.desc}</p>
+                                </div>
+                              </Link>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
-
-                    {/* Right Items Grid */}
-                    <div className="col-span-7">
-                      <div className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 mb-3 px-2">
-                        Categories & Highlights
-                      </div>
-                      <div className="grid grid-cols-2 gap-1.5">
-                        {exploreLinks.map((item) => {
-                          const Icon = item.icon;
-                          const active = isLinkActive(item.href);
-                          return (
-                            <Link
-                              key={item.href}
-                              to={item.href}
-                              onClick={() => setActiveDropdown(null)}
-                              className={`flex items-start gap-2.5 p-2 rounded-xl transition-all ${
-                                active ? 'bg-slate-100 text-[#0B1220] font-bold' : 'hover:bg-slate-50 text-slate-700'
-                              }`}
-                            >
-                              <div className="w-8 h-8 rounded-lg bg-slate-100 text-[#0B1220] flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <Icon className="w-4 h-4" />
-                              </div>
-                              <div className="min-w-0">
-                                <div className="text-xs font-bold text-[#0B1220] truncate">{item.label}</div>
-                                <p className="text-[11px] text-slate-500 leading-snug line-clamp-1 mt-0.5">{item.desc}</p>
-                              </div>
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* PLAN Dropdown */}
@@ -295,80 +305,89 @@ export const Navbar: React.FC = () => {
                 <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === 'plan' ? 'rotate-180 text-[#0B1220]' : 'text-slate-400'}`} />
               </button>
 
-              {activeDropdown === 'plan' && (
-                <div className="absolute top-full -left-20 mt-2 w-[720px] bg-white rounded-3xl shadow-2xl border border-slate-200/90 p-7 z-50 animate-dropdown">
-                  <div className="grid grid-cols-12 gap-6">
-                    {/* Left Showcase Spotlight Column */}
-                    <div className="col-span-5 pr-4 border-r border-slate-100 flex flex-col justify-between">
-                      <div>
-                        <span className="text-[11px] font-extrabold uppercase tracking-wider text-blue-600 mb-2 block">
-                          Intelligent Orchestration
-                        </span>
-                        <h3 className="font-bold text-2xl text-[#0B1220] leading-tight">
-                          Design your perfect trip with AI
-                        </h3>
-                        <p className="text-xs text-slate-500 leading-relaxed mt-2.5">
-                          Multi-modal trip builder syncing live flights, verified hotels, custom itineraries, and real-time weather forecasts.
-                        </p>
+              <AnimatePresence>
+                {activeDropdown === 'plan' && (
+                  <motion.div
+                    key="plan-mega-menu"
+                    initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                    transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                    className="absolute top-full -left-20 mt-2 w-[720px] bg-white rounded-3xl shadow-2xl border border-slate-200/90 p-7 z-50 before:absolute before:-top-3 before:left-0 before:right-0 before:h-3 before:content-['']"
+                  >
+                    <div className="grid grid-cols-12 gap-6">
+                      {/* Left Showcase Spotlight Column */}
+                      <div className="col-span-5 pr-4 border-r border-slate-100 flex flex-col justify-between">
+                        <div>
+                          <span className="text-[11px] font-extrabold uppercase tracking-wider text-blue-600 mb-2 block">
+                            Intelligent Orchestration
+                          </span>
+                          <h3 className="font-bold text-2xl text-[#0B1220] leading-tight">
+                            Design your perfect trip with AI
+                          </h3>
+                          <p className="text-xs text-slate-500 leading-relaxed mt-2.5">
+                            Multi-modal trip builder syncing live flights, verified hotels, custom itineraries, and real-time weather forecasts.
+                          </p>
+                        </div>
+
+                        <div className="pt-6">
+                          <Link
+                            to="/plan"
+                            onClick={() => setActiveDropdown(null)}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-800 transition-colors"
+                          >
+                            <span>Start planning</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </Link>
+                        </div>
                       </div>
 
-                      <div className="pt-6">
-                        <Link
-                          to="/plan"
-                          onClick={() => setActiveDropdown(null)}
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-800 transition-colors"
-                        >
-                          <span>Start planning</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </Link>
-                      </div>
-                    </div>
-
-                    {/* Right Items Grid */}
-                    <div className="col-span-7">
-                      <div className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 mb-3 px-2">
-                        Planning Workflows
-                      </div>
-                      <div className="space-y-1">
-                        {planLinks.map((item) => {
-                          const Icon = item.icon;
-                          const active = isLinkActive(item.href);
-                          return (
-                            <Link
-                              key={item.href}
-                              to={item.href}
-                              onClick={() => setActiveDropdown(null)}
-                              className={`flex items-start gap-3 p-2 rounded-xl transition-all ${
-                                active ? 'bg-slate-100 text-[#0B1220] font-bold' : 'hover:bg-slate-50 text-slate-700'
-                              }`}
-                            >
-                              <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <Icon className="w-4 h-4" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="text-xs font-bold text-[#0B1220] flex items-center gap-1.5">
-                                  <span>{item.label}</span>
-                                  {item.label.includes('AI') && (
-                                    <span className="text-[9px] font-bold text-[#C8A96B] uppercase tracking-wider bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/50">
-                                      Smart
-                                    </span>
-                                  )}
-                                  {item.href === '/weather' && (
-                                    <span className="text-[9px] font-bold text-sky-600 bg-sky-50 px-1.5 py-0.5 rounded uppercase tracking-wider border border-sky-200/60">
-                                      Live
-                                    </span>
-                                  )}
+                      {/* Right Items Grid */}
+                      <div className="col-span-7">
+                        <div className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 mb-3 px-2">
+                          Planning Workflows
+                        </div>
+                        <div className="space-y-1">
+                          {planLinks.map((item) => {
+                            const Icon = item.icon;
+                            const active = isLinkActive(item.href);
+                            return (
+                              <Link
+                                key={item.href}
+                                to={item.href}
+                                onClick={() => setActiveDropdown(null)}
+                                className={`flex items-start gap-3 p-2 rounded-xl transition-all ${
+                                  active ? 'bg-slate-100 text-[#0B1220] font-bold' : 'hover:bg-slate-50 text-slate-700'
+                                }`}
+                              >
+                                <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <Icon className="w-4 h-4" />
                                 </div>
-                                <p className="text-[11px] text-slate-500 leading-snug truncate mt-0.5">{item.desc}</p>
-                              </div>
-                            </Link>
-                          );
-                        })}
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-xs font-bold text-[#0B1220] flex items-center gap-1.5">
+                                    <span>{item.label}</span>
+                                    {item.label.includes('AI') && (
+                                      <span className="text-[9px] font-bold text-[#C8A96B] uppercase tracking-wider bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/50">
+                                        Smart
+                                      </span>
+                                    )}
+                                    {item.href === '/weather' && (
+                                      <span className="text-[9px] font-bold text-sky-600 bg-sky-50 px-1.5 py-0.5 rounded uppercase tracking-wider border border-sky-200/60">
+                                        Live
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-[11px] text-slate-500 leading-snug truncate mt-0.5">{item.desc}</p>
+                                </div>
+                              </Link>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* BOOK Dropdown */}
@@ -390,66 +409,75 @@ export const Navbar: React.FC = () => {
                 <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === 'book' ? 'rotate-180 text-[#0B1220]' : 'text-slate-400'}`} />
               </button>
 
-              {activeDropdown === 'book' && (
-                <div className="absolute top-full -left-28 mt-2 w-[660px] bg-white rounded-3xl shadow-2xl border border-slate-200/90 p-7 z-50 animate-dropdown">
-                  <div className="grid grid-cols-12 gap-6">
-                    <div className="col-span-5 pr-4 border-r border-slate-100 flex flex-col justify-between">
-                      <div>
-                        <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-600 mb-2 block">
-                          Verified Bookings
-                        </span>
-                        <h3 className="font-bold text-2xl text-[#0B1220] leading-tight">
-                          Travel fares & stay reservations
-                        </h3>
-                        <p className="text-xs text-slate-500 leading-relaxed mt-2.5">
-                          Compare non-stop airline routes, verified hotels with flexible cancellation, and seamless rail transit.
-                        </p>
+              <AnimatePresence>
+                {activeDropdown === 'book' && (
+                  <motion.div
+                    key="book-mega-menu"
+                    initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                    transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                    className="absolute top-full -left-28 mt-2 w-[660px] bg-white rounded-3xl shadow-2xl border border-slate-200/90 p-7 z-50 before:absolute before:-top-3 before:left-0 before:right-0 before:h-3 before:content-['']"
+                  >
+                    <div className="grid grid-cols-12 gap-6">
+                      <div className="col-span-5 pr-4 border-r border-slate-100 flex flex-col justify-between">
+                        <div>
+                          <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-600 mb-2 block">
+                            Verified Bookings
+                          </span>
+                          <h3 className="font-bold text-2xl text-[#0B1220] leading-tight">
+                            Travel fares & stay reservations
+                          </h3>
+                          <p className="text-xs text-slate-500 leading-relaxed mt-2.5">
+                            Compare non-stop airline routes, verified hotels with flexible cancellation, and seamless rail transit.
+                          </p>
+                        </div>
+
+                        <div className="pt-6">
+                          <Link
+                            to="/flights"
+                            onClick={() => setActiveDropdown(null)}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-800 transition-colors"
+                          >
+                            <span>Browse flights</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </Link>
+                        </div>
                       </div>
 
-                      <div className="pt-6">
-                        <Link
-                          to="/flights"
-                          onClick={() => setActiveDropdown(null)}
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-800 transition-colors"
-                        >
-                          <span>Browse flights</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </Link>
+                      <div className="col-span-7">
+                        <div className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 mb-3 px-2">
+                          Booking Categories
+                        </div>
+                        <div className="space-y-1">
+                          {bookLinks.map((item) => {
+                            const Icon = item.icon;
+                            const active = isLinkActive(item.href);
+                            return (
+                              <Link
+                                key={item.href}
+                                to={item.href}
+                                onClick={() => setActiveDropdown(null)}
+                                className={`flex items-start gap-3 p-2 rounded-xl transition-all ${
+                                  active ? 'bg-slate-100 text-[#0B1220] font-bold' : 'hover:bg-slate-50 text-slate-700'
+                                }`}
+                              >
+                                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <Icon className="w-4 h-4" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-xs font-bold text-[#0B1220]">{item.label}</div>
+                                  <p className="text-[11px] text-slate-500 leading-snug truncate mt-0.5">{item.desc}</p>
+                                </div>
+                              </Link>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
-
-                    <div className="col-span-7">
-                      <div className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 mb-3 px-2">
-                        Booking Categories
-                      </div>
-                      <div className="space-y-1">
-                        {bookLinks.map((item) => {
-                          const Icon = item.icon;
-                          const active = isLinkActive(item.href);
-                          return (
-                            <Link
-                              key={item.href}
-                              to={item.href}
-                              onClick={() => setActiveDropdown(null)}
-                              className={`flex items-start gap-3 p-2 rounded-xl transition-all ${
-                                active ? 'bg-slate-100 text-[#0B1220] font-bold' : 'hover:bg-slate-50 text-slate-700'
-                              }`}
-                            >
-                              <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <Icon className="w-4 h-4" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="text-xs font-bold text-[#0B1220]">{item.label}</div>
-                                <p className="text-[11px] text-slate-500 leading-snug truncate mt-0.5">{item.desc}</p>
-                              </div>
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* TRIPS Dropdown */}
@@ -471,66 +499,75 @@ export const Navbar: React.FC = () => {
                 <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === 'trips' ? 'rotate-180 text-[#0B1220]' : 'text-slate-400'}`} />
               </button>
 
-              {activeDropdown === 'trips' && (
-                <div className="absolute top-full -left-36 mt-2 w-[680px] bg-white rounded-3xl shadow-2xl border border-slate-200/90 p-7 z-50 animate-dropdown">
-                  <div className="grid grid-cols-12 gap-6">
-                    <div className="col-span-5 pr-4 border-r border-slate-100 flex flex-col justify-between">
-                      <div>
-                        <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600 mb-2 block">
-                          Travel Companion
-                        </span>
-                        <h3 className="font-bold text-2xl text-[#0B1220] leading-tight">
-                          Manage your entire journey
-                        </h3>
-                        <p className="text-xs text-slate-500 leading-relaxed mt-2.5">
-                          Confirmed tickets, group co-planning, smart luggage checklists, and 24/7 verified emergency support.
-                        </p>
+              <AnimatePresence>
+                {activeDropdown === 'trips' && (
+                  <motion.div
+                    key="trips-mega-menu"
+                    initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                    transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                    className="absolute top-full -left-36 mt-2 w-[680px] bg-white rounded-3xl shadow-2xl border border-slate-200/90 p-7 z-50 before:absolute before:-top-3 before:left-0 before:right-0 before:h-3 before:content-['']"
+                  >
+                    <div className="grid grid-cols-12 gap-6">
+                      <div className="col-span-5 pr-4 border-r border-slate-100 flex flex-col justify-between">
+                        <div>
+                          <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600 mb-2 block">
+                            Travel Companion
+                          </span>
+                          <h3 className="font-bold text-2xl text-[#0B1220] leading-tight">
+                            Manage your entire journey
+                          </h3>
+                          <p className="text-xs text-slate-500 leading-relaxed mt-2.5">
+                            Confirmed tickets, group co-planning, smart luggage checklists, and 24/7 verified emergency support.
+                          </p>
+                        </div>
+
+                        <div className="pt-6">
+                          <Link
+                            to="/my-bookings"
+                            onClick={() => setActiveDropdown(null)}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-800 transition-colors"
+                          >
+                            <span>View my bookings</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </Link>
+                        </div>
                       </div>
 
-                      <div className="pt-6">
-                        <Link
-                          to="/my-bookings"
-                          onClick={() => setActiveDropdown(null)}
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-800 transition-colors"
-                        >
-                          <span>View my bookings</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </Link>
+                      <div className="col-span-7">
+                        <div className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 mb-3 px-2">
+                          Trip Management
+                        </div>
+                        <div className="space-y-1">
+                          {tripsLinks.map((item) => {
+                            const Icon = item.icon;
+                            const active = isLinkActive(item.href);
+                            return (
+                              <Link
+                                key={item.href}
+                                to={item.href}
+                                onClick={() => setActiveDropdown(null)}
+                                className={`flex items-start gap-3 p-2 rounded-xl transition-all ${
+                                  active ? 'bg-slate-100 text-[#0B1220] font-bold' : 'hover:bg-slate-50 text-slate-700'
+                                }`}
+                              >
+                                <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <Icon className="w-4 h-4" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-xs font-bold text-[#0B1220]">{item.label}</div>
+                                  <p className="text-[11px] text-slate-500 leading-snug truncate mt-0.5">{item.desc}</p>
+                                </div>
+                              </Link>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
-
-                    <div className="col-span-7">
-                      <div className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 mb-3 px-2">
-                        Trip Management
-                      </div>
-                      <div className="space-y-1">
-                        {tripsLinks.map((item) => {
-                          const Icon = item.icon;
-                          const active = isLinkActive(item.href);
-                          return (
-                            <Link
-                              key={item.href}
-                              to={item.href}
-                              onClick={() => setActiveDropdown(null)}
-                              className={`flex items-start gap-3 p-2 rounded-xl transition-all ${
-                                active ? 'bg-slate-100 text-[#0B1220] font-bold' : 'hover:bg-slate-50 text-slate-700'
-                              }`}
-                            >
-                              <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <Icon className="w-4 h-4" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="text-xs font-bold text-[#0B1220]">{item.label}</div>
-                                <p className="text-[11px] text-slate-500 leading-snug truncate mt-0.5">{item.desc}</p>
-                              </div>
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* BUDGET Dropdown */}
@@ -552,66 +589,75 @@ export const Navbar: React.FC = () => {
                 <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === 'budget' ? 'rotate-180 text-[#0B1220]' : 'text-slate-400'}`} />
               </button>
 
-              {activeDropdown === 'budget' && (
-                <div className="absolute top-full -left-48 mt-2 w-[620px] bg-white rounded-3xl shadow-2xl border border-slate-200/90 p-7 z-50 animate-dropdown">
-                  <div className="grid grid-cols-12 gap-6">
-                    <div className="col-span-5 pr-4 border-r border-slate-100 flex flex-col justify-between">
-                      <div>
-                        <span className="text-[11px] font-extrabold uppercase tracking-wider text-amber-600 mb-2 block">
-                          Financial Clarity
-                        </span>
-                        <h3 className="font-bold text-2xl text-[#0B1220] leading-tight">
-                          Budget tracker & expense splitting
-                        </h3>
-                        <p className="text-xs text-slate-500 leading-relaxed mt-2.5">
-                          Keep your holidays within financial goals with live category tracking and seamless group expense division.
-                        </p>
+              <AnimatePresence>
+                {activeDropdown === 'budget' && (
+                  <motion.div
+                    key="budget-mega-menu"
+                    initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                    transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                    className="absolute top-full -left-48 mt-2 w-[620px] bg-white rounded-3xl shadow-2xl border border-slate-200/90 p-7 z-50 before:absolute before:-top-3 before:left-0 before:right-0 before:h-3 before:content-['']"
+                  >
+                    <div className="grid grid-cols-12 gap-6">
+                      <div className="col-span-5 pr-4 border-r border-slate-100 flex flex-col justify-between">
+                        <div>
+                          <span className="text-[11px] font-extrabold uppercase tracking-wider text-amber-600 mb-2 block">
+                            Financial Clarity
+                          </span>
+                          <h3 className="font-bold text-2xl text-[#0B1220] leading-tight">
+                            Budget tracker & expense splitting
+                          </h3>
+                          <p className="text-xs text-slate-500 leading-relaxed mt-2.5">
+                            Keep your holidays within financial goals with live category tracking and seamless group expense division.
+                          </p>
+                        </div>
+
+                        <div className="pt-6">
+                          <Link
+                            to="/budget"
+                            onClick={() => setActiveDropdown(null)}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-800 transition-colors"
+                          >
+                            <span>Open tracker</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </Link>
+                        </div>
                       </div>
 
-                      <div className="pt-6">
-                        <Link
-                          to="/budget"
-                          onClick={() => setActiveDropdown(null)}
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-800 transition-colors"
-                        >
-                          <span>Open tracker</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </Link>
+                      <div className="col-span-7">
+                        <div className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 mb-3 px-2">
+                          Financial Tools
+                        </div>
+                        <div className="space-y-1.5">
+                          {budgetLinks.map((item) => {
+                            const Icon = item.icon;
+                            const active = isLinkActive(item.href);
+                            return (
+                              <Link
+                                key={item.href}
+                                to={item.href}
+                                onClick={() => setActiveDropdown(null)}
+                                className={`flex items-start gap-3 p-2.5 rounded-xl transition-all ${
+                                  active ? 'bg-slate-100 text-[#0B1220] font-bold' : 'hover:bg-slate-50 text-slate-700'
+                                }`}
+                              >
+                                <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <Icon className="w-4 h-4" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-xs font-bold text-[#0B1220]">{item.label}</div>
+                                  <p className="text-[11px] text-slate-500 leading-snug mt-0.5">{item.desc}</p>
+                                </div>
+                              </Link>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
-
-                    <div className="col-span-7">
-                      <div className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 mb-3 px-2">
-                        Financial Tools
-                      </div>
-                      <div className="space-y-1.5">
-                        {budgetLinks.map((item) => {
-                          const Icon = item.icon;
-                          const active = isLinkActive(item.href);
-                          return (
-                            <Link
-                              key={item.href}
-                              to={item.href}
-                              onClick={() => setActiveDropdown(null)}
-                              className={`flex items-start gap-3 p-2.5 rounded-xl transition-all ${
-                                active ? 'bg-slate-100 text-[#0B1220] font-bold' : 'hover:bg-slate-50 text-slate-700'
-                              }`}
-                            >
-                              <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <Icon className="w-4 h-4" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="text-xs font-bold text-[#0B1220]">{item.label}</div>
-                                <p className="text-[11px] text-slate-500 leading-snug mt-0.5">{item.desc}</p>
-                              </div>
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </nav>
 
@@ -636,57 +682,66 @@ export const Navbar: React.FC = () => {
                 )}
               </button>
 
-              {notificationsOpen && (
-                <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-3xl shadow-luxury border border-slate-200 p-4 z-50 space-y-3 animate-dropdown">
-                  <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                    <div className="flex items-center gap-1.5">
-                      <Bell className="w-4 h-4 text-blue-600" />
-                      <h4 className="font-bold text-xs text-slate-900 uppercase tracking-wider">{t('notif.title', 'Smart Travel Alerts')}</h4>
-                    </div>
-                    {unreadCount > 0 && (
-                      <button
-                        type="button"
-                        onClick={markAllAsRead}
-                        className="text-[11px] text-blue-600 hover:text-blue-700 font-bold"
-                      >
-                        {t('notif.mark_all_read', 'Mark all read')}
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="space-y-2 max-h-72 overflow-y-auto">
-                    {notifications.length === 0 ? (
-                      <p className="text-xs text-slate-400 text-center py-4">{t('notif.empty', 'No notifications')}</p>
-                    ) : (
-                      notifications.map((n) => (
-                        <div
-                          key={n.id}
-                          onClick={() => markAsRead(n.id)}
-                          className={`p-3 rounded-2xl border transition-all text-xs space-y-1 cursor-pointer ${
-                            !n.read ? 'bg-blue-50/50 border-blue-200' : 'bg-slate-50 border-slate-100'
-                          }`}
+              <AnimatePresence>
+                {notificationsOpen && (
+                  <motion.div
+                    key="notifications-popover"
+                    initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                    transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                    className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-3xl shadow-luxury border border-slate-200 p-4 z-50 space-y-3"
+                  >
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                      <div className="flex items-center gap-1.5">
+                        <Bell className="w-4 h-4 text-blue-600" />
+                        <h4 className="font-bold text-xs text-slate-900 uppercase tracking-wider">{t('notif.title', 'Smart Travel Alerts')}</h4>
+                      </div>
+                      {unreadCount > 0 && (
+                        <button
+                          type="button"
+                          onClick={markAllAsRead}
+                          className="text-[11px] text-blue-600 hover:text-blue-700 font-bold"
                         >
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold text-slate-900">{n.title}</span>
-                            <span className="text-[10px] text-slate-400">{n.time}</span>
+                          {t('notif.mark_all_read', 'Mark all read')}
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="space-y-2 max-h-72 overflow-y-auto">
+                      {notifications.length === 0 ? (
+                        <p className="text-xs text-slate-400 text-center py-4">{t('notif.empty', 'No notifications')}</p>
+                      ) : (
+                        notifications.map((n) => (
+                          <div
+                            key={n.id}
+                            onClick={() => markAsRead(n.id)}
+                            className={`p-3 rounded-2xl border transition-all text-xs space-y-1 cursor-pointer ${
+                              !n.read ? 'bg-blue-50/50 border-blue-200' : 'bg-slate-50 border-slate-100'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="font-bold text-slate-900">{n.title}</span>
+                              <span className="text-[10px] text-slate-400">{n.time}</span>
+                            </div>
+                            <p className="text-[11px] text-slate-600 leading-relaxed">{n.message}</p>
+                            {n.actionUrl && (
+                              <Link
+                                to={n.actionUrl}
+                                onClick={() => setNotificationsOpen(false)}
+                                className="text-[11px] font-bold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1 pt-1"
+                              >
+                                <span>{n.actionText || t('action.view_details', 'View Details')}</span>
+                                <ArrowRight className="w-3 h-3" />
+                              </Link>
+                            )}
                           </div>
-                          <p className="text-[11px] text-slate-600 leading-relaxed">{n.message}</p>
-                          {n.actionUrl && (
-                            <Link
-                              to={n.actionUrl}
-                              onClick={() => setNotificationsOpen(false)}
-                              className="text-[11px] font-bold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1 pt-1"
-                            >
-                              <span>{n.actionText || t('action.view_details', 'View Details')}</span>
-                              <ArrowRight className="w-3 h-3" />
-                            </Link>
-                          )}
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-              )}
+                        ))
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Wishlist Icon */}
@@ -742,90 +797,99 @@ export const Navbar: React.FC = () => {
                   <ChevronDown className={`w-3 h-3 text-slate-400 transition-transform duration-200 ${userDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
 
-                {userDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-luxury border border-slate-200 py-2 z-50 animate-dropdown text-xs">
-                    <div className="px-4 py-2 border-b border-slate-100">
-                      <p className="font-bold text-slate-900 truncate">{user?.name}</p>
-                      <p className="text-[11px] text-slate-400 truncate">{user?.email}</p>
-                    </div>
-
-                    <Link
-                      to="/profile"
-                      onClick={() => setUserDropdownOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-slate-700 hover:bg-slate-50 font-semibold"
+                <AnimatePresence>
+                  {userDropdownOpen && (
+                    <motion.div
+                      key="user-dropdown-popover"
+                      initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                      transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                      className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-luxury border border-slate-200 py-2 z-50 text-xs"
                     >
-                      <UserIcon className="w-3.5 h-3.5" />
-                      <span>{t('nav.profile', 'My Profile')}</span>
-                    </Link>
+                      <div className="px-4 py-2 border-b border-slate-100">
+                        <p className="font-bold text-slate-900 truncate">{user?.name}</p>
+                        <p className="text-[11px] text-slate-400 truncate">{user?.email}</p>
+                      </div>
 
-                    <Link
-                      to="/my-bookings"
-                      onClick={() => setUserDropdownOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-slate-700 hover:bg-slate-50 font-semibold"
-                    >
-                      <Luggage className="w-3.5 h-3.5" />
-                      <span>{t('nav.my_bookings', 'My Trips & Journeys')}</span>
-                    </Link>
-
-                    <Link
-                      to="/travel-preferences"
-                      onClick={() => setUserDropdownOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-slate-700 hover:bg-slate-50 font-semibold"
-                    >
-                      <Compass className="w-3.5 h-3.5 text-[#C8A96B]" />
-                      <span>Travel Preferences</span>
-                    </Link>
-
-                    <Link
-                      to="/saved-travellers"
-                      onClick={() => setUserDropdownOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-slate-700 hover:bg-slate-50 font-semibold"
-                    >
-                      <Users className="w-3.5 h-3.5 text-indigo-600" />
-                      <span>Saved Co-Travellers</span>
-                    </Link>
-
-                    <Link
-                      to="/notification-settings"
-                      onClick={() => setUserDropdownOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-slate-700 hover:bg-slate-50 font-semibold"
-                    >
-                      <Bell className="w-3.5 h-3.5 text-blue-600" />
-                      <span>Notification Settings</span>
-                    </Link>
-
-                    <Link
-                      to="/agency"
-                      onClick={() => setUserDropdownOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-blue-700 font-bold hover:bg-blue-50 border-t border-slate-100"
-                    >
-                      <Briefcase className="w-3.5 h-3.5 text-blue-600" />
-                      <span>{t('nav.agency', 'Travel Agency Portal')}</span>
-                    </Link>
-
-                    {isAdmin && (
                       <Link
-                        to="/admin"
+                        to="/profile"
                         onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2 px-4 py-2 text-slate-900 font-bold hover:bg-slate-50 border-t border-slate-100"
+                        className="flex items-center gap-2 px-4 py-2 text-slate-700 hover:bg-slate-50 font-semibold"
                       >
-                        <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
-                        <span>{t('nav.admin', 'Admin Console')}</span>
+                        <UserIcon className="w-3.5 h-3.5" />
+                        <span>{t('nav.profile', 'My Profile')}</span>
                       </Link>
-                    )}
 
-                    <div className="pt-1 mt-1 border-t border-slate-100">
-                      <button
-                        type="button"
-                        onClick={handleLogout}
-                        className="w-full flex items-center gap-2 px-4 py-2 text-rose-600 hover:bg-rose-50 text-left font-semibold"
+                      <Link
+                        to="/my-bookings"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-slate-700 hover:bg-slate-50 font-semibold"
                       >
-                        <LogOut className="w-3.5 h-3.5" />
-                        <span>{t('nav.logout', 'Sign Out')}</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
+                        <Luggage className="w-3.5 h-3.5" />
+                        <span>{t('nav.my_bookings', 'My Trips & Journeys')}</span>
+                      </Link>
+
+                      <Link
+                        to="/travel-preferences"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-slate-700 hover:bg-slate-50 font-semibold"
+                      >
+                        <Compass className="w-3.5 h-3.5 text-[#C8A96B]" />
+                        <span>Travel Preferences</span>
+                      </Link>
+
+                      <Link
+                        to="/saved-travellers"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-slate-700 hover:bg-slate-50 font-semibold"
+                      >
+                        <Users className="w-3.5 h-3.5 text-indigo-600" />
+                        <span>Saved Co-Travellers</span>
+                      </Link>
+
+                      <Link
+                        to="/notification-settings"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-slate-700 hover:bg-slate-50 font-semibold"
+                      >
+                        <Bell className="w-3.5 h-3.5 text-blue-600" />
+                        <span>Notification Settings</span>
+                      </Link>
+
+                      <Link
+                        to="/agency"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-blue-700 font-bold hover:bg-blue-50 border-t border-slate-100"
+                      >
+                        <Briefcase className="w-3.5 h-3.5 text-blue-600" />
+                        <span>{t('nav.agency', 'Travel Agency Portal')}</span>
+                      </Link>
+
+                      {isAdmin && (
+                        <Link
+                          to="/admin"
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="flex items-center gap-2 px-4 py-2 text-slate-900 font-bold hover:bg-slate-50 border-t border-slate-100"
+                        >
+                          <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
+                          <span>{t('nav.admin', 'Admin Console')}</span>
+                        </Link>
+                      )}
+
+                      <div className="pt-1 mt-1 border-t border-slate-100">
+                        <button
+                          type="button"
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-2 px-4 py-2 text-rose-600 hover:bg-rose-50 text-left font-semibold"
+                        >
+                          <LogOut className="w-3.5 h-3.5" />
+                          <span>{t('nav.logout', 'Sign Out')}</span>
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             ) : (
               <div className="flex items-center gap-2">
@@ -857,111 +921,121 @@ export const Navbar: React.FC = () => {
         </div>
 
         {/* Mobile Navigation Drawer */}
-        {mobileMenuOpen && (
-          <div className="xl:hidden mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 space-y-4 pb-4 animate-dropdown">
-            {/* Mobile Theme Toggle Slide Switch */}
-            <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-100 dark:border-slate-700">
-              <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
-                Theme Mode
-              </span>
-              <ThemeToggleSwitch showLabel />
-            </div>
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              key="mobile-navigation-drawer"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              className="xl:hidden mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 space-y-4 pb-4 overflow-hidden"
+            >
+              {/* Mobile Theme Toggle Slide Switch */}
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-100 dark:border-slate-700">
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                  Theme Mode
+                </span>
+                <ThemeToggleSwitch showLabel />
+              </div>
 
-            {/* Mobile Travel Mode Selection */}
-            <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
-                {t('mode.title', 'Travel Experience Mode')}
-              </span>
-              <div className="grid grid-cols-3 gap-1.5">
-                {travelModes.map((m) => {
-                  const Icon = m.icon;
-                  const isSelected = travelMode === m.mode;
-                  const activeClass =
-                    m.mode === 'family'
-                      ? 'bg-amber-600 text-white border-amber-600 shadow-sm'
-                      : m.mode === 'accessibility'
-                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-                      : 'bg-blue-600 text-white border-blue-600 shadow-sm';
+              {/* Mobile Travel Mode Selection */}
+              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
+                  {t('mode.title', 'Travel Experience Mode')}
+                </span>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {travelModes.map((m) => {
+                    const Icon = m.icon;
+                    const isSelected = travelMode === m.mode;
+                    const activeClass =
+                      m.mode === 'family'
+                        ? 'bg-amber-600 text-white border-amber-600 shadow-sm'
+                        : m.mode === 'accessibility'
+                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                        : 'bg-blue-600 text-white border-blue-600 shadow-sm';
 
-                  return (
-                    <button
-                      key={m.mode}
-                      type="button"
-                      onClick={() => {
-                        setTravelMode(m.mode);
-                        toast.success(`Active Mode: ${t(m.key, m.mode)}`, {
-                          duration: 2500,
-                          id: 'travel-mode',
-                          icon: m.mode === 'family' ? '👨‍👩‍👧' : m.mode === 'accessibility' ? '♿' : '✈️',
-                        });
-                      }}
-                      className={`py-2 px-2 rounded-xl text-[11px] font-bold text-center border transition-all flex flex-col items-center gap-1 ${
-                        isSelected ? activeClass : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
-                      }`}
+                    return (
+                      <button
+                        key={m.mode}
+                        type="button"
+                        onClick={() => {
+                          setTravelMode(m.mode);
+                          toast.success(`Active Mode: ${t(m.key, m.mode)}`, {
+                            duration: 2500,
+                            id: 'travel-mode',
+                            icon: m.mode === 'family' ? '👨‍👩‍👧' : m.mode === 'accessibility' ? '♿' : '✈️',
+                          });
+                        }}
+                        className={`py-2 px-2 rounded-xl text-[11px] font-bold text-center border transition-all flex flex-col items-center gap-1 ${
+                          isSelected ? activeClass : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                        }`}
+                      >
+                        <Icon className="w-4 h-4" />
+                        <span>{t(m.key, m.mode)}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Mobile Navigation Quick Links */}
+              <div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block px-2 mb-1.5">
+                  {t('nav.explore', 'Explore Destinations')}
+                </span>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {exploreLinks.map((item) => (
+                    <Link
+                      key={item.href}
+                      to={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="p-2.5 rounded-xl bg-slate-50 text-slate-900 text-xs font-bold"
                     >
-                      <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-slate-500'}`} />
-                      <span className="truncate w-full">{t(m.key, m.mode)}</span>
-                    </button>
-                  );
-                })}
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
               </div>
-            </div>
 
-            <div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block px-2 mb-1.5">
-                {t('nav.explore', 'Explore Destinations & Stays')}
-              </span>
-              <div className="grid grid-cols-2 gap-1.5">
-                {exploreLinks.map((item) => (
-                  <Link
-                    key={item.href}
-                    to={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="p-2.5 rounded-xl bg-slate-50 text-slate-900 text-xs font-bold"
-                  >
-                    {item.label}
-                  </Link>
-                ))}
+              <div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block px-2 mb-1.5">
+                  {t('nav.plan', 'Plan & Itinerary')}
+                </span>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {planLinks.map((item) => (
+                    <Link
+                      key={item.href}
+                      to={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="p-2.5 rounded-xl bg-blue-50/60 text-blue-900 text-xs font-bold"
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
               </div>
-            </div>
 
-            <div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block px-2 mb-1.5">
-                {t('nav.plan', 'Plan Your Trip')}
-              </span>
-              <div className="grid grid-cols-2 gap-1.5">
-                {planLinks.map((item) => (
-                  <Link
-                    key={item.href}
-                    to={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="p-2.5 rounded-xl bg-blue-50/60 text-blue-900 text-xs font-bold"
-                  >
-                    {item.label}
-                  </Link>
-                ))}
+              <div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block px-2 mb-1.5">
+                  {t('nav.book', 'Book Tickets')}
+                </span>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {bookLinks.map((item) => (
+                    <Link
+                      key={item.href}
+                      to={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="p-2.5 rounded-xl bg-slate-50 text-slate-900 text-xs font-bold"
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
               </div>
-            </div>
-
-            <div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block px-2 mb-1.5">
-                {t('nav.book', 'Book Tickets')}
-              </span>
-              <div className="grid grid-cols-2 gap-1.5">
-                {bookLinks.map((item) => (
-                  <Link
-                    key={item.href}
-                    to={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="p-2.5 rounded-xl bg-slate-50 text-slate-900 text-xs font-bold"
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </header>
   );

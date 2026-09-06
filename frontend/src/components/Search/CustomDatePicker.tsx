@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, X, Check } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface CustomDatePickerProps {
   isOpen: boolean;
@@ -36,8 +37,6 @@ export const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
   const [currentYear, setCurrentYear] = useState(initDate.getFullYear());
   const [currentMonth, setCurrentMonth] = useState(initDate.getMonth()); // 0-11
   const [selectingTarget, setSelectingTarget] = useState<'departure' | 'return'>('departure');
-
-  if (!isOpen) return null;
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -170,11 +169,24 @@ export const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
   const nextMonth = currentMonth === 11 ? 0 : currentMonth + 1;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-      <div
-        className="w-full max-w-2xl bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-scale-up"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.18 }}
+          onClick={onClose}
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-sm"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 15 }}
+            transition={{ type: 'spring', stiffness: 460, damping: 32 }}
+            className="w-full max-w-2xl bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
         {/* Header */}
         <div className="p-4 sm:p-5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -298,7 +310,9 @@ export const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
             Done
           </button>
         </div>
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };

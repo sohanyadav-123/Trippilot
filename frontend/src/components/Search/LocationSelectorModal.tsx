@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, X, Plane, MapPin, History, Building2, Train, Bus, ChevronRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { LocationItem, LOCATIONS_DATA, searchLocations } from '../../data/locationData';
 import { useTravelSettings } from '../../context/TravelSettingsContext';
 
@@ -52,8 +53,6 @@ export const LocationSelectorModal: React.FC<LocationSelectorModalProps> = ({
     }
   }, [isOpen]);
 
-  if (!isOpen) return null;
-
   const filtered = searchLocations(query, typeFilter);
 
   const handleItemClick = (item: LocationItem) => {
@@ -79,11 +78,24 @@ export const LocationSelectorModal: React.FC<LocationSelectorModalProps> = ({
   const popularAirports = LOCATIONS_DATA.filter((l) => l.airportName && l.popular).slice(0, 6);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-      <div
-        className="w-full max-w-xl bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] sm:max-h-[750px] animate-scale-up"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.18 }}
+          onClick={onClose}
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-sm"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 15 }}
+            transition={{ type: 'spring', stiffness: 460, damping: 32 }}
+            className="w-full max-w-xl bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] sm:max-h-[750px]"
+            onClick={(e) => e.stopPropagation()}
+          >
         {/* Header */}
         <div className="p-4 sm:p-5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -289,7 +301,9 @@ export const LocationSelectorModal: React.FC<LocationSelectorModalProps> = ({
             </>
           )}
         </div>
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };

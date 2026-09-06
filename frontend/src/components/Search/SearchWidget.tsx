@@ -19,6 +19,7 @@ import {
   Accessibility,
 } from 'lucide-react';
 import { LocationItem, LOCATIONS_DATA } from '../../data/locationData';
+import { motion, AnimatePresence } from 'framer-motion';
 import { LocationSelectorModal } from './LocationSelectorModal';
 import { CustomDatePicker } from './CustomDatePicker';
 import { TravellerClassSelector, CabinClass } from './TravellerClassSelector';
@@ -241,14 +242,23 @@ export const SearchWidget: React.FC = () => {
                 setActiveTab(tab.id as SearchTab);
                 setValidationError(null);
               }}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
+              className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-colors whitespace-nowrap ${
                 isActive
-                  ? 'bg-[#0B1220] text-white shadow-sm'
-                  : 'bg-slate-50 text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200/60'
+                  ? 'text-white'
+                  : 'bg-slate-50/90 text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200/60'
               }`}
             >
-              <Icon className="w-4 h-4" />
-              <span>{tab.label}</span>
+              {isActive && (
+                <motion.span
+                  layoutId="activeSearchTab"
+                  className="absolute inset-0 bg-[#0B1220] rounded-xl shadow-md z-0"
+                  transition={{ type: 'spring', stiffness: 480, damping: 34 }}
+                />
+              )}
+              <span className="relative z-10 flex items-center gap-2">
+                <Icon className="w-4 h-4" />
+                <span>{tab.label}</span>
+              </span>
             </button>
           );
         })}
@@ -307,9 +317,18 @@ export const SearchWidget: React.FC = () => {
         </div>
       )}
 
-      {/* ─── 2. FLIGHTS TAB ─── */}
-      {activeTab === 'flights' && (
-        <form onSubmit={handleFlightSubmit} className="space-y-5">
+      {/* ─── TAB CONTENT PANELS WITH SMOOTH DISSOLVE/SLIDE TRANSITIONS ─── */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+        >
+          {/* ─── 2. FLIGHTS TAB ─── */}
+          {activeTab === 'flights' && (
+            <form onSubmit={handleFlightSubmit} className="space-y-5">
           {/* Trip Type & Special Fares Bar */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             {/* Trip Types: One-Way, Round-Trip, Multi-City */}
@@ -318,20 +337,28 @@ export const SearchWidget: React.FC = () => {
                 { id: 'one-way', label: t('search.one_way', 'One Way') },
                 { id: 'round-trip', label: t('search.round_trip', 'Round Trip') },
                 { id: 'multi-city', label: t('search.multi_city', 'Multi City') },
-              ].map((tItem) => (
-                <button
-                  key={tItem.id}
-                  type="button"
-                  onClick={() => setTripType(tItem.id as TripType)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                    tripType === tItem.id
-                      ? 'bg-white text-[#0B1220] shadow-sm'
-                      : 'text-slate-600 hover:text-[#0B1220]'
-                  }`}
-                >
-                  {tItem.label}
-                </button>
-              ))}
+              ].map((tItem) => {
+                const isActive = tripType === tItem.id;
+                return (
+                  <button
+                    key={tItem.id}
+                    type="button"
+                    onClick={() => setTripType(tItem.id as TripType)}
+                    className={`relative px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                      isActive ? 'text-[#0B1220]' : 'text-slate-600 hover:text-[#0B1220]'
+                    }`}
+                  >
+                    {isActive && (
+                      <motion.span
+                        layoutId="activeTripType"
+                        className="absolute inset-0 bg-white rounded-lg shadow-xs z-0"
+                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                      />
+                    )}
+                    <span className="relative z-10">{tItem.label}</span>
+                  </button>
+                );
+              })}
             </div>
 
             {/* Special Fare Categories */}
@@ -945,6 +972,8 @@ export const SearchWidget: React.FC = () => {
           </div>
         </form>
       )}
+        </motion.div>
+      </AnimatePresence>
 
       {/* ─── MODAL CONTROLS ─── */}
       {/* Origin Selector Modal */}

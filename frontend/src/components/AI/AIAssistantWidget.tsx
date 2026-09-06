@@ -24,6 +24,7 @@ import { DestinationChangeModal } from '../TripBuilder/DestinationChangeModal';
 import { StartFreshModal } from '../TripBuilder/StartFreshModal';
 import { useTravelSettings } from '../../context/TravelSettingsContext';
 import { MarkdownMessage } from './MarkdownMessage';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const DEFAULT_WELCOME_MESSAGE: ChatMessage = {
   id: 'msg_welcome',
@@ -410,35 +411,47 @@ export const AIAssistantWidget: React.FC = () => {
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
-      {/* Floating Trigger Button */}
-      {!isOpen && (
-        <button
-          onClick={() => setIsOpen(true)}
-          className="bg-[#0B1220] hover:bg-[#1a2440] text-white px-4 py-3 rounded-full shadow-2xl flex items-center gap-2.5 transition-all hover:scale-105 active:scale-95 border border-slate-700 group"
-          title="Open AI Co-Pilot"
-        >
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white shadow-sm">
-            <Sparkles className="w-4 h-4 text-[#C8A96B]" />
-          </div>
-          <div className="hidden sm:flex flex-col text-left">
-            <span className="text-xs font-bold leading-tight tracking-wide">{t('ai.copilot', 'AI Co-Pilot')}</span>
-            <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              Online
-            </span>
-          </div>
-        </button>
-      )}
+      <AnimatePresence mode="wait">
+        {/* Floating Trigger Button */}
+        {!isOpen && (
+          <motion.button
+            key="copilot-launcher"
+            initial={{ opacity: 0, scale: 0.8, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 10 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setIsOpen(true)}
+            className="bg-[#0B1220] hover:bg-[#1a2440] text-white px-4 py-3 rounded-full shadow-2xl flex items-center gap-2.5 transition-colors border border-slate-700 group"
+            title="Open AI Co-Pilot"
+          >
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white shadow-sm">
+              <Sparkles className="w-4 h-4 text-[#C8A96B]" />
+            </div>
+            <div className="hidden sm:flex flex-col text-left">
+              <span className="text-xs font-bold leading-tight tracking-wide">{t('ai.copilot', 'AI Co-Pilot')}</span>
+              <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                Online
+              </span>
+            </div>
+          </motion.button>
+        )}
 
-      {/* Chat Window */}
-      {isOpen && (
-        <div
-          className={`bg-white rounded-3xl border border-slate-200 shadow-2xl flex flex-col overflow-hidden animate-modal-panel transition-all duration-300 ${
-            isExpanded
-              ? 'fixed inset-4 sm:inset-10 md:inset-x-auto md:right-8 md:bottom-8 md:top-8 md:w-[680px] z-50 rounded-3xl'
-              : 'w-[92vw] sm:w-[440px] h-[600px] max-h-[85vh]'
-          }`}
-        >
+        {/* Chat Window */}
+        {isOpen && (
+          <motion.div
+            key="copilot-window"
+            initial={{ opacity: 0, scale: 0.92, y: 20, transformOrigin: 'bottom right' }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.92, y: 16, transition: { duration: 0.18, ease: [0.16, 1, 0.3, 1] } }}
+            transition={{ type: 'spring', stiffness: 420, damping: 30 }}
+            className={`bg-white rounded-3xl border border-slate-200 shadow-2xl flex flex-col overflow-hidden ${
+              isExpanded
+                ? 'fixed inset-4 sm:inset-10 md:inset-x-auto md:right-8 md:bottom-8 md:top-8 md:w-[680px] z-50 rounded-3xl'
+                : 'w-[92vw] sm:w-[440px] h-[600px] max-h-[85vh]'
+            }`}
+          >
           {/* Header - CLEAN WITH NO VISIBLE CONTEXT BAR */}
           <div className="px-5 py-3.5 bg-[#0B1220] text-white flex items-center justify-between flex-shrink-0 border-b border-slate-800">
             <div className="flex items-center gap-3">
@@ -735,8 +748,9 @@ export const AIAssistantWidget: React.FC = () => {
               </form>
             </>
           )}
-        </div>
+        </motion.div>
       )}
+    </AnimatePresence>
 
       {/* Destination Change Modal */}
       {showDestinationChange && (
