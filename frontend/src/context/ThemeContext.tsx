@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useLayoutEffect } from 'react';
 
 type Theme = 'dark' | 'light';
 
@@ -10,23 +10,33 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setTheme] = useState<Theme>(() => {
-    const saved = localStorage.getItem('trippilot_theme');
-    return (saved as Theme) || 'light';
-  });
+  // Always start with 'light' — ignore any previously saved value
+  const [theme, setTheme] = useState<Theme>('light');
 
-  useEffect(() => {
+  // Run synchronously before paint so there's no flash
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    // Force remove dark class and ensure light theme
+    root.classList.remove('dark');
+    root.setAttribute('data-theme', 'light');
+    // Overwrite any stale saved value
+    localStorage.setItem('trippilot_theme', 'light');
+  }, []); // only on mount
+
+  useLayoutEffect(() => {
     const root = document.documentElement;
     if (theme === 'dark') {
       root.classList.add('dark');
+      root.setAttribute('data-theme', 'dark');
     } else {
       root.classList.remove('dark');
+      root.setAttribute('data-theme', 'light');
     }
     localStorage.setItem('trippilot_theme', theme);
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
   };
 
   return (

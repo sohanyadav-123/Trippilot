@@ -20,15 +20,10 @@
     <script>
       (function () {
         try {
-          var saved = localStorage.getItem('trippilot_theme');
-          var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-          var theme = saved || (prefersDark ? 'dark' : 'light');
-          if (theme === 'dark') {
-            document.documentElement.classList.add('dark');
-          } else {
-            document.documentElement.classList.remove('dark');
-          }
-          document.documentElement.setAttribute('data-theme', theme);
+          // Always force light theme — remove dark class unconditionally
+          document.documentElement.classList.remove('dark');
+          document.documentElement.setAttribute('data-theme', 'light');
+          localStorage.setItem('trippilot_theme', 'light');
         } catch (e) {}
       })();
     </script>
