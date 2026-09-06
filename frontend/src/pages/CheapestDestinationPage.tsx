@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
   DollarSign,
@@ -182,14 +183,24 @@ export const CheapestDestinationPage: React.FC = () => {
         </div>
 
         {/* Results List */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {budgetResults.map(({ dest, estTravel, estHotel, estTransport, estActivities, estFood, estTotal, isWithin, remaining, travelTime }) => (
-            <div
-              key={dest.id}
-              className={`surface-card rounded-3xl bg-white border shadow-sm p-6 flex flex-col justify-between space-y-4 transition-all ${
-                isWithin ? 'border-slate-200 hover:border-emerald-300' : 'border-rose-200 opacity-90'
-              }`}
-            >
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`${sortBy}-${inputBudget}-${durationDays}-${guestCount}`}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {budgetResults.map(({ dest, estTravel, estHotel, estTransport, estActivities, estFood, estTotal, isWithin, remaining, travelTime }) => (
+              <motion.div
+                key={dest.id}
+                whileHover={{ y: -3 }}
+                transition={{ duration: 0.2 }}
+                className={`surface-card rounded-3xl bg-white border shadow-sm p-6 flex flex-col justify-between space-y-4 transition-all ${
+                  isWithin ? 'border-slate-200 hover:border-emerald-300' : 'border-rose-200 opacity-90'
+                }`}
+              >
               <div className="space-y-3">
                 {/* Header info */}
                 <div className="flex items-start justify-between">
@@ -285,9 +296,10 @@ export const CheapestDestinationPage: React.FC = () => {
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );

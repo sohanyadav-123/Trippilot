@@ -781,7 +781,7 @@ export const hi: TranslationDict = {
   'step.activity.back_transport': '← Back to Transport',
   'step.activity.added_short': 'Added',
   'step.activity.remove': 'Remove',
-  'step.activity.subtitle': '${selectedActivities.length} Experiences selected • Add top-rated water sports, sunset cruises, or food tours.',
+  'step.activity.subtitle': '{count} Experiences selected • Add top-rated water sports, sunset cruises, or food tours.',
   'step.activity.experiences_added': '${selectedActivities.length} Experiences Added ✓',
   'common.for_travellers': 'For ${travellers} ${travellers > 1 ? ',
   'step.activity.remove_item': 'Remove ${act.name}',

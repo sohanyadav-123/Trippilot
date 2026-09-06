@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Search,
@@ -186,9 +187,12 @@ export const DestinationsList: React.FC = () => {
           {/* Category Horizontal Pills */}
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1">
             {categories.map((cat) => (
-              <button
+              <motion.button
                 key={cat.id}
                 type="button"
+                whileHover={{ y: -1 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.15 }}
                 onClick={() => setSelectedCategory(cat.id)}
                 className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap border ${
                   selectedCategory === cat.id
@@ -197,7 +201,7 @@ export const DestinationsList: React.FC = () => {
                 }`}
               >
                 {cat.label}
-              </button>
+              </motion.button>
             ))}
           </div>
         </div>
@@ -223,16 +227,25 @@ export const DestinationsList: React.FC = () => {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredDestinations.map((dest) => {
-              const saved = isInWishlist(dest.id);
-              const travelTime = dest.travelTimeFromHubs[origin] || dest.travelTimeFromHubs['Delhi'] || 'Direct Flights';
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={selectedCategory + regionFilter}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              {filteredDestinations.map((dest) => {
+                const saved = isInWishlist(dest.id);
+                const travelTime = dest.travelTimeFromHubs[origin] || dest.travelTimeFromHubs['Delhi'] || 'Direct Flights';
 
-              return (
-                <div
-                  key={dest.id}
-                  className="surface-card rounded-3xl bg-white border border-slate-200/90 shadow-sm overflow-hidden hover:shadow-luxury transition-all duration-300 flex flex-col justify-between group"
-                >
+                return (
+                  <motion.div
+                    key={dest.id}
+                    whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                    className="surface-card rounded-3xl bg-white border border-slate-200/90 shadow-sm overflow-hidden hover:shadow-luxury transition-all duration-300 flex flex-col justify-between group"
+                  >
                   {/* Card Image Header */}
                   <div className="relative h-56 overflow-hidden bg-slate-100">
                     <img
@@ -367,10 +380,11 @@ export const DestinationsList: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          </AnimatePresence>
         )}
       </div>
     </div>

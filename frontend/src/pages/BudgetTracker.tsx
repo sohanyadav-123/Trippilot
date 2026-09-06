@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Wallet,
   TrendingDown,
@@ -68,10 +69,12 @@ export const BudgetTracker: React.FC = () => {
             { id: 'currency', label: t('budget.tab_currency', '💱 Currency Converter'), count: undefined },
             { id: 'alerts', label: t('budget.tab_alerts', '🔔 Price Watch'), count: undefined },
           ].map((tab) => (
-            <button
+            <motion.button
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id as BudgetHubTab)}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               className={`px-4 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 ${
                 activeTab === tab.id
                   ? 'bg-[#0B1220] text-white shadow-md'
@@ -86,58 +89,67 @@ export const BudgetTracker: React.FC = () => {
                   {tab.count}
                 </span>
               )}
-            </button>
+            </motion.button>
           ))}
         </div>
 
         {/* Tab Content Display */}
-        <div className="space-y-8 animate-fade-in">
-          {activeTab === 'overview' && (
-            <>
-              <BudgetOverviewCard />
-              <CategoryBreakdownSection />
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            className="space-y-8"
+          >
+            {activeTab === 'overview' && (
+              <>
+                <BudgetOverviewCard />
+                <CategoryBreakdownSection />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <CurrencyConverterCard />
+                  <PriceAlertsSection />
+                </div>
+              </>
+            )}
+
+            {activeTab === 'optimizer' && (
+              <>
+                <BudgetOptimizerSection />
+                <CategoryBreakdownSection />
+              </>
+            )}
+
+            {activeTab === 'expenses' && (
+              <>
+                <BudgetOverviewCard />
+                <ExpenseTrackerSection />
+              </>
+            )}
+
+            {activeTab === 'splitting' && (
+              <>
+                <GroupSplitSection />
+                <ExpenseTrackerSection />
+              </>
+            )}
+
+            {activeTab === 'currency' && (
+              <div className="max-w-3xl mx-auto space-y-6">
                 <CurrencyConverterCard />
-                <PriceAlertsSection />
+                <BudgetOverviewCard />
               </div>
-            </>
-          )}
+            )}
 
-          {activeTab === 'optimizer' && (
-            <>
-              <BudgetOptimizerSection />
-              <CategoryBreakdownSection />
-            </>
-          )}
-
-          {activeTab === 'expenses' && (
-            <>
-              <BudgetOverviewCard />
-              <ExpenseTrackerSection />
-            </>
-          )}
-
-          {activeTab === 'splitting' && (
-            <>
-              <GroupSplitSection />
-              <ExpenseTrackerSection />
-            </>
-          )}
-
-          {activeTab === 'currency' && (
-            <div className="max-w-3xl mx-auto space-y-6">
-              <CurrencyConverterCard />
-              <BudgetOverviewCard />
-            </div>
-          )}
-
-          {activeTab === 'alerts' && (
-            <div className="space-y-6">
-              <PriceAlertsSection />
-              <BudgetOptimizerSection />
-            </div>
-          )}
-        </div>
+            {activeTab === 'alerts' && (
+              <div className="space-y-6">
+                <PriceAlertsSection />
+                <BudgetOptimizerSection />
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );

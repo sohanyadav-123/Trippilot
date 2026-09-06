@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeftRight,
@@ -158,18 +159,28 @@ export const CompareTripsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Side-by-Side Cards Comparison Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {comparisonData.map((item) => {
-            const isBestBudget = item.cityName === bestForBudget?.cityName;
-            const isBestShortTravel = item.cityName === bestForShortTravel?.cityName;
-            const isBestOverall = item.cityName === bestOverall?.cityName;
+        {/* Dynamic Comparison Matrix Cards */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={compareList.join('-') + '-' + durationDays}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {comparisonData.map((item) => {
+              const isBestBudget = item.cityName === bestForBudget?.cityName;
+              const isBestShortTravel = item.cityName === bestForShortTravel?.cityName;
+              const isBestOverall = item.cityName === bestOverall?.cityName;
 
-            return (
-              <div
-                key={item.cityName}
-                className="surface-card rounded-3xl bg-white border border-slate-200 shadow-sm p-6 flex flex-col justify-between space-y-5 hover:shadow-luxury transition-all"
-              >
+              return (
+                <motion.div
+                  key={item.cityName}
+                  whileHover={{ y: -3 }}
+                  transition={{ duration: 0.2 }}
+                  className="surface-card rounded-3xl bg-white border border-slate-200 shadow-sm p-6 space-y-5 hover:shadow-luxury transition-all flex flex-col justify-between"
+                >
                 <div className="space-y-4">
                   {/* Top Bar: Title & Badges */}
                   <div className="flex items-start justify-between">
@@ -276,10 +287,11 @@ export const CompareTripsPage: React.FC = () => {
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+          </motion.div>
+        </AnimatePresence>
 
         {/* AI Comparison Recommendations Section */}
         <div className="surface-card p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-4">

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Car, Bike, Navigation, ShieldCheck, Check, ChevronRight, Fuel, Sparkles, Zap, DollarSign, HeartHandshake, Compass, X, Trash2 } from 'lucide-react';
 import { useTripBuilder, LocalTransportType, TransportOptimization, LocalMobilityItem } from '../../../context/TripBuilderContext';
 import { useTravelSettings } from '../../../context/TravelSettingsContext';
@@ -231,13 +232,16 @@ export const LocalMobilityStep: React.FC = () => {
             const isSelected = activeType === card.id;
 
             return (
-              <button
+              <motion.button
                 key={card.id}
                 type="button"
+                whileHover={{ y: -2, scale: 1.015 }}
+                whileTap={{ scale: 0.985 }}
+                transition={{ duration: 0.15 }}
                 onClick={() => handleSelectType(card.id)}
                 className={`p-3.5 rounded-2xl border text-left transition-all relative flex flex-col justify-between ${
                   isSelected
-                    ? 'bg-[#0B1220] text-white border-[#0B1220] ring-2 ring-[#0B1220]/20 shadow-md scale-[1.02]'
+                    ? 'bg-[#0B1220] text-white border-[#0B1220] ring-2 ring-[#0B1220]/20 shadow-md'
                     : 'bg-white text-slate-800 border-slate-200/90 hover:border-slate-300 hover:bg-slate-50'
                 }`}
               >
@@ -266,7 +270,7 @@ export const LocalMobilityStep: React.FC = () => {
                     {card.estPrice}
                   </span>
                 </div>
-              </button>
+              </motion.button>
             );
           })}
         </div>
@@ -300,17 +304,27 @@ export const LocalMobilityStep: React.FC = () => {
       </div>
 
       {/* ─── 5. MOBILITY INVENTORY GRID ─── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filteredMobility.map((item) => {
-          const isItemPicked = selectedMobility?.id === item.id;
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeType + activeOpt}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+          className="grid grid-cols-1 md:grid-cols-2 gap-4"
+        >
+          {filteredMobility.map((item) => {
+            const isItemPicked = selectedMobility?.id === item.id;
 
-          return (
-            <div
-              key={item.id}
-              className={`surface-card p-5 rounded-2xl transition-all bg-white flex flex-col justify-between ${
-                isItemPicked ? 'border-[#0B1220] ring-2 ring-[#0B1220]/10 shadow-md' : 'hover:border-slate-300'
-              }`}
-            >
+            return (
+              <motion.div
+                key={item.id}
+                whileHover={{ y: -2 }}
+                transition={{ duration: 0.15 }}
+                className={`surface-card p-5 rounded-2xl transition-all bg-white flex flex-col justify-between ${
+                  isItemPicked ? 'border-[#0B1220] ring-2 ring-[#0B1220]/10 shadow-md' : 'hover:border-slate-300'
+                }`}
+              >
               <div className="space-y-3">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
@@ -379,10 +393,11 @@ export const LocalMobilityStep: React.FC = () => {
                   )}
                 </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 };

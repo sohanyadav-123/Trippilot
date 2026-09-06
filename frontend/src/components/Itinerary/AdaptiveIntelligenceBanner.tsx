@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { CloudSun, CloudRain, Sun, Waves, AlertTriangle, Sparkles, ChevronRight, Check, Users, ShieldAlert, ArrowRight } from 'lucide-react';
 import { useTripBuilder } from '../../context/TripBuilderContext';
 import { TravelGroupType } from '../../types/adaptiveWeather';
@@ -79,8 +80,10 @@ export const AdaptiveIntelligenceBanner: React.FC = () => {
             const hasConflict = detectedConflicts.some((c) => c.dayNumber === f.dayNumber);
 
             return (
-              <div
+              <motion.div
                 key={f.dayNumber}
+                whileHover={{ y: -2, scale: 1.02 }}
+                transition={{ duration: 0.15 }}
                 className={`p-3 rounded-2xl border flex flex-col items-center justify-between text-center transition-all ${
                   hasConflict
                     ? 'bg-amber-50/70 border-amber-300 ring-1 ring-amber-300/40 shadow-xs'
@@ -119,7 +122,7 @@ export const AdaptiveIntelligenceBanner: React.FC = () => {
                     </span>
                   )}
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>

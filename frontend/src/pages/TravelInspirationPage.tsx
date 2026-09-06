@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
   Sparkles,
@@ -232,9 +233,11 @@ export const TravelInspirationPage: React.FC = () => {
                 { id: 'winter', label: '☀️ Winter Sun' },
                 { id: 'summer', label: '⛰️ Summer Alpine' },
               ].map((s) => (
-                <button
+                <motion.button
                   key={s.id}
                   type="button"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => setActiveSeason(s.id as any)}
                   className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                     activeSeason === s.id
@@ -243,47 +246,58 @@ export const TravelInspirationPage: React.FC = () => {
                   }`}
                 >
                   {s.label}
-                </button>
+                </motion.button>
               ))}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {seasonalDestinations.map((dest) => (
-              <div
-                key={dest.id}
-                className="surface-card rounded-3xl bg-white border border-slate-200 shadow-sm p-5 space-y-4 hover:shadow-luxury transition-all flex flex-col justify-between"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                        {dest.country}
-                      </span>
-                      <h3 className="text-xl font-bold font-editorial text-[#0B1220]">{dest.city}</h3>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeSeason}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+              className="grid grid-cols-1 md:grid-cols-3 gap-6"
+            >
+              {seasonalDestinations.map((dest) => (
+                <motion.div
+                  key={dest.id}
+                  whileHover={{ y: -3 }}
+                  transition={{ duration: 0.2 }}
+                  className="surface-card rounded-3xl bg-white border border-slate-200 shadow-sm p-5 space-y-4 hover:shadow-luxury transition-all flex flex-col justify-between"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                          {dest.country}
+                        </span>
+                        <h3 className="text-xl font-bold font-editorial text-[#0B1220]">{dest.city}</h3>
+                      </div>
+                      <span className="text-xs text-slate-500 font-semibold">{dest.weather}</span>
                     </div>
-                    <span className="text-xs text-slate-500 font-semibold">{dest.weather}</span>
+
+                    <p className="text-xs text-slate-600 leading-relaxed">{dest.description}</p>
                   </div>
 
-                  <p className="text-xs text-slate-600 leading-relaxed">{dest.description}</p>
-                </div>
-
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                  <span className="text-xs font-black text-slate-900">
-                    ₹{dest.startingEstimatedPrice.toLocaleString('en-IN')}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => handlePlanTrip(dest.city)}
-                    className="btn-primary text-xs !py-1.5 px-3.5 font-bold rounded-xl flex items-center gap-1 shadow-xs"
-                  >
-                    <span>Plan Trip</span>
-                    <ArrowRight className="w-3 h-3" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                    <span className="text-xs font-black text-slate-900">
+                      ₹{dest.startingEstimatedPrice.toLocaleString('en-IN')}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handlePlanTrip(dest.city)}
+                      className="btn-primary text-xs !py-1.5 px-3.5 font-bold rounded-xl flex items-center gap-1 shadow-xs"
+                    >
+                      <span>Plan Trip</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   CalendarDays,
@@ -164,8 +165,10 @@ export const ItineraryPage: React.FC = () => {
         <div className="space-y-6">
           {/* Day Cards Stream */}
           {selectedItinerary.days.map((day, dIdx) => (
-            <div
+            <motion.div
               key={dIdx}
+              whileHover={{ y: -2 }}
+              transition={{ duration: 0.2 }}
               className="surface-card p-6 rounded-3xl border border-slate-200 shadow-sm bg-white space-y-4"
             >
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -193,8 +196,10 @@ export const ItineraryPage: React.FC = () => {
               {/* Activities Stream */}
               <div className="space-y-3">
                 {day.activities.map((act, aIdx) => (
-                  <div
+                  <motion.div
                     key={aIdx}
+                    whileHover={{ scale: 1.01 }}
+                    transition={{ duration: 0.15 }}
                     className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
                   >
                     <div className="flex items-start sm:items-center gap-3">
@@ -213,10 +218,10 @@ export const ItineraryPage: React.FC = () => {
                         <CurrencyDisplay amount={act.estimated_cost} className="font-bold text-slate-900 text-xs" />
                       </div>
                     )}
-                  </div>
+                  </motion.div>
                 ))}
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       ) : (

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import {
   CloudSun,
@@ -309,9 +310,11 @@ export const WeatherPage: React.FC = () => {
             </span>
             <div className="flex flex-wrap gap-2">
               {POPULAR_DESTINATIONS.map((c) => (
-                <button
+                <motion.button
                   key={c}
                   type="button"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => handleSelectQuickCity(c)}
                   className="px-3 py-1.5 rounded-xl text-xs font-semibold transition-all"
                   style={
@@ -321,7 +324,7 @@ export const WeatherPage: React.FC = () => {
                   }
                 >
                   {c}
-                </button>
+                </motion.button>
               ))}
             </div>
           </div>
@@ -359,7 +362,15 @@ export const WeatherPage: React.FC = () => {
             </button>
           </div>
         ) : weather ? (
-          <>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={weather.city}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.22 }}
+              className="space-y-8"
+            >
             {/* ─── Hero Weather Card ─── */}
             <div className="relative rounded-3xl p-6 sm:p-8 overflow-hidden shadow-xl" style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
               <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-blue-500/05 to-amber-500/05 rounded-full blur-3xl pointer-events-none" />
@@ -600,7 +611,8 @@ export const WeatherPage: React.FC = () => {
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
-          </>
+          </motion.div>
+          </AnimatePresence>
         ) : null}
       </div>
     </div>

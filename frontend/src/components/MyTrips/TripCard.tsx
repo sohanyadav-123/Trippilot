@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
   CalendarDays,
@@ -92,7 +93,11 @@ export const TripCard: React.FC<TripCardProps> = ({
   };
 
   return (
-    <div className="surface-card p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition-all bg-white space-y-4">
+    <motion.div
+      whileHover={{ y: -2 }}
+      transition={{ duration: 0.2 }}
+      className="surface-card p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition-all bg-white space-y-4"
+    >
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
         <div className="flex items-center gap-2 flex-wrap">
@@ -235,6 +240,6 @@ export const TripCard: React.FC<TripCardProps> = ({
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };

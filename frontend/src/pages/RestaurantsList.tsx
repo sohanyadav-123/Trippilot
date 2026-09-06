@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
   UtensilsCrossed,
@@ -178,8 +179,12 @@ export const RestaurantsList: React.FC = () => {
         <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 scrollbar-none">
             {categories.map((cat) => (
-              <button
+              <motion.button
                 key={cat}
+                type="button"
+                whileHover={{ y: -1 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.15 }}
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                   selectedCategory === cat
@@ -188,7 +193,7 @@ export const RestaurantsList: React.FC = () => {
                 }`}
               >
                 {cat}
-              </button>
+              </motion.button>
             ))}
           </div>
 
@@ -217,15 +222,24 @@ export const RestaurantsList: React.FC = () => {
           }}
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((r) => {
-          const isAdded = addedRestaurants.includes(r.id);
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={selectedCategory}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {filtered.map((r) => {
+              const isAdded = addedRestaurants.includes(r.id);
 
-          return (
-            <div
-              key={r.id}
-              className="surface-card rounded-3xl border border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300 overflow-hidden flex flex-col justify-between group transition-all bg-white"
-            >
+              return (
+                <motion.div
+                  key={r.id}
+                  whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                  className="surface-card rounded-3xl border border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300 overflow-hidden flex flex-col justify-between group transition-all bg-white"
+                >
               <div>
                 <div className="relative h-48 w-full overflow-hidden">
                   <img
@@ -298,10 +312,11 @@ export const RestaurantsList: React.FC = () => {
                   )}
                 </button>
               </div>
-            </div>
-          );
-        })}
-        </div>
+            </motion.div>
+              );
+            })}
+          </motion.div>
+        </AnimatePresence>
       )}
     </div>
   );

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Building2, Star, MapPin, Check, ChevronRight, AlertCircle, Sparkles, Home, BedDouble, Trees, Castle, Waves, Coffee, Utensils, Wifi, ShieldCheck, Filter, X, Edit3, Trash2 } from 'lucide-react';
 import { useTripBuilder, StayTypePreference, StayItem } from '../../../context/TripBuilderContext';
 import { useTravelSettings } from '../../../context/TravelSettingsContext';
@@ -383,13 +384,16 @@ export const StayStep: React.FC = () => {
             const isSelected = activeType === card.id;
 
             return (
-              <button
+              <motion.button
                 key={card.id}
                 type="button"
+                whileHover={{ y: -2, scale: 1.015 }}
+                whileTap={{ scale: 0.985 }}
+                transition={{ duration: 0.15 }}
                 onClick={() => handleSelectStayType(card.id)}
                 className={`p-3.5 rounded-2xl border text-left transition-all relative flex flex-col justify-between ${
                   isSelected
-                    ? 'bg-[#0B1220] text-white border-[#0B1220] ring-2 ring-[#0B1220]/20 shadow-md scale-[1.02]'
+                    ? 'bg-[#0B1220] text-white border-[#0B1220] ring-2 ring-[#0B1220]/20 shadow-md'
                     : 'bg-white text-slate-800 border-slate-200/90 hover:border-slate-300 hover:bg-slate-50'
                 }`}
               >
@@ -418,7 +422,7 @@ export const StayStep: React.FC = () => {
                     {card.count} {card.count === 1 ? 'Property' : 'Properties'}
                   </span>
                 </div>
-              </button>
+              </motion.button>
             );
           })}
         </div>
@@ -500,36 +504,46 @@ export const StayStep: React.FC = () => {
       </div>
 
       {/* ─── 5. FILTERED INVENTORY LIST ─── */}
-      <div className="space-y-4">
-        {filteredInventory.length === 0 ? (
-          <div className="p-8 rounded-2xl bg-white border border-slate-200 text-center space-y-3">
-            <AlertCircle className="w-8 h-8 text-amber-500 mx-auto" />
-            <p className="font-bold text-sm text-slate-900">No properties matched your specific filters</p>
-            <button
-              type="button"
-              onClick={() => {
-                setFilterPoolOnly(false);
-                setFilterBeachfrontOnly(false);
-                setFilterBedrooms(0);
-                setFilterBreakfast(false);
-              }}
-              className="btn-secondary text-xs !py-1.5 px-3 font-semibold"
-            >
-              Clear Filters
-            </button>
-          </div>
-        ) : (
-          filteredInventory.map((item) => {
-            const isPicked = selectedStay?.id === item.id;
-            const currentRoom = isPicked && selectedStay?.selectedRoomName ? selectedStay.selectedRoomName : item.room_types?.[0];
-
-            return (
-              <div
-                key={item.id}
-                className={`surface-card p-5 rounded-2xl transition-all bg-white ${
-                  isPicked ? 'border-[#0B1220] ring-2 ring-[#0B1220]/10 shadow-md' : 'hover:border-slate-300'
-                }`}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeType + String(filterPoolOnly) + String(filterBeachfrontOnly) + String(filterBedrooms) + String(filterBreakfast)}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+          className="space-y-4"
+        >
+          {filteredInventory.length === 0 ? (
+            <div className="p-8 rounded-2xl bg-white border border-slate-200 text-center space-y-3">
+              <AlertCircle className="w-8 h-8 text-amber-500 mx-auto" />
+              <p className="font-bold text-sm text-slate-900">No properties matched your specific filters</p>
+              <button
+                type="button"
+                onClick={() => {
+                  setFilterPoolOnly(false);
+                  setFilterBeachfrontOnly(false);
+                  setFilterBedrooms(0);
+                  setFilterBreakfast(false);
+                }}
+                className="btn-secondary text-xs !py-1.5 px-3 font-semibold"
               >
+                Clear Filters
+              </button>
+            </div>
+          ) : (
+            filteredInventory.map((item) => {
+              const isPicked = selectedStay?.id === item.id;
+              const currentRoom = isPicked && selectedStay?.selectedRoomName ? selectedStay.selectedRoomName : item.room_types?.[0];
+
+              return (
+                <motion.div
+                  key={item.id}
+                  whileHover={{ y: -2 }}
+                  transition={{ duration: 0.15 }}
+                  className={`surface-card p-5 rounded-2xl transition-all bg-white ${
+                    isPicked ? 'border-[#0B1220] ring-2 ring-[#0B1220]/10 shadow-md' : 'hover:border-slate-300'
+                  }`}
+                >
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
                   {/* Photo thumbnail */}
                   <div className="md:col-span-4 relative h-52 md:h-full min-h-[190px] rounded-xl overflow-hidden">
@@ -668,11 +682,12 @@ export const StayStep: React.FC = () => {
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })
-        )}
-      </div>
+                </motion.div>
+              );
+            })
+          )}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 };

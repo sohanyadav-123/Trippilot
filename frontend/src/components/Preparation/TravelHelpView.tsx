@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Phone,
   Hospital,
@@ -79,9 +80,11 @@ export const TravelHelpView: React.FC = () => {
       {/* Filter Tabs */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
         {filterTabs.map((tab) => (
-          <button
+          <motion.button
             key={tab.id}
             type="button"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => setActiveFilter(tab.id)}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap border ${
               activeFilter === tab.id
@@ -90,27 +93,37 @@ export const TravelHelpView: React.FC = () => {
             }`}
           >
             {tab.label}
-          </button>
+          </motion.button>
         ))}
       </div>
 
       {/* Contacts Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filteredContacts.map((item) => {
-          const isOfficial = item.sourceType === 'OFFICIAL';
-          const isSupport = item.sourceType === 'TRIPPILOT SUPPORT';
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeFilter}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.2 }}
+          className="grid grid-cols-1 md:grid-cols-2 gap-4"
+        >
+          {filteredContacts.map((item) => {
+            const isOfficial = item.sourceType === 'OFFICIAL';
+            const isSupport = item.sourceType === 'TRIPPILOT SUPPORT';
 
-          return (
-            <div
-              key={item.id}
-              className={`surface-card rounded-3xl bg-white border p-6 flex flex-col justify-between space-y-4 shadow-sm hover:shadow-luxury transition-all ${
-                isOfficial
-                  ? 'border-rose-200/80 hover:border-rose-300'
-                  : isSupport
-                  ? 'border-indigo-200 hover:border-indigo-300'
-                  : 'border-slate-200 hover:border-slate-300'
-              }`}
-            >
+            return (
+              <motion.div
+                key={item.id}
+                whileHover={{ y: -2 }}
+                transition={{ duration: 0.2 }}
+                className={`surface-card rounded-3xl bg-white border p-6 flex flex-col justify-between space-y-4 shadow-sm hover:shadow-luxury transition-all ${
+                  isOfficial
+                    ? 'border-rose-200/80 hover:border-rose-300'
+                    : isSupport
+                    ? 'border-indigo-200 hover:border-indigo-300'
+                    : 'border-slate-200 hover:border-slate-300'
+                }`}
+              >
               <div className="space-y-3">
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -161,10 +174,11 @@ export const TravelHelpView: React.FC = () => {
                   <span>{t('help.call_now', 'Call Now')}</span>
                 </a>
               </div>
-            </div>
+            </motion.div>
           );
         })}
-      </div>
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 };

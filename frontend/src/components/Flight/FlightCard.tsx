@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Plane, Clock, Luggage, ShieldCheck, ArrowRight, Check, ChevronDown, Sparkles } from 'lucide-react';
 import { Flight } from '../../types';
 import { CurrencyDisplay } from '../Common/CurrencyDisplay';
@@ -70,7 +71,11 @@ export const FlightCard: React.FC<FlightCardProps> = ({ flight, passengers = 1 }
 
   return (
     <>
-      <div className="surface-card p-5 mb-4 border border-slate-200 hover:border-slate-300 rounded-3xl transition-all duration-150 shadow-sm bg-white">
+      <motion.div
+        whileHover={{ y: -2 }}
+        transition={{ duration: 0.2 }}
+        className="surface-card p-5 mb-4 border border-slate-200 hover:border-slate-300 rounded-3xl transition-all duration-150 shadow-sm bg-white"
+      >
         {/* Top Header Tags */}
         <div className="flex items-center justify-between text-xs pb-3 border-b border-slate-100 mb-4">
           <div className="flex items-center gap-2 flex-wrap">
@@ -262,7 +267,7 @@ export const FlightCard: React.FC<FlightCardProps> = ({ flight, passengers = 1 }
             <CurrencyDisplay amount={flexiPrice} className="font-extrabold text-blue-600 text-sm" />
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Flight Details Modal */}
       {modalOpen && (

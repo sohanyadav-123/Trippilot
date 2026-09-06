@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
   Users,
@@ -130,9 +131,11 @@ export const SharedTripsPage: React.FC = () => {
           { id: 'activity', label: '⚡ Activity Log' },
           { id: 'chat', label: '💬 Group Discussion' },
         ].map((tab) => (
-          <button
+          <motion.button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap border ${
               activeTab === tab.id
                 ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
@@ -140,9 +143,18 @@ export const SharedTripsPage: React.FC = () => {
             }`}
           >
             {tab.label}
-          </button>
+          </motion.button>
         ))}
       </div>
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.2 }}
+        >
 
       {/* ─── TAB 1: SUGGESTIONS WORKFLOW ─── */}
       {activeTab === 'suggestions' && (
@@ -468,6 +480,8 @@ export const SharedTripsPage: React.FC = () => {
           </form>
         </div>
       )}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Building2, Star, MapPin, Check, ArrowRight, Wifi, Waves, UtensilsCrossed, ShieldCheck, Eye, Coffee, Sparkles } from 'lucide-react';
 import { Hotel } from '../../types';
 import { CurrencyDisplay } from '../Common/CurrencyDisplay';
@@ -45,7 +46,11 @@ export const HotelCard: React.FC<HotelCardProps> = ({ hotel, nights = 1, rooms =
 
   return (
     <>
-      <div className="surface-card p-4 sm:p-5 mb-4 border border-slate-200 hover:border-slate-300 rounded-3xl flex flex-col md:flex-row gap-5 transition-all duration-150 bg-white shadow-sm">
+      <motion.div
+        whileHover={{ y: -2 }}
+        transition={{ duration: 0.2 }}
+        className="surface-card p-4 sm:p-5 mb-4 border border-slate-200 hover:border-slate-300 rounded-3xl flex flex-col md:flex-row gap-5 transition-all duration-150 bg-white shadow-sm"
+      >
         {/* Left Column: Hotel Image & Rating */}
         <div className="md:w-64 h-48 sm:h-52 rounded-2xl overflow-hidden relative flex-shrink-0">
           <img
@@ -156,7 +161,7 @@ export const HotelCard: React.FC<HotelCardProps> = ({ hotel, nights = 1, rooms =
             </button>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Hotel Details Modal */}
       {modalOpen && (

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
   Compass,
@@ -143,8 +144,12 @@ export const HiddenGems: React.FC = () => {
         {/* Filter Tabs */}
         <div className="mt-8 pt-6 border-t border-slate-100 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
           {destinations.map((city) => (
-            <button
+            <motion.button
               key={city}
+              type="button"
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ duration: 0.15 }}
               onClick={() => setSelectedCity(city)}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                 selectedCity === city
@@ -153,7 +158,7 @@ export const HiddenGems: React.FC = () => {
               }`}
             >
               {city}
-            </button>
+            </motion.button>
           ))}
         </div>
       </div>
@@ -167,80 +172,90 @@ export const HiddenGems: React.FC = () => {
           onAction={() => setSelectedCity('All')}
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((gem) => {
-          const isAdded = addedGems.includes(gem.id);
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={selectedCity}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {filtered.map((gem) => {
+              const isAdded = addedGems.includes(gem.id);
 
-          return (
-            <div
-              key={gem.id}
-              className="surface-card rounded-3xl border border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300 overflow-hidden flex flex-col justify-between group transition-all bg-white"
-            >
-              <div>
-                <div className="relative h-48 w-full overflow-hidden">
-                  <img
-                    src={gem.imageUrl}
-                    alt={gem.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute top-3 left-3 bg-slate-900/85 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
-                    {gem.destination} • {gem.category}
-                  </div>
-                  <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-xl border border-emerald-200 shadow-xs">
-                    Crowd: {gem.crowdLevel}
-                  </div>
-                </div>
-
-                <div className="p-5 space-y-3">
-                  <div className="flex items-center gap-2 text-slate-500 text-[11px] font-medium">
-                    <Clock className="w-3.5 h-3.5 text-blue-600" />
-                    <span>Best Hours: {gem.bestTime}</span>
-                  </div>
-
-                  <h3 className="font-bold text-base text-slate-900 group-hover:text-blue-600 transition-colors">
-                    {gem.name}
-                  </h3>
-
-                  <p className="text-xs text-slate-600 leading-relaxed">{gem.description}</p>
-
-                  <div className="p-3 rounded-2xl bg-amber-50/80 border border-amber-200 text-[11px] text-amber-900 space-y-0.5">
-                    <span className="font-bold block uppercase text-[9px] text-amber-700 tracking-wider">
-                      ★ Insider Recommendation:
-                    </span>
-                    <p className="leading-snug">{gem.insiderTip}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-5 pt-3 border-t border-slate-100 flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] text-slate-400 uppercase font-bold block">Entry Fee</span>
-                  <span className="font-black text-slate-900 text-sm">
-                    {gem.entryFee === 0 ? 'Free Entry' : `₹${gem.entryFee}`}
-                  </span>
-                </div>
-
-                <button
-                  onClick={() => handleToggleAdd(gem)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs ${
-                    isAdded ? 'bg-emerald-600 text-white' : 'btn-primary'
-                  }`}
+              return (
+                <motion.div
+                  key={gem.id}
+                  whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                  className="surface-card rounded-3xl border border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300 overflow-hidden flex flex-col justify-between group transition-all bg-white"
                 >
-                  {isAdded ? (
-                    <>
-                      <Check className="w-3.5 h-3.5" /> Added to Itinerary
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-3.5 h-3.5" /> Add to Itinerary
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          );
-        })}
-        </div>
+                  <div>
+                    <div className="relative h-48 w-full overflow-hidden">
+                      <img
+                        src={gem.imageUrl}
+                        alt={gem.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute top-3 left-3 bg-slate-900/85 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
+                        {gem.destination} • {gem.category}
+                      </div>
+                      <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-xl border border-emerald-200 shadow-xs">
+                        Crowd: {gem.crowdLevel}
+                      </div>
+                    </div>
+
+                    <div className="p-5 space-y-3">
+                      <div className="flex items-center gap-2 text-slate-500 text-[11px] font-medium">
+                        <Clock className="w-3.5 h-3.5 text-blue-600" />
+                        <span>Best Hours: {gem.bestTime}</span>
+                      </div>
+
+                      <h3 className="font-bold text-base text-slate-900 group-hover:text-blue-600 transition-colors">
+                        {gem.name}
+                      </h3>
+
+                      <p className="text-xs text-slate-600 leading-relaxed">{gem.description}</p>
+
+                      <div className="p-3 rounded-2xl bg-amber-50/80 border border-amber-200 text-[11px] text-amber-900 space-y-0.5">
+                        <span className="font-bold block uppercase text-[9px] text-amber-700 tracking-wider">
+                          ★ Insider Recommendation:
+                        </span>
+                        <p className="leading-snug">{gem.insiderTip}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-5 pt-3 border-t border-slate-100 flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] text-slate-400 uppercase font-bold block">Entry Fee</span>
+                      <span className="font-black text-slate-900 text-sm">
+                        {gem.entryFee === 0 ? 'Free Entry' : `₹${gem.entryFee}`}
+                      </span>
+                    </div>
+
+                    <button
+                      onClick={() => handleToggleAdd(gem)}
+                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs ${
+                        isAdded ? 'bg-emerald-600 text-white' : 'btn-primary'
+                      }`}
+                    >
+                      {isAdded ? (
+                        <>
+                          <Check className="w-3.5 h-3.5" /> Added to Itinerary
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="w-3.5 h-3.5" /> Add to Itinerary
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        </AnimatePresence>
       )}
     </div>
   );

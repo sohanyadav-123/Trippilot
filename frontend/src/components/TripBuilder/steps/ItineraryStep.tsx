@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, Clock, MapPin, Plus, Trash2, Edit2, RotateCcw, ChevronRight, Check, Sparkles, Plane, Car, Building2, Utensils, AlertTriangle, ArrowRight, ArrowLeftRight, MoveRight, X, Compass, RefreshCw, Zap } from 'lucide-react';
 import { useTripBuilder, ItineraryEvent } from '../../../context/TripBuilderContext';
 import { useTravelSettings } from '../../../context/TravelSettingsContext';
@@ -228,24 +229,30 @@ export const ItineraryStep: React.FC = () => {
 
       {/* Tab Switcher */}
       <div className="flex items-center gap-2">
-        <button
+        <motion.button
           type="button"
+          whileHover={{ y: -1 }}
+          whileTap={{ scale: 0.98 }}
+          transition={{ duration: 0.15 }}
           onClick={() => setActiveItinTab('schedule')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
             activeItinTab === 'schedule' ? 'bg-[#0B1220] text-white shadow-xs' : 'text-slate-600 bg-white border border-slate-200 hover:bg-slate-50'
           }`}
         >
           {t('step.itinerary.tab_schedule', '📋 Day-by-Day Schedule')}
-        </button>
-        <button
+        </motion.button>
+        <motion.button
           type="button"
+          whileHover={{ y: -1 }}
+          whileTap={{ scale: 0.98 }}
+          transition={{ duration: 0.15 }}
           onClick={() => setActiveItinTab('timeline')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
             activeItinTab === 'timeline' ? 'bg-[#0B1220] text-white shadow-xs' : 'text-slate-600 bg-white border border-slate-200 hover:bg-slate-50'
           }`}
         >
           {t('step.itinerary.tab_timeline', '🗓 Smart Trip Timeline')}
-        </button>
+        </motion.button>
       </div>
 
       {activeItinTab === 'timeline' ? (
@@ -258,9 +265,12 @@ export const ItineraryStep: React.FC = () => {
               {eventsByDay.map(({ day, events }) => {
                 const hasConflict = detectedConflicts.some((c) => c.dayNumber === day);
                 return (
-                  <button
+                  <motion.button
                     key={day}
                     type="button"
+                    whileHover={{ y: -1 }}
+                    whileTap={{ scale: 0.98 }}
+                    transition={{ duration: 0.15 }}
                     onClick={() => setSelectedDay(day)}
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 ${
                       selectedDay === day
@@ -279,7 +289,7 @@ export const ItineraryStep: React.FC = () => {
                     {hasConflict && (
                       <span className="w-1.5 h-1.5 rounded-full bg-amber-500" title={t('step.itinerary.weather_advisory', 'Weather advisory on this day')} />
                     )}
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
@@ -366,22 +376,31 @@ export const ItineraryStep: React.FC = () => {
               </div>
             </div>
 
-            {eventsByDay.find((d) => d.day === selectedDay)?.events.length === 0 ? (
-              <div className="py-12 text-center space-y-3 rounded-2xl bg-slate-50 border border-dashed border-slate-200">
-                <div className="w-10 h-10 rounded-2xl bg-slate-200 text-slate-500 mx-auto flex items-center justify-center">
-                  <Calendar className="w-5 h-5" />
+          {/* Events Schedule for Active Day */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={selectedDay}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+            >
+              {eventsByDay.find((d) => d.day === selectedDay)?.events.length === 0 ? (
+                <div className="py-12 text-center space-y-3 rounded-2xl bg-slate-50 border border-dashed border-slate-200">
+                  <div className="w-10 h-10 rounded-2xl bg-slate-200 text-slate-500 mx-auto flex items-center justify-center">
+                    <Calendar className="w-5 h-5" />
+                  </div>
+                  <p className="text-sm font-semibold text-slate-600">{t('step.itinerary.empty_day_title', { day: selectedDay }, `No scheduled activities for Day ${selectedDay}.`)}</p>
+                  <p className="text-xs text-slate-400 max-w-xs mx-auto">{t('step.itinerary.empty_day_desc', 'Add a custom sight, dining reservation, beach time, or excursion.')}</p>
+                  <button
+                    type="button"
+                    onClick={() => handleOpenAddModal('activity')}
+                    className="btn-primary text-xs !py-2 px-4 font-bold"
+                  >
+                    {t('step.itinerary.add_first_event', '+ Add First Event')}
+                  </button>
                 </div>
-                <p className="text-sm font-semibold text-slate-600">{t('step.itinerary.empty_day_title', { day: selectedDay }, `No scheduled activities for Day ${selectedDay}.`)}</p>
-                <p className="text-xs text-slate-400 max-w-xs mx-auto">{t('step.itinerary.empty_day_desc', 'Add a custom sight, dining reservation, beach time, or excursion.')}</p>
-                <button
-                  type="button"
-                  onClick={() => handleOpenAddModal('activity')}
-                  className="btn-primary text-xs !py-2 px-4 font-bold"
-                >
-                  {t('step.itinerary.add_first_event', '+ Add First Event')}
-                </button>
-              </div>
-            ) : (
+              ) : (
               <div className="relative pl-6 border-l-2 border-slate-200 space-y-6">
                 {eventsByDay
                   .find((d) => d.day === selectedDay)
@@ -495,6 +514,8 @@ export const ItineraryStep: React.FC = () => {
                   })}
               </div>
             )}
+            </motion.div>
+          </AnimatePresence>
           </div>
         </>
       )}

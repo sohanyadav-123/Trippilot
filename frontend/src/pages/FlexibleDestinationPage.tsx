@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
   Compass,
@@ -241,9 +242,11 @@ export const FlexibleDestinationPage: React.FC = () => {
               {allInterests.map((item) => {
                 const isSelected = selectedInterests.includes(item.id);
                 return (
-                  <button
+                  <motion.button
                     key={item.id}
                     type="button"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => toggleInterest(item.id)}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
                       isSelected
@@ -252,7 +255,7 @@ export const FlexibleDestinationPage: React.FC = () => {
                     }`}
                   >
                     {item.label}
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
@@ -270,8 +273,10 @@ export const FlexibleDestinationPage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {recommendedResults.map(({ dest, estTotal, isWithinBudget, remainingBudget, travelTime, finalScore, whyItFits }) => (
-              <div
+              <motion.div
                 key={dest.id}
+                whileHover={{ y: -3 }}
+                transition={{ duration: 0.2 }}
                 className="surface-card rounded-3xl bg-white border border-slate-200 shadow-sm overflow-hidden hover:shadow-luxury transition-all flex flex-col justify-between"
               >
                 {/* Image Header */}
@@ -349,7 +354,7 @@ export const FlexibleDestinationPage: React.FC = () => {
                     </button>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Plane, Train, Bus, Car, Sparkles, Check, Clock, ShieldCheck, ChevronRight, AlertCircle, ArrowRight, Zap, TrendingUp, HeartHandshake, X } from 'lucide-react';
 import { useTripBuilder, TravelModePreference, IntercityTravelItem } from '../../../context/TripBuilderContext';
 import { useTravelSettings } from '../../../context/TravelSettingsContext';
@@ -387,13 +388,16 @@ export const GettingThereStep: React.FC = () => {
             const isSelected = activeTab === card.id;
 
             return (
-              <button
+              <motion.button
                 key={card.id}
                 type="button"
+                whileHover={{ y: -2, scale: 1.015 }}
+                whileTap={{ scale: 0.985 }}
+                transition={{ duration: 0.15 }}
                 onClick={() => handleSelectMode(card.id)}
                 className={`p-3.5 rounded-2xl border text-left transition-all relative flex flex-col justify-between ${
                   isSelected
-                    ? 'bg-[#0B1220] text-white border-[#0B1220] ring-2 ring-[#0B1220]/20 shadow-md scale-[1.02]'
+                    ? 'bg-[#0B1220] text-white border-[#0B1220] ring-2 ring-[#0B1220]/20 shadow-md'
                     : 'bg-white text-slate-800 border-slate-200/90 hover:border-slate-300 hover:bg-slate-50'
                 }`}
               >
@@ -421,7 +425,7 @@ export const GettingThereStep: React.FC = () => {
                   <span className="font-bold">{card.estPrice}</span>
                   <span className={`font-mono ${isSelected ? 'text-slate-300' : 'text-slate-400'}`}>{card.estTime}</span>
                 </div>
-              </button>
+              </motion.button>
             );
           })}
         </div>
@@ -443,19 +447,29 @@ export const GettingThereStep: React.FC = () => {
           </span>
         </div>
 
-        <div className="space-y-3.5">
-          {activeItems.map((item) => {
-            const isItemPicked = selectedTravel?.id === item.id;
-            const Icon = item.mode === 'flight' ? Plane : item.mode === 'train' ? Train : item.mode === 'bus' ? Bus : Car;
-            const totalPrice = item.mode === 'car' || item.mode === 'cab' ? item.price : item.price * travellers;
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+            className="space-y-3.5"
+          >
+            {activeItems.map((item) => {
+              const isItemPicked = selectedTravel?.id === item.id;
+              const Icon = item.mode === 'flight' ? Plane : item.mode === 'train' ? Train : item.mode === 'bus' ? Bus : Car;
+              const totalPrice = item.mode === 'car' || item.mode === 'cab' ? item.price : item.price * travellers;
 
-            return (
-              <div
-                key={item.id}
-                className={`surface-card p-5 rounded-2xl transition-all bg-white relative ${
-                  isItemPicked ? 'border-[#0B1220] ring-2 ring-[#0B1220]/10 shadow-md' : 'hover:border-slate-300'
-                }`}
-              >
+              return (
+                <motion.div
+                  key={item.id}
+                  whileHover={{ y: -2 }}
+                  transition={{ duration: 0.15 }}
+                  className={`surface-card p-5 rounded-2xl transition-all bg-white relative ${
+                    isItemPicked ? 'border-[#0B1220] ring-2 ring-[#0B1220]/10 shadow-md' : 'hover:border-slate-300'
+                  }`}
+                >
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
                   {/* Mode & Operator */}
                   <div className="md:col-span-3 flex items-center gap-3">
@@ -578,10 +592,11 @@ export const GettingThereStep: React.FC = () => {
                     </div>
                   </div>
                 )}
-              </div>
-            );
-          })}
-        </div>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );

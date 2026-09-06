@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Luggage,
   Search,
@@ -302,9 +303,11 @@ export const MyBookings: React.FC = () => {
             { id: 'completed', label: t('trips.tab_completed', 'Completed') },
             { id: 'saved', label: t('trips.tab_saved', 'Saved Drafts') },
           ].map((tab) => (
-            <button
+            <motion.button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as TripTab)}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap border ${
                 activeTab === tab.id
                   ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
@@ -312,7 +315,7 @@ export const MyBookings: React.FC = () => {
               }`}
             >
               {tab.label}
-            </button>
+            </motion.button>
           ))}
         </div>
 
@@ -355,16 +358,25 @@ export const MyBookings: React.FC = () => {
           onAction={() => navigate('/plan')}
         />
       ) : (
-        <div className="space-y-4">
-          {displayedTrips.map((trip) => (
-            <TripCard
-              key={trip.id}
-              {...trip}
-              onPlanAgain={handlePlanAgain}
-              onContinuePlanning={handleContinuePlanning}
-            />
-          ))}
-        </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab + '-' + searchQuery}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            className="space-y-4"
+          >
+            {displayedTrips.map((trip) => (
+              <TripCard
+                key={trip.id}
+                {...trip}
+                onPlanAgain={handlePlanAgain}
+                onContinuePlanning={handleContinuePlanning}
+              />
+            ))}
+          </motion.div>
+        </AnimatePresence>
       )}
     </div>
   );

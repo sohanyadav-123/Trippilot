@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Compass, Star, Clock, Check, Plus, ShieldCheck, ChevronRight, Sparkles, X } from 'lucide-react';
 import { useTripBuilder, SelectedActivity } from '../../../context/TripBuilderContext';
 import { useTravelSettings } from '../../../context/TravelSettingsContext';
@@ -245,9 +246,12 @@ export const ActivityStep: React.FC = () => {
       {/* Filter Category Tabs */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
         {categories.map((cat) => (
-          <button
+          <motion.button
             key={cat}
             type="button"
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ duration: 0.15 }}
             onClick={() => setActiveCategory(cat)}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
               activeCategory === cat
@@ -256,82 +260,92 @@ export const ActivityStep: React.FC = () => {
             }`}
           >
             {getCategoryLabel(cat)}
-          </button>
+          </motion.button>
         ))}
       </div>
 
       {/* Activities Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {filteredActivities.map((activity) => {
-          const isAdded = selectedActivities.some((a) => a.id === activity.id);
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeCategory}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+        >
+          {filteredActivities.map((activity) => {
+            const isAdded = selectedActivities.some((a) => a.id === activity.id);
 
-          return (
-            <div
-              key={activity.id}
-              className={`surface-card rounded-2xl overflow-hidden transition-all bg-white flex flex-col justify-between ${
-                isAdded ? 'border-[#0B1220] ring-2 ring-[#0B1220]/10 shadow-md' : 'hover:border-slate-300'
-              }`}
-            >
-              <div>
-                <div className="relative h-44 w-full overflow-hidden">
-                  <img
-                    src={activity.image_url}
-                    alt={activity.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute top-2.5 left-2.5 bg-[#0B1220]/80 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
-                    {getCategoryLabel(activity.category)}
-                  </div>
-                  <div className="absolute top-2.5 right-2.5 bg-white/95 backdrop-blur-md text-[#0B1220] text-[10px] font-bold px-2 py-0.5 rounded-lg flex items-center gap-1 shadow-xs">
-                    <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
-                    <span>{activity.rating}</span>
-                  </div>
-                </div>
-
-                <div className="p-4 space-y-2">
-                  <div className="flex items-center gap-2 text-[11px] text-slate-500">
-                    <Clock className="w-3 h-3 text-slate-400" />
-                    <span>{activity.duration}</span>
-                  </div>
-                  <h3 className="font-bold text-sm text-[#0B1220] line-clamp-2">{activity.name}</h3>
-                  <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">{activity.description}</p>
-                </div>
-              </div>
-
-              <div className="p-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+            return (
+              <motion.div
+                key={activity.id}
+                whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                className={`surface-card rounded-2xl overflow-hidden transition-all bg-white flex flex-col justify-between ${
+                  isAdded ? 'border-[#0B1220] ring-2 ring-[#0B1220]/10 shadow-md' : 'hover:border-slate-300'
+                }`}
+              >
                 <div>
-                  <span className="text-[10px] text-slate-400 block uppercase font-bold">{t('step.activity.per_person', 'Per Person')}</span>
-                  <CurrencyDisplay amount={activity.price} className="text-base font-black text-[#0B1220]" />
+                  <div className="relative h-44 w-full overflow-hidden">
+                    <img
+                      src={activity.image_url}
+                      alt={activity.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute top-2.5 left-2.5 bg-[#0B1220]/80 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
+                      {getCategoryLabel(activity.category)}
+                    </div>
+                    <div className="absolute top-2.5 right-2.5 bg-white/95 backdrop-blur-md text-[#0B1220] text-[10px] font-bold px-2 py-0.5 rounded-lg flex items-center gap-1 shadow-xs">
+                      <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
+                      <span>{activity.rating}</span>
+                    </div>
+                  </div>
+
+                  <div className="p-4 space-y-2">
+                    <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                      <Clock className="w-3 h-3 text-slate-400" />
+                      <span>{activity.duration}</span>
+                    </div>
+                    <h3 className="font-bold text-sm text-[#0B1220] line-clamp-2">{activity.name}</h3>
+                    <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">{activity.description}</p>
+                  </div>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => toggleActivity(activity)}
-                  className={`text-xs font-bold py-2 px-3.5 rounded-xl transition-all flex items-center gap-1.5 ${
-                    isAdded
-                      ? 'bg-[#158A6A] hover:bg-rose-600 text-white shadow-xs group/btn'
-                      : 'btn-secondary hover:bg-slate-200'
-                  }`}
-                >
-                  {isAdded ? (
-                    <>
-                      <Check className="w-3.5 h-3.5 group-hover/btn:hidden" />
-                      <X className="w-3.5 h-3.5 hidden group-hover/btn:inline-block" />
-                      <span className="group-hover/btn:hidden">{t('step.activity.added_short', 'Added')}</span>
-                      <span className="hidden group-hover/btn:inline-block">{t('step.activity.remove', 'Remove')}</span>
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-3.5 h-3.5" />
-                      <span>{t('step.activity.add', 'Add to Trip')}</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+                <div className="p-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-slate-400 block uppercase font-bold">{t('step.activity.per_person', 'Per Person')}</span>
+                    <CurrencyDisplay amount={activity.price} className="text-base font-black text-[#0B1220]" />
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => toggleActivity(activity)}
+                    className={`text-xs font-bold py-2 px-3.5 rounded-xl transition-all flex items-center gap-1.5 ${
+                      isAdded
+                        ? 'bg-[#158A6A] hover:bg-rose-600 text-white shadow-xs group/btn'
+                        : 'btn-secondary hover:bg-slate-200'
+                    }`}
+                  >
+                    {isAdded ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 group-hover/btn:hidden" />
+                        <X className="w-3.5 h-3.5 hidden group-hover/btn:inline-block" />
+                        <span className="group-hover/btn:hidden">{t('step.activity.added_short', 'Added')}</span>
+                        <span className="hidden group-hover/btn:inline-block">{t('step.activity.remove', 'Remove')}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>{t('step.activity.add', 'Add to Trip')}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 };

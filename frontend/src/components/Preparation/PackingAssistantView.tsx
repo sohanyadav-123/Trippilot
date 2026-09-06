@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ShoppingBag,
   CheckCircle2,
@@ -171,8 +172,10 @@ export const PackingAssistantView: React.FC = () => {
       {/* Filter Tabs: Categories & Shared Travellers */}
       <div className="space-y-3">
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-          <button
+          <motion.button
             type="button"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => setActiveCategory('all')}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap border ${
               activeCategory === 'all'
@@ -181,14 +184,16 @@ export const PackingAssistantView: React.FC = () => {
             }`}
           >
             All Items ({packingList.length})
-          </button>
+          </motion.button>
           {categories.map((cat) => {
             const count = packingList.filter((i) => i.category === cat).length;
             if (count === 0) return null;
             return (
-              <button
+              <motion.button
                 key={cat}
                 type="button"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => setActiveCategory(cat)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap border ${
                   activeCategory === cat
@@ -197,7 +202,7 @@ export const PackingAssistantView: React.FC = () => {
                 }`}
               >
                 {cat} ({count})
-              </button>
+              </motion.button>
             );
           })}
         </div>
@@ -211,59 +216,70 @@ export const PackingAssistantView: React.FC = () => {
             <p className="text-xs">No items found in this category.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {filteredItems.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => togglePackingItem(item.id)}
-                className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-start justify-between gap-3 ${
-                  item.checked
-                    ? 'bg-emerald-50/70 border-emerald-300/80 text-slate-600'
-                    : 'bg-slate-50/80 border-slate-200 hover:border-slate-300 text-slate-900'
-                }`}
-              >
-                <div className="flex items-start gap-2.5 flex-1 min-w-0">
-                  {item.checked ? (
-                    <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
-                  ) : (
-                    <Circle className="w-5 h-5 text-slate-300 flex-shrink-0 mt-0.5" />
-                  )}
-
-                  <div className="min-w-0 space-y-0.5">
-                    <span
-                      className={`text-xs font-bold block truncate ${
-                        item.checked ? 'line-through text-slate-400' : 'text-slate-900'
-                      }`}
-                    >
-                      {item.name}
-                    </span>
-                    {item.reason && (
-                      <span className="text-[10px] text-slate-500 block leading-tight truncate">
-                        💡 {item.reason}
-                      </span>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeCategory + '-' + activeAssignee}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+              className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+            >
+              {filteredItems.map((item) => (
+                <motion.div
+                  key={item.id}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  onClick={() => togglePackingItem(item.id)}
+                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-start justify-between gap-3 ${
+                    item.checked
+                      ? 'bg-emerald-50/70 border-emerald-300/80 text-slate-600'
+                      : 'bg-slate-50/80 border-slate-200 hover:border-slate-300 text-slate-900'
+                  }`}
+                >
+                  <div className="flex items-start gap-2.5 flex-1 min-w-0">
+                    {item.checked ? (
+                      <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
+                    ) : (
+                      <Circle className="w-5 h-5 text-slate-300 flex-shrink-0 mt-0.5" />
                     )}
-                  </div>
-                </div>
 
-                <div className="flex items-center gap-1.5 flex-shrink-0">
-                  <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-200/70 text-slate-600">
-                    {item.category}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removePackingItem(item.id);
-                    }}
-                    className="p-1 rounded-lg text-slate-300 hover:text-rose-600 hover:bg-rose-50 transition-colors"
-                    title="Remove item"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+                    <div className="min-w-0 space-y-0.5">
+                      <span
+                        className={`text-xs font-bold block truncate ${
+                          item.checked ? 'line-through text-slate-400' : 'text-slate-900'
+                        }`}
+                      >
+                        {item.name}
+                      </span>
+                      {item.reason && (
+                        <span className="text-[10px] text-slate-500 block leading-tight truncate">
+                          💡 {item.reason}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-200/70 text-slate-600">
+                      {item.category}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removePackingItem(item.id);
+                      }}
+                      className="p-1 rounded-lg text-slate-300 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                      title="Remove item"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </AnimatePresence>
         )}
       </div>
 

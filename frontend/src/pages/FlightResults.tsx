@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
 import {
   Plane,
@@ -427,9 +428,11 @@ export const FlightResults: React.FC = () => {
               { id: 'fastest', label: t('flight.sort_fastest', 'Fastest Route') },
               { id: 'earliest', label: t('flight.sort_earliest', 'Earliest Takeoff') },
             ].map((sort) => (
-              <button
+              <motion.button
                 key={sort.id}
                 onClick={() => setSortBy(sort.id as any)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
                   sortBy === sort.id
                     ? 'bg-slate-900 text-white shadow-sm'
@@ -437,7 +440,7 @@ export const FlightResults: React.FC = () => {
                 }`}
               >
                 {sort.label}
-              </button>
+              </motion.button>
             ))}
           </div>
 
@@ -612,11 +615,20 @@ export const FlightResults: React.FC = () => {
                 onAction={handleResetFilters}
               />
             ) : (
-              <div className="space-y-3">
-                {filteredFlights.map((flight) => (
-                  <FlightCard key={flight.id} flight={flight} passengers={passengers} />
-                ))}
-              </div>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={`${sortBy}-${selectedAirlines.join(',')}-${selectedStops.join(',')}-${priceRange}-${departureTimeFilter || ''}`}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-3"
+                >
+                  {filteredFlights.map((flight) => (
+                    <FlightCard key={flight.id} flight={flight} passengers={passengers} />
+                  ))}
+                </motion.div>
+              </AnimatePresence>
             )}
           </div>
         </div>

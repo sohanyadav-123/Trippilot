@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   Sparkles,
@@ -638,8 +639,10 @@ export const AIPlanner: React.FC = () => {
             const remaining = budget - opt.estTotal;
 
             return (
-              <div
+              <motion.div
                 key={opt.id}
+                whileHover={{ y: -3 }}
+                transition={{ duration: 0.2 }}
                 onClick={() => setSelectedOptionId(opt.id)}
                 className={`p-5 rounded-3xl border transition-all cursor-pointer flex flex-col justify-between space-y-4 ${
                   isSelected
@@ -700,7 +703,7 @@ export const AIPlanner: React.FC = () => {
                 >
                   <span>{isSelected ? 'Selected Blueprint ✓' : 'Select Option'}</span>
                 </button>
-              </div>
+              </motion.div>
             );
           })}
         </div>
@@ -714,41 +717,51 @@ export const AIPlanner: React.FC = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <button
+          <motion.button
             type="button"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => handleCustomizer('luxury')}
             className="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-800 font-semibold border border-slate-200 transition-colors"
           >
             👑 More Luxury
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => handleCustomizer('save')}
             className="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-800 font-semibold border border-slate-200 transition-colors"
           >
             💰 Save Money
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => handleCustomizer('adventure')}
             className="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-800 font-semibold border border-slate-200 transition-colors"
           >
             🏄 More Adventure
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => handleCustomizer('relaxed')}
             className="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-800 font-semibold border border-slate-200 transition-colors"
           >
             🌴 More Relaxed
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => handleCustomizer('food')}
             className="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-800 font-semibold border border-slate-200 transition-colors"
           >
             🍽️ More Food
-          </button>
+          </motion.button>
         </div>
       </div>
 

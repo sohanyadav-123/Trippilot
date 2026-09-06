@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Plane, Building2, Car, Compass, Route, Check, ChevronRight, Edit3, RotateCcw, Undo2, MapPin, Calendar, Users, DollarSign, Sparkles, ArrowRight } from 'lucide-react';
 import { useTripBuilder, TripStep, TravelModePreference } from '../../context/TripBuilderContext';
 import { useTravelSettings } from '../../context/TravelSettingsContext';
@@ -497,17 +498,24 @@ export const TripBuilderPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setStep(step.id)}
-                    className={`flex items-center gap-2 py-1.5 px-3 rounded-xl transition-all ${
+                    className={`relative flex items-center gap-2 py-1.5 px-3 rounded-xl transition-colors duration-200 ${
                       isCurrent
-                        ? 'bg-[#0B1220] text-white font-bold shadow-xs'
+                        ? 'text-white font-bold'
                         : isCompleted
-                        ? 'text-[#158A6A] hover:bg-emerald-50 font-bold'
+                        ? 'text-[#158A6A] hover:bg-emerald-50/80 font-bold'
                         : isSkipped
                         ? 'text-slate-400 hover:text-slate-700'
-                        : 'text-slate-600 hover:text-[#0B1220] hover:bg-slate-100'
+                        : 'text-slate-600 hover:text-[#0B1220] hover:bg-slate-100/80'
                     }`}
                   >
-                    <div className={`w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold ${
+                    {isCurrent && (
+                      <motion.div
+                        layoutId="activePlanStep"
+                        className="absolute inset-0 bg-[#0B1220] rounded-xl shadow-xs"
+                        transition={{ type: 'spring', stiffness: 450, damping: 32 }}
+                      />
+                    )}
+                    <div className={`relative z-10 w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold transition-colors ${
                       isCurrent
                         ? 'bg-white text-[#0B1220]'
                         : isCompleted
@@ -516,7 +524,7 @@ export const TripBuilderPage: React.FC = () => {
                     }`}>
                       {isCompleted ? <Check className="w-3 h-3" /> : idx + 1}
                     </div>
-                    <span className="text-xs">{step.label}</span>
+                    <span className="relative z-10 text-xs">{step.label}</span>
                   </button>
 
                   {idx < stepDefinitions.length - 1 && (
@@ -561,15 +569,24 @@ export const TripBuilderPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Main Step Workspace */}
           <div className="lg:col-span-8 space-y-6">
-            <div key={currentStep} className="animate-fade-in space-y-6">
-              <DestinationWeatherBanner destination={destination} />
-              {currentStep === 'travel' && <GettingThereStep />}
-              {currentStep === 'stays' && <StayStep />}
-              {currentStep === 'local_transport' && <LocalMobilityStep />}
-              {currentStep === 'activities' && <ActivityStep />}
-              {currentStep === 'itinerary' && <ItineraryStep />}
-              {currentStep === 'review' && <ReviewStep />}
-            </div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentStep}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                className="space-y-6"
+              >
+                <DestinationWeatherBanner destination={destination} />
+                {currentStep === 'travel' && <GettingThereStep />}
+                {currentStep === 'stays' && <StayStep />}
+                {currentStep === 'local_transport' && <LocalMobilityStep />}
+                {currentStep === 'activities' && <ActivityStep />}
+                {currentStep === 'itinerary' && <ItineraryStep />}
+                {currentStep === 'review' && <ReviewStep />}
+              </motion.div>
+            </AnimatePresence>
           </div>
 
           {/* Sticky Summary Sidebar (Desktop) */}

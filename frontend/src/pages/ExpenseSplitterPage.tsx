@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { DollarSign, Plus, Check, Trash2, Users } from 'lucide-react';
 import { useTripBuilder } from '../context/TripBuilderContext';
 import { CurrencyDisplay } from '../components/Common/CurrencyDisplay';
@@ -99,10 +100,15 @@ export const ExpenseSplitterPage: React.FC = () => {
           </div>
 
           <div className="flex justify-end">
-            <button type="submit" className="btn-primary text-xs font-bold py-2.5 px-5 flex items-center gap-1.5">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              type="submit"
+              className="btn-primary text-xs font-bold py-2.5 px-5 flex items-center gap-1.5"
+            >
               <Plus className="w-4 h-4" />
               <span>Log Expense</span>
-            </button>
+            </motion.button>
           </div>
         </form>
 
@@ -117,38 +123,47 @@ export const ExpenseSplitterPage: React.FC = () => {
             <p className="text-slate-400 text-center py-6">No group expenses logged yet.</p>
           ) : (
             <div className="space-y-3">
-              {groupExpenses.map((e) => (
-                <div
-                  key={e.id}
-                  className={`p-4 rounded-2xl border flex items-center justify-between gap-3 ${
-                    e.settled ? 'bg-emerald-50/70 border-emerald-300' : 'bg-slate-50 border-slate-200'
-                  }`}
-                >
-                  <div>
-                    <h4 className="font-bold text-sm text-slate-900">{e.title}</h4>
-                    <span className="text-xs text-slate-500">
-                      Paid by <span className="font-bold text-slate-800">{e.paid_by}</span> • Split between {e.split_between.length} members
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <CurrencyDisplay amount={e.amount} className="font-black text-sm text-slate-900" />
-                    {!e.settled ? (
-                      <button
-                        type="button"
-                        onClick={() => settleGroupExpense(e.id)}
-                        className="btn-secondary text-[11px] !py-1 px-3 font-bold"
-                      >
-                        Mark Settled
-                      </button>
-                    ) : (
-                      <span className="text-[10px] font-extrabold uppercase bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded border border-emerald-300">
-                        Settled ✓
+              <AnimatePresence>
+                {groupExpenses.map((e) => (
+                  <motion.div
+                    key={e.id}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    whileHover={{ y: -1 }}
+                    transition={{ duration: 0.2 }}
+                    className={`p-4 rounded-2xl border flex items-center justify-between gap-3 transition-colors ${
+                      e.settled ? 'bg-emerald-50/70 border-emerald-300' : 'bg-slate-50 border-slate-200'
+                    }`}
+                  >
+                    <div>
+                      <h4 className="font-bold text-sm text-slate-900">{e.title}</h4>
+                      <span className="text-xs text-slate-500">
+                        Paid by <span className="font-bold text-slate-800">{e.paid_by}</span> • Split between {e.split_between.length} members
                       </span>
-                    )}
-                  </div>
-                </div>
-              ))}
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <CurrencyDisplay amount={e.amount} className="font-black text-sm text-slate-900" />
+                      {!e.settled ? (
+                        <motion.button
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.97 }}
+                          type="button"
+                          onClick={() => settleGroupExpense(e.id)}
+                          className="btn-secondary text-[11px] !py-1 px-3 font-bold"
+                        >
+                          Mark Settled
+                        </motion.button>
+                      ) : (
+                        <span className="text-[10px] font-extrabold uppercase bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded border border-emerald-300">
+                          Settled ✓
+                        </span>
+                      )}
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
           )}
         </div>

@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Building2, SlidersHorizontal, AlertCircle, Filter, Search, MapPin, Wallet, Baby, Accessibility } from 'lucide-react';
 import { searchService } from '../services/searchService';
 import { Hotel } from '../types';
@@ -360,9 +361,11 @@ export const HotelResults: React.FC = () => {
             { id: 'price-desc', label: t('booking.sort_price_desc', 'Price: High to Low') },
             { id: 'rating', label: t('booking.sort_rating', 'Highest Guest Rating') },
           ].map((s) => (
-            <button
+            <motion.button
               key={s.id}
               onClick={() => setSortBy(s.id as any)}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
                 sortBy === s.id
                   ? 'bg-slate-900 text-white shadow-sm'
@@ -370,7 +373,7 @@ export const HotelResults: React.FC = () => {
               }`}
             >
               {s.label}
-            </button>
+            </motion.button>
           ))}
         </div>
 
@@ -432,16 +435,25 @@ export const HotelResults: React.FC = () => {
                 }}
               />
             ) : (
-              <div className="space-y-4">
-                {filteredHotels.map((hotel) => (
-                  <HotelCard
-                    key={hotel.id}
-                    hotel={hotel}
-                    nights={nights}
-                    rooms={rooms}
-                  />
-                ))}
-              </div>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={`${sortBy}-${rating || ''}-${selectedPropertyType || ''}-${priceRange}-${selectedAmenities.join(',')}`}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-4"
+                >
+                  {filteredHotels.map((hotel) => (
+                    <HotelCard
+                      key={hotel.id}
+                      hotel={hotel}
+                      nights={nights}
+                      rooms={rooms}
+                    />
+                  ))}
+                </motion.div>
+              </AnimatePresence>
             )}
           </div>
         </div>

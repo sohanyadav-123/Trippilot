@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Utensils,
   Star,
@@ -230,9 +231,11 @@ export const RestaurantPlannerPage: React.FC = () => {
           {/* Meal Types */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
             {mealFilters.map((meal) => (
-              <button
+              <motion.button
                 key={meal.id}
                 type="button"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => setActiveMeal(meal.id)}
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap border ${
                   activeMeal === meal.id
@@ -241,16 +244,18 @@ export const RestaurantPlannerPage: React.FC = () => {
                 }`}
               >
                 {meal.label}
-              </button>
+              </motion.button>
             ))}
           </div>
 
           {/* Diet Preferences */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
             {dietFilters.map((diet) => (
-              <button
+              <motion.button
                 key={diet.id}
                 type="button"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => setActiveDiet(diet.id)}
                 className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all whitespace-nowrap ${
                   activeDiet === diet.id
@@ -259,21 +264,31 @@ export const RestaurantPlannerPage: React.FC = () => {
                 }`}
               >
                 {diet.label}
-              </button>
+              </motion.button>
             ))}
           </div>
         </div>
 
         {/* Restaurant Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCatalog.map((res) => {
-            const isAlreadyAdded = selectedRestaurants.some((r) => r.id === res.id);
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeMeal + '-' + activeDiet}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {filteredCatalog.map((res) => {
+              const isAlreadyAdded = selectedRestaurants.some((r) => r.id === res.id);
 
-            return (
-              <div
-                key={res.id}
-                className="surface-card rounded-3xl bg-white border border-slate-200 shadow-sm overflow-hidden hover:shadow-luxury transition-all flex flex-col justify-between"
-              >
+              return (
+                <motion.div
+                  key={res.id}
+                  whileHover={{ y: -3 }}
+                  transition={{ duration: 0.2 }}
+                  className="surface-card rounded-3xl bg-white border border-slate-200 shadow-sm overflow-hidden hover:shadow-luxury transition-all flex flex-col justify-between"
+                >
                 {/* Image */}
                 <div className="relative h-48 bg-slate-100 overflow-hidden">
                   <img src={res.image_url} alt={res.name} className="w-full h-full object-cover" />
@@ -352,10 +367,11 @@ export const RestaurantPlannerPage: React.FC = () => {
                     )}
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );

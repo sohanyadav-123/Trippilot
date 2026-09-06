@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   MapPin,
   Navigation,
@@ -257,9 +258,11 @@ export const NearbyDiscoveryPage: React.FC = () => {
             <span className="text-[10px] uppercase font-bold text-slate-300 block">Add Directly to Day:</span>
             <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none">
               {Array.from({ length: totalDays }, (_, i) => i + 1).map((d) => (
-                <button
+                <motion.button
                   key={d}
                   type="button"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => setSelectedDay(d)}
                   className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                     selectedDay === d
@@ -268,7 +271,7 @@ export const NearbyDiscoveryPage: React.FC = () => {
                   }`}
                 >
                   Day {d}
-                </button>
+                </motion.button>
               ))}
             </div>
           </div>
@@ -289,9 +292,11 @@ export const NearbyDiscoveryPage: React.FC = () => {
             const isSelected = activeCategory === cat.id;
 
             return (
-              <button
+              <motion.button
                 key={cat.id}
                 type="button"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => setActiveCategory(cat.id)}
                 className={`px-4 py-2.5 rounded-2xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 border ${
                   isSelected
@@ -300,18 +305,28 @@ export const NearbyDiscoveryPage: React.FC = () => {
                 }`}
               >
                 <span>{cat.label}</span>
-              </button>
+              </motion.button>
             );
           })}
         </div>
 
         {/* Items Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {activeItems.map((item) => (
-            <div
-              key={item.id}
-              className="surface-card rounded-3xl bg-white border border-slate-200/90 shadow-sm p-6 space-y-4 flex flex-col justify-between hover:shadow-luxury transition-all"
-            >
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeCategory}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {activeItems.map((item) => (
+              <motion.div
+                key={item.id}
+                whileHover={{ y: -3 }}
+                transition={{ duration: 0.2 }}
+                className="surface-card rounded-3xl bg-white border border-slate-200/90 shadow-sm p-6 space-y-4 flex flex-col justify-between hover:shadow-luxury transition-all"
+              >
               <div className="space-y-3">
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -357,9 +372,10 @@ export const NearbyDiscoveryPage: React.FC = () => {
                   <span>Add to Day {selectedDay}</span>
                 </button>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );
