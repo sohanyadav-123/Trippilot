@@ -46,6 +46,7 @@ import { NotificationSettingsPage } from '../pages/NotificationSettingsPage';
 import { TravelPreferencesPage } from '../pages/TravelPreferencesPage';
 import { SavedTravellersPage } from '../pages/SavedTravellersPage';
 import { ResetPasswordPage } from '../pages/ResetPasswordPage';
+import { WeatherPage } from '../pages/WeatherPage';
 
 export const AppRouter: React.FC = () => {
   return (
@@ -55,6 +56,8 @@ export const AppRouter: React.FC = () => {
         <Route index element={<Home />} />
         <Route path="plan" element={<TripBuilderPage />} />
         <Route path="trip-builder" element={<TripBuilderPage />} />
+        <Route path="weather" element={<WeatherPage />} />
+        <Route path="plan/weather" element={<WeatherPage />} />
         <Route path="before-you-go" element={<BeforeYouGoPage />} />
         <Route path="preparation" element={<BeforeYouGoPage />} />
         <Route path="flexible-destinations" element={<FlexibleDestinationPage />} />

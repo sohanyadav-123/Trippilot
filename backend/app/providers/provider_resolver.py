@@ -22,7 +22,7 @@ from app.providers.activity_provider import LiveActivityProvider, MockActivityPr
 from app.providers.train_provider import MockTrainProvider
 from app.providers.bus_provider import MockBusProvider
 from app.providers.transport_provider import MockTransportProvider
-from app.providers.weather_provider import LiveWeatherProvider, MockWeatherProvider
+from app.providers.weather_provider import LiveWeatherProvider, MockWeatherProvider, OpenWeatherMapProvider
 from app.providers.currency_provider import LiveCurrencyProvider, MockCurrencyProvider
 from app.providers.maps_provider import LiveMapsProvider, MockMapsProvider
 from app.providers.places_provider import LivePlacesProvider, MockPlacesProvider
@@ -67,6 +67,17 @@ def resolve_weather_provider() -> WeatherProvider:
     use_mock = os.environ.get("WEATHER_USE_MOCK", "false").lower() == "true"
     if use_mock:
         return MockWeatherProvider()
+
+    api_key = (
+        os.environ.get("OPENWEATHER_API_KEY")
+        or os.environ.get("WEATHER_API_KEY")
+        or os.environ.get("OPENWEATHERMAP_API_KEY")
+        or ""
+    ).strip()
+
+    if api_key:
+        return OpenWeatherMapProvider(api_key=api_key)
+
     return LiveWeatherProvider()
 
 

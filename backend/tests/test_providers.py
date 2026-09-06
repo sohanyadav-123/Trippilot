@@ -159,3 +159,22 @@ def test_provider_api_endpoints(client):
     places_resp = client.get("/api/providers/places/nearby?location=Goa")
     assert places_resp.status_code == 200
     assert len(places_resp.get_json()["data"]["places"]) > 0
+
+
+def test_openweathermap_provider():
+    from app.providers.weather_provider import OpenWeatherMapProvider
+    owm = OpenWeatherMapProvider(api_key="842096b68b7f133dfb642e03a18cd3d0")
+    status = owm.get_status()
+    assert status["name"] == "OpenWeatherMap Global Weather Service"
+    assert status["api_key_configured"] is True
+    assert "842096...d3d0" in status["masked_key"]
+
+    is_healthy, msg, latency = owm.health_check()
+    assert is_healthy is True
+    assert "OpenWeatherMap" in msg
+
+    weather = owm.get_weather("Delhi", 28.6139, 77.2090)
+    assert "temperature" in weather
+    assert "condition" in weather
+    assert "forecast" in weather
+    assert len(weather["forecast"]) >= 3

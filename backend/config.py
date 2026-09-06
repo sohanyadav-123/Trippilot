@@ -30,6 +30,7 @@ class Config:
     JWT_ACCESS_TOKEN_EXPIRES = 3600  # 1 hour
     JWT_REFRESH_TOKEN_EXPIRES = 2592000  # 30 days
     DEBUG = os.environ.get("FLASK_DEBUG", "0") == "1"
+    OPENWEATHER_API_KEY = os.environ.get("OPENWEATHER_API_KEY", "") or os.environ.get("WEATHER_API_KEY", "")
 
 
 class DevelopmentConfig(Config):

@@ -31,6 +31,7 @@ import {
   Users,
   Sun,
   Moon,
+  CloudSun,
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useCart } from '../../hooks/useCart';
@@ -148,6 +149,7 @@ export const Navbar: React.FC = () => {
     { label: t('nav.planner', 'AI Travel Planner'), desc: t('nav.planner_desc', 'Tailored day-by-day itineraries with smart reasoning'), href: '/ai-planner', icon: Compass },
     { label: t('nav.compare', 'Compare Trips'), desc: t('nav.compare_desc', 'Side-by-side comparison for 2–4 destinations'), href: '/compare-trips', icon: Route },
     { label: t('nav.itinerary', 'Itinerary Builder'), desc: t('nav.itinerary_desc', 'Interactive timeline scheduler with custom stops'), href: '/itinerary', icon: Route },
+    { label: t('nav.weather', 'Destination Weather'), desc: t('nav.weather_desc', 'Live atmospheric forecasts, rain radar & packing advice'), href: '/weather', icon: CloudSun },
   ];
 
   const bookLinks = [
@@ -303,6 +305,11 @@ export const Navbar: React.FC = () => {
                               {item.label.includes('AI') && (
                                 <span className="text-[9px] font-bold text-[#C8A96B] uppercase tracking-wider">
                                   Smart
+                                </span>
+                              )}
+                              {item.href === '/weather' && (
+                                <span className="text-[9px] font-bold text-sky-600 bg-sky-50 px-1.5 py-0.5 rounded-full uppercase tracking-wider border border-sky-200/60">
+                                  Live
                                 </span>
                               )}
                             </div>

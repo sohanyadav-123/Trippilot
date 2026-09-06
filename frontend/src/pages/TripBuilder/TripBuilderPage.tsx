@@ -13,6 +13,7 @@ import { EditSearchModal } from '../../components/TripBuilder/EditSearchModal';
 import { StartFreshModal } from '../../components/TripBuilder/StartFreshModal';
 import { UndoToast } from '../../components/TripBuilder/UndoToast';
 import { CurrencyDisplay } from '../../components/Common/CurrencyDisplay';
+import { DestinationWeatherBanner } from '../../components/Weather/DestinationWeatherBanner';
 
 const POPULAR_DESTINATIONS = [
   { name: 'Goa', desc: 'Beaches, nightlife & heritage', tag: 'Trending' },
@@ -560,6 +561,7 @@ export const TripBuilderPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Main Step Workspace */}
           <div className="lg:col-span-8 space-y-6">
+            <DestinationWeatherBanner destination={destination} />
             {currentStep === 'travel' && <GettingThereStep />}
             {currentStep === 'stays' && <StayStep />}
             {currentStep === 'local_transport' && <LocalMobilityStep />}

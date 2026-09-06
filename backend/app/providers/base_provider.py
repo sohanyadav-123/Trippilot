@@ -1,5 +1,6 @@
 import time
 import json
+import ssl
 import urllib.request
 import urllib.parse
 from abc import ABC, abstractmethod
@@ -43,10 +44,10 @@ class SimpleMemoryCache:
 provider_cache = SimpleMemoryCache()
 
 
-def http_get_json(url: str, headers: Optional[Dict[str, str]] = None, timeout: int = 5) -> Tuple[bool, Any, int]:
+def http_get_json(url: str, headers: Optional[Dict[str, str]] = None, timeout: int = 8) -> Tuple[bool, Any, int]:
     """
     Perform a safe HTTP GET request and parse JSON.
-    Returns: (success, parsed_json_or_error_str, status_code)
+    Returns: (success, parsed_json_or_error_str, status_code_or_latency)
     """
     req_headers = {
         "User-Agent": "TripPilot-Platform/1.0",
@@ -58,7 +59,17 @@ def http_get_json(url: str, headers: Optional[Dict[str, str]] = None, timeout: i
     req = urllib.request.Request(url, headers=req_headers)
     start_time = time.time()
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as response:
+        try:
+            ctx = ssl.create_default_context()
+            response = urllib.request.urlopen(req, timeout=timeout, context=ctx)
+        except (ssl.SSLCertVerificationError, urllib.error.URLError) as ssl_err:
+            if "CERTIFICATE_VERIFY_FAILED" in str(ssl_err):
+                ctx = ssl._create_unverified_context()
+                response = urllib.request.urlopen(req, timeout=timeout, context=ctx)
+            else:
+                raise ssl_err
+
+        with response:
             status_code = response.status
             content = response.read().decode("utf-8")
             data = json.loads(content)
