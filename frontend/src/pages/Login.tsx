@@ -49,16 +49,6 @@ export const Login: React.FC = () => {
     }
   };
 
-  const handleFillDemo = (role: 'demo' | 'admin') => {
-    if (role === 'admin') {
-      setEmail('admin@trippilot.ai');
-      setPassword('Admin@123456');
-    } else {
-      setEmail('demo@trippilot.ai');
-      setPassword('Demo@123456');
-    }
-  };
-
   const handleForgotSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setForgotError(null);
@@ -267,27 +257,6 @@ export const Login: React.FC = () => {
               )}
             </button>
           </form>
-
-          {/* Demo Quick Fill */}
-          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
-            <span className="text-[10px] font-bold uppercase text-slate-500 block">{t('auth.quick_demo', 'Quick Demo Logins:')}</span>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => handleFillDemo('demo')}
-                className="py-1.5 px-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-[11px] font-semibold text-slate-700 transition-colors"
-              >
-                {t('auth.demo_traveller', 'Demo Traveller')}
-              </button>
-              <button
-                type="button"
-                onClick={() => handleFillDemo('admin')}
-                className="py-1.5 px-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-[11px] font-semibold text-blue-700 transition-colors"
-              >
-                {t('auth.admin_console', 'Admin Console')}
-              </button>
-            </div>
-          </div>
 
           <div className="pt-2 text-center text-xs text-slate-500">
             {t('auth.no_account', "Don't have an account?")}{' '}
