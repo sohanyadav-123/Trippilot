@@ -6,15 +6,13 @@ interface TripPilotLogoProps {
   className?: string;
 }
 
-export const TripPilotLogo: React.FC<TripPilotLogoProps> = ({ size = 36, className = '' }) => {
+export const TripPilotLogo: React.FC<TripPilotLogoProps> = ({ size = 48, className = '' }) => {
   return (
     <img
       src={logoImg}
       alt="TripPilot Logo"
-      width={size}
-      height={size}
       className={`object-contain flex-shrink-0 transition-transform duration-200 ease-out hover:scale-105 ${className}`}
-      style={{ width: size, height: size }}
+      style={{ height: size, width: 'auto', maxHeight: size }}
       loading="eager"
     />
   );

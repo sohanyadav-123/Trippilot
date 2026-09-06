@@ -25,8 +25,8 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           {/* Brand & Newsletter */}
           <div className="lg:col-span-2 space-y-4">
-            <Link to="/" className="flex items-center gap-2.5">
-              <TripPilotLogo size={36} />
+            <Link to="/" className="flex items-center gap-3">
+              <TripPilotLogo size={50} />
               <div className="flex flex-col">
                 <div className="flex items-center gap-1.5">
                   <span className="text-2xl font-black tracking-tight text-white leading-none">
