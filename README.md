@@ -1,19 +1,20 @@
 # TripPilot AI — Next-Generation Intelligent Travel Booking Platform
 
-TripPilot AI is a production-ready, full-stack travel booking application with an original brand, original UI layout, and dark-mode glassmorphic aesthetics. It combines real-time flight and hotel search, day-by-day smart itinerary builder, live budget optimization, and safe mock payments — powered by the **xAI Grok API** with seamless database fallbacks.
+TripPilot AI is a production-ready, full-stack travel booking application with an original brand, original UI layout, and dark-mode glassmorphic aesthetics. It combines real-time flight and hotel search, day-by-day smart itinerary builder, live budget optimization, and safe mock payments — powered by the **xAI Grok / Groq API** with seamless database fallbacks.
 
 ---
 
 ## 🌟 Key Highlights
 
 - **Original Design System**: Dark-first glassmorphism, smooth micro-interactions, responsive card grids, and ambient gradient glows.
-- **xAI Grok Integration**: Conversational travel assistant, day-by-day AI itinerary generation, 1-click itinerary modifications (Cheaper, Adventure, Family, Reduce Travel, Luxury), and budget optimization.
+- **AI Grok Assistant**: Conversational travel assistant, day-by-day AI itinerary generation, 1-click itinerary modifications (Cheaper, Adventure, Family, Reduce Travel, Luxury), and budget optimization.
 - **Robust Security**:
-  - `GROK_API_KEY` is loaded strictly on the Flask server and never exposed to the client.
+  - `GROK_API_KEY` is loaded strictly on the backend and never exposed to the client.
   - Server-side price recalculation — client-submitted totals are never trusted.
   - Idempotency keys on payments and bookings to eliminate double-charges.
   - JWT authentication with secure password hashing (`bcrypt`).
 - **Comprehensive Data Seed**: Realistic destinations (Goa, Delhi, Mumbai, Kerala, Manali, Dubai, Bangkok, Singapore, Paris, Tokyo, London, New York), 200+ flights, 26 verified hotel properties, promotional coupons, and pre-configured demo users.
+- **Vercel Serverless Ready**: Full monorepo configured with `vercel.json` routing both Vite React frontend and Python Flask serverless function (`/api`).
 
 ---
 
@@ -21,6 +22,8 @@ TripPilot AI is a production-ready, full-stack travel booking application with a
 
 ```
 trippilot/
+├── api/
+│   └── index.py             # Serverless entry point for Vercel
 ├── backend/
 │   ├── app/
 │   │   ├── routes/          # Flask Blueprints (auth, search, bookings, payments, itineraries, budgets, ai, admin)
@@ -30,7 +33,7 @@ trippilot/
 │   ├── tests/               # Pytest suite
 │   ├── config.py            # App configurations
 │   ├── seed.py              # MongoDB Atlas seed script
-│   ├── run.py               # Application entrypoint
+│   ├── run.py               # Local Flask entrypoint
 │   ├── requirements.txt
 │   └── Dockerfile
 ├── frontend/
@@ -38,7 +41,7 @@ trippilot/
 │   │   ├── components/      # UI components (Layout, Search, Flight, Hotel, AI, Common)
 │   │   ├── context/         # AuthContext, CartContext, ThemeContext
 │   │   ├── hooks/           # useAuth, useCart, useTheme, useDebounce
-│   │   ├── pages/           # 13 Main pages + Admin subpages
+│   │   ├── pages/           # Main pages + Admin subpages
 │   │   ├── routes/          # AppRouter, ProtectedRoute
 │   │   ├── services/        # Axios API clients
 │   │   └── types/           # Full TypeScript schema interfaces
@@ -46,6 +49,8 @@ trippilot/
 │   ├── package.json
 │   ├── tailwind.config.js
 │   └── vite.config.ts
+├── vercel.json              # Vercel Monorepo build and routing config
+├── requirements.txt         # Serverless Python dependencies
 ├── docker-compose.yml
 ├── .env.example
 ├── .gitignore
@@ -54,10 +59,43 @@ trippilot/
 
 ---
 
-## 🚀 Quickstart Guide
+## ⚡ Deploying to Vercel
+
+TripPilot is configured for zero-config single-click deployment on [Vercel](https://vercel.com).
+
+### 1. Import Repository
+1. Navigate to **[vercel.com/new](https://vercel.com/new)**.
+2. Select and import your repository (`Trippilot`).
+
+### 2. Configure Environment Variables
+Expand the **Environment Variables** section and add the following keys:
+
+| Variable | Description / Value |
+|---|---|
+| `MONGO_URI` | Your MongoDB Atlas connection string |
+| `DB_NAME` | Database name (e.g. `trippilot`) |
+| `GROK_API_KEY` | Grok / Groq API key (`gsk_...`) |
+| `GROK_BASE_URL` | API base URL (e.g. `https://api.groq.com/openai/v1`) |
+| `GROK_MODEL` | AI model to use (e.g. `openai/gpt-oss-120b`) |
+| `SECRET_KEY` | Flask application secret string |
+| `JWT_SECRET_KEY` | JWT signing secret key |
+| `FLASK_ENV` | `production` |
+| `PAYMENT_MODE` | `mock` |
+| `CURRENCY` | `INR` |
+| `ADMIN_EMAIL` | Admin login email |
+| `ADMIN_PASSWORD` | Admin password |
+
+### 3. Post-Deployment Step
+Once your deployment succeeds and Vercel assigns your live domain (e.g. `https://trippilot.vercel.app`):
+1. Go to **Settings** → **Environment Variables** in your Vercel project.
+2. Add `FRONTEND_URL` = `https://trippilot.vercel.app`.
+3. Redeploy so CORS allows production requests from your domain.
+
+---
+
+## 🚀 Local Development Setup
 
 ### 1. Prerequisites
-
 - **Python 3.10+**
 - **Node.js 18+** & **npm**
 - **MongoDB Atlas** or local MongoDB instance
@@ -86,7 +124,6 @@ trippilot/
    ```bash
    cp ../.env.example ../.env
    ```
-   > Add your real `GROK_API_KEY=xai-...` to enable live Grok AI. If left empty, TripPilot AI will seamlessly operate using intelligent database-backed fallbacks.
 
 5. Seed the database with destinations, flights, hotels, and demo users:
    ```bash
@@ -97,7 +134,7 @@ trippilot/
    ```bash
    python run.py
    ```
-   The backend API will be live at `http://localhost:5000`.
+   The backend API will be live at `http://localhost:5002`.
 
 ---
 
@@ -123,11 +160,12 @@ trippilot/
 
 ## 🌐 Internationalization
 
-The project now includes a **translation generation script** that automatically translates all UI strings into the supported languages (`ar`, `bn`, `de`, `es`, `fr`, `gu`, `hi`, `kn`, `ml`, `mr`, `pa`, `ta`, `te`).
+The project includes an automatic translation script that provides full UI coverage across 14 languages:
+`en`, `ar`, `bn`, `de`, `es`, `fr`, `gu`, `hi`, `kn`, `ml`, `mr`, `pa`, `ta`, `te`.
 
-- Run `npm run generate-translations` to fetch translations via the free LibreTranslate API and update each locale file under `src/i18n/locales/`.
-- The script preserves existing translations and only adds missing keys.
-- After running, restart the dev server to see the full site change language via the selector.
+- Run `npm run generate-translations` inside `frontend/` to refresh translations via LibreTranslate.
+
+---
 
 ## 🔑 Pre-Configured Demo Accounts
 
@@ -135,8 +173,6 @@ The project now includes a **translation generation script** that automatically 
 |---|---|---|
 | **Admin Superuser** | `admin@trippilot.ai` | `Admin@123456` |
 | **Demo Traveller** | `demo@trippilot.ai` | `Demo@123456` |
-
-*You can also click the quick pre-fill buttons on the Login page.*
 
 ---
 
@@ -153,7 +189,7 @@ The project now includes a **translation generation script** that automatically 
 Run the automated Pytest test suite:
 ```bash
 cd backend
-./venv/bin/pytest tests/ -v
+pytest tests/ -v
 ```
 
 ---
