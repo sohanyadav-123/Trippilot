@@ -192,7 +192,7 @@ export const Navbar: React.FC = () => {
           </Link>
 
           {/* ─── 2. CENTER: STREAMLINED 4-PILLAR NAVIGATION ─── */}
-          <nav className="hidden xl:flex items-center gap-1">
+          <nav className="hidden xl:flex items-center gap-2">
             {/* EXPLORE Dropdown */}
             <div
               className="relative"
@@ -202,14 +202,14 @@ export const Navbar: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setActiveDropdown(activeDropdown === 'explore' ? null : 'explore')}
-                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm sm:text-[15px] font-bold transition-all ${
                   activeDropdown === 'explore' || isGroupActive(exploreLinks)
                     ? 'text-[#0B1220] bg-slate-50 font-extrabold'
                     : 'text-slate-600 hover:text-[#0B1220] hover:bg-slate-50/80'
                 }`}
               >
                 <span>{t('nav.explore', 'Explore')}</span>
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${activeDropdown === 'explore' ? 'rotate-180 text-[#0B1220]' : 'text-slate-400'}`} />
+                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === 'explore' ? 'rotate-180 text-[#0B1220]' : 'text-slate-400'}`} />
               </button>
 
               {activeDropdown === 'explore' && (
@@ -251,15 +251,15 @@ export const Navbar: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setActiveDropdown(activeDropdown === 'plan' ? null : 'plan')}
-                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm sm:text-[15px] font-bold transition-all ${
                   activeDropdown === 'plan' || isGroupActive(planLinks)
                     ? 'text-[#0B1220] bg-slate-50 font-extrabold'
                     : 'text-slate-600 hover:text-[#0B1220] hover:bg-slate-50/80'
                 }`}
               >
                 <span>{t('nav.plan', 'Plan')}</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB]" />
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${activeDropdown === 'plan' ? 'rotate-180 text-[#0B1220]' : 'text-slate-400'}`} />
+                <span className="w-2 h-2 rounded-full bg-[#2563EB]" />
+                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === 'plan' ? 'rotate-180 text-[#0B1220]' : 'text-slate-400'}`} />
               </button>
 
               {activeDropdown === 'plan' && (
@@ -313,14 +313,14 @@ export const Navbar: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setActiveDropdown(activeDropdown === 'book' ? null : 'book')}
-                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm sm:text-[15px] font-bold transition-all ${
                   activeDropdown === 'book' || isGroupActive(bookLinks)
                     ? 'text-[#0B1220] bg-slate-50 font-extrabold'
                     : 'text-slate-600 hover:text-[#0B1220] hover:bg-slate-50/80'
                 }`}
               >
                 <span>{t('nav.book', 'Book')}</span>
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${activeDropdown === 'book' ? 'rotate-180 text-[#0B1220]' : 'text-slate-400'}`} />
+                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === 'book' ? 'rotate-180 text-[#0B1220]' : 'text-slate-400'}`} />
               </button>
 
               {activeDropdown === 'book' && (
@@ -362,14 +362,14 @@ export const Navbar: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setActiveDropdown(activeDropdown === 'trips' ? null : 'trips')}
-                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm sm:text-[15px] font-bold transition-all ${
                   activeDropdown === 'trips' || isGroupActive(tripsLinks)
                     ? 'text-[#0B1220] bg-slate-50 font-extrabold'
                     : 'text-slate-600 hover:text-[#0B1220] hover:bg-slate-50/80'
                 }`}
               >
                 <span>{t('nav.trips', 'Trips')}</span>
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${activeDropdown === 'trips' ? 'rotate-180 text-[#0B1220]' : 'text-slate-400'}`} />
+                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === 'trips' ? 'rotate-180 text-[#0B1220]' : 'text-slate-400'}`} />
               </button>
 
               {activeDropdown === 'trips' && (
@@ -411,14 +411,14 @@ export const Navbar: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setActiveDropdown(activeDropdown === 'budget' ? null : 'budget')}
-                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm sm:text-[15px] font-bold transition-all ${
                   activeDropdown === 'budget' || isGroupActive(budgetLinks)
                     ? 'text-[#0B1220] bg-slate-50 font-extrabold'
                     : 'text-slate-600 hover:text-[#0B1220] hover:bg-slate-50/80'
                 }`}
               >
                 <span>{t('nav.budget', 'Budget')}</span>
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${activeDropdown === 'budget' ? 'rotate-180 text-[#0B1220]' : 'text-slate-400'}`} />
+                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === 'budget' ? 'rotate-180 text-[#0B1220]' : 'text-slate-400'}`} />
               </button>
 
               {activeDropdown === 'budget' && (
@@ -668,13 +668,13 @@ export const Navbar: React.FC = () => {
               <div className="flex items-center gap-2">
                 <Link
                   to="/login"
-                  className="btn-secondary text-xs !py-1.5 px-3 font-bold"
+                  className="btn-secondary text-sm !py-2 px-4 font-bold rounded-xl"
                 >
                   {t('nav.login', 'Sign In')}
                 </Link>
                 <Link
                   to="/register"
-                  className="hidden sm:inline-flex btn-primary text-xs !py-1.5 px-3.5 font-bold shadow-xs"
+                  className="hidden sm:inline-flex btn-primary text-sm !py-2 px-4.5 font-bold shadow-xs rounded-xl"
                 >
                   {t('nav.signup', 'Register')}
                 </Link>

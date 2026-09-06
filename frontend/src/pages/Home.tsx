@@ -284,31 +284,31 @@ export const Home: React.FC = () => {
   return (
     <div className="space-y-16 sm:space-y-24 pb-20">
       {/* ─── 1. LUXURY EDITORIAL HERO & CENTRAL SEARCH ENGINE ─── */}
-      <section className="relative pt-10 sm:pt-16 pb-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="text-center max-w-3xl mx-auto space-y-4 mb-8 sm:mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-[#0B1220] text-xs font-semibold">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#C8A96B]" />
+      <section className="relative pt-12 sm:pt-20 lg:pt-24 pb-8 sm:pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="text-center max-w-4xl mx-auto space-y-6 sm:space-y-7 mb-10 sm:mb-16">
+          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-slate-100 text-[#0B1220] text-xs sm:text-sm font-bold tracking-wider">
+            <span className="w-2 h-2 rounded-full bg-[#C8A96B]" />
             <span>{t('hero.badge', 'INTELLIGENT TRAVEL ORCHESTRATION')}</span>
           </div>
 
-          <h1 className="font-editorial text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-[#0B1220] leading-[1.1]">
+          <h1 className="font-editorial text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tight text-[#0B1220] leading-[1.08]">
             {t('hero.title_p1', 'Your journey,')} <br />
             <span className="italic font-normal">{t('hero.title_p2', 'beautifully planned.')}</span>
           </h1>
 
-          <p className="text-sm sm:text-base text-slate-600 max-w-xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg lg:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed font-normal">
             {t('hero.subtitle', 'Discover destinations, build intelligent itineraries, and book every part of your trip in one place.')}
           </p>
 
           {/* Choose Language Hero Selector */}
           <div className="flex items-center justify-center gap-2 pt-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:border-slate-300 transition-all">
+            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:border-slate-300 transition-all">
               <Globe2 className="w-4 h-4 text-[#C8A96B]" />
-              <span className="text-xs font-bold text-slate-700">{t('hero.choose_language', 'Choose Language')}:</span>
+              <span className="text-xs sm:text-sm font-bold text-slate-700">{t('hero.choose_language', 'Choose Language')}:</span>
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value as any)}
-                className="bg-transparent text-xs font-black text-slate-900 focus:outline-none cursor-pointer pr-1"
+                className="bg-transparent text-xs sm:text-sm font-black text-slate-900 focus:outline-none cursor-pointer pr-1"
                 aria-label={t('hero.choose_language', 'Choose Language')}
               >
                 <option value="en">🌐 English</option>
@@ -319,25 +319,25 @@ export const Home: React.FC = () => {
           </div>
 
           {/* Travel Experience Mode Hero Switcher */}
-          <div className="flex flex-col items-center justify-center gap-2 pt-1">
-            <span className="text-[10.5px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-              <Compass className="w-3 h-3 text-[#C8A96B]" />
+          <div className="flex flex-col items-center justify-center gap-2.5 pt-1">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+              <Compass className="w-3.5 h-3.5 text-[#C8A96B]" />
               {t('mode.title', 'Travel Experience Mode')}
             </span>
-            <div className="inline-flex flex-wrap items-center justify-center p-1 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-xs gap-1">
+            <div className="inline-flex flex-wrap items-center justify-center p-1.5 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-xs gap-1.5">
               <button
                 type="button"
                 onClick={() => {
                   setTravelMode('standard');
                   toast.success('Active: Standard Travel (Full Inventory)', { id: 'home-mode', icon: '✈️' });
                 }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
                   travelMode === 'standard'
                     ? 'bg-blue-600 text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
               >
-                <Globe2 className="w-3.5 h-3.5" />
+                <Globe2 className="w-4 h-4" />
                 <span>{t('mode.standard', 'Standard Travel')}</span>
               </button>
               <button
@@ -346,13 +346,13 @@ export const Home: React.FC = () => {
                   setTravelMode('family');
                   toast.success('Active: Family with Kids (Kid-Safe Resorts & Family Seats)', { id: 'home-mode', icon: '👨‍👩‍👧' });
                 }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
                   travelMode === 'family'
                     ? 'bg-amber-600 text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
               >
-                <Baby className="w-3.5 h-3.5" />
+                <Baby className="w-4 h-4" />
                 <span>{t('mode.family', 'Family with Kids')}</span>
               </button>
               <button
@@ -361,28 +361,28 @@ export const Home: React.FC = () => {
                   setTravelMode('accessibility');
                   toast.success('Active: Accessibility Mode (Wheelchair & Step-Free)', { id: 'home-mode', icon: '♿' });
                 }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
                   travelMode === 'accessibility'
                     ? 'bg-indigo-600 text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
               >
-                <Accessibility className="w-3.5 h-3.5" />
+                <Accessibility className="w-4 h-4" />
                 <span>{t('mode.accessibility', 'Accessibility Mode')}</span>
               </button>
             </div>
           </div>
 
-          <div className="flex items-center justify-center gap-3 pt-2">
+          <div className="flex items-center justify-center gap-3.5 pt-3">
             <button
               onClick={() => navigate('/ai-planner')}
-              className="btn-primary text-xs sm:text-sm !py-2.5 px-6 font-semibold shadow-sm"
+              className="btn-primary text-sm sm:text-base !py-3.5 px-8 font-bold shadow-md rounded-2xl"
             >
               {t('hero.start_planning', 'Start Planning')}
             </button>
             <button
               onClick={() => navigate('/destinations')}
-              className="btn-secondary text-xs sm:text-sm !py-2.5 px-6 font-semibold"
+              className="btn-secondary text-sm sm:text-base !py-3.5 px-8 font-bold shadow-xs rounded-2xl"
             >
               {t('hero.explore_destinations', 'Explore Destinations')}
             </button>
@@ -459,7 +459,7 @@ export const Home: React.FC = () => {
         )}
 
         {/* Search Engine Centerpiece */}
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <SearchWidget />
         </div>
       </section>
