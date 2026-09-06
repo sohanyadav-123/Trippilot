@@ -114,7 +114,7 @@ function buildActionCard(
 }
 
 export const AIAssistantWidget: React.FC = () => {
-  const { language, t } = useTravelSettings();
+  const { language, travelMode, setTravelMode, t } = useTravelSettings();
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -219,6 +219,9 @@ export const AIAssistantWidget: React.FC = () => {
     travellers,
     departureDate,
     returnDate,
+    currentStep,
+    travelExperienceMode: travelMode,
+    travel_mode: travelMode,
     selectedFlight: selectedTravel?.title || 'Not yet selected',
     selectedHotel: selectedStay?.name || 'Not yet selected',
     activitiesCount: selectedActivities.length,
@@ -370,6 +373,22 @@ export const AIAssistantWidget: React.FC = () => {
           <div className="px-4 py-2 bg-slate-900/5 border-b border-slate-100 flex items-center gap-3 text-[10px] font-bold overflow-x-auto scrollbar-none">
             <span className="text-slate-400">CONTEXT:</span>
             <span className="text-slate-700">📍 {destination}</span>
+            <span className="text-slate-400">•</span>
+            <span
+              className={`px-1.5 py-0.5 rounded-full font-bold ${
+                travelMode === 'family'
+                  ? 'bg-amber-100 text-amber-900'
+                  : travelMode === 'accessibility'
+                  ? 'bg-indigo-100 text-indigo-900'
+                  : 'bg-slate-100 text-slate-700'
+              }`}
+            >
+              {travelMode === 'family'
+                ? '👨‍👩‍👧 Family Mode'
+                : travelMode === 'accessibility'
+                ? '♿ Accessibility Mode'
+                : '✈️ Standard'}
+            </span>
             <span className="text-slate-400">•</span>
             <span className={`${budgetStatus === 'over_budget' ? 'text-rose-600' : 'text-emerald-700'}`}>
               💰 {budgetStatus === 'over_budget' ? 'Over Budget' : `₹${remainingBudget.toLocaleString('en-IN')} left`}

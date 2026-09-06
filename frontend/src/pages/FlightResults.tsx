@@ -13,6 +13,8 @@ import {
   ShieldCheck,
   Check,
   Wallet,
+  Baby,
+  Accessibility,
 } from 'lucide-react';
 import { searchService } from '../services/searchService';
 import { Flight } from '../types';
@@ -29,7 +31,7 @@ import { LOCATIONS_DATA } from '../data/locationData';
 import { useTravelSettings } from '../context/TravelSettingsContext';
 
 export const FlightResults: React.FC = () => {
-  const { t, tPlace } = useTravelSettings();
+  const { travelMode, setTravelMode, t, tPlace } = useTravelSettings();
   const [searchParams, setSearchParams] = useSearchParams();
   const { budget: savedBudget } = useTripBuilder();
   const activeBudget = Number(searchParams.get('budget')) || savedBudget || 0;
@@ -237,6 +239,46 @@ export const FlightResults: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      {/* Travel Experience Mode Banner */}
+      {travelMode !== 'standard' && (
+        <div
+          className={`p-3.5 sm:p-4 rounded-2xl text-xs font-semibold flex flex-col sm:flex-row sm:items-center justify-between gap-3 border animate-fade-in ${
+            travelMode === 'family'
+              ? 'bg-amber-50 border-amber-200 text-amber-950 shadow-xs'
+              : 'bg-indigo-50 border-indigo-200 text-indigo-950 shadow-xs'
+          }`}
+        >
+          <div className="flex items-center gap-2.5">
+            <div
+              className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                travelMode === 'family' ? 'bg-amber-200 text-amber-900' : 'bg-indigo-200 text-indigo-900'
+              }`}
+            >
+              {travelMode === 'family' ? <Baby className="w-4 h-4" /> : <Accessibility className="w-4 h-4" />}
+            </div>
+            <div>
+              <span className="font-extrabold uppercase tracking-wide block">
+                {travelMode === 'family' ? 'Family with Kids Mode Active' : 'Accessibility Mode Active'}
+              </span>
+              <span className="text-[11px] opacity-80 block mt-0.5">
+                {travelMode === 'family'
+                  ? 'Adjacent family seating priority and flexible family baggage allowances applied.'
+                  : 'Complimentary airport wheelchair assistance, aisle-chair transfer & priority boarding included.'}
+              </span>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setTravelMode('standard')}
+            className={`text-xs font-bold underline whitespace-nowrap self-end sm:self-auto ${
+              travelMode === 'family' ? 'text-amber-800 hover:text-amber-950' : 'text-indigo-800 hover:text-indigo-950'
+            }`}
+          >
+            Switch to Standard
+          </button>
+        </div>
+      )}
+
       {/* ─── Search Summary & Modify Header ─── */}
       <div className="surface-card p-5 sm:p-6 rounded-3xl border border-slate-200 shadow-sm bg-white">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">

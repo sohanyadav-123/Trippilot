@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import toast from 'react-hot-toast';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   Plane,
@@ -487,50 +488,78 @@ export const Navbar: React.FC = () => {
                 className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-bold transition-all ${
                   travelMode === 'standard'
                     ? 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-                    : 'bg-blue-50 border-blue-200 text-blue-800'
+                    : travelMode === 'family'
+                    ? 'bg-amber-50/90 border-amber-200 text-amber-900 hover:bg-amber-100/80 shadow-xs'
+                    : 'bg-indigo-50/90 border-indigo-200 text-indigo-900 hover:bg-indigo-100/80 shadow-xs'
                 }`}
                 title={t('mode.title', 'Travel Experience Mode')}
                 aria-haspopup="true"
                 aria-expanded={modeDropdownOpen}
               >
-                <ModeIcon className="w-3.5 h-3.5 text-blue-600" />
-                <span className="truncate max-w-[100px]">{t(currentModeObj.key, currentModeObj.mode)}</span>
+                <ModeIcon className={`w-3.5 h-3.5 ${
+                  travelMode === 'family' ? 'text-amber-600' : travelMode === 'accessibility' ? 'text-indigo-600' : 'text-blue-600'
+                }`} />
+                <span className="truncate max-w-[110px]">{t(currentModeObj.key, currentModeObj.mode)}</span>
                 <ChevronDown className="w-3 h-3 text-slate-400" />
               </button>
 
               {modeDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-luxury border border-slate-200 p-2 z-50 animate-in fade-in slide-in-from-top-1">
-                  <div className="px-3 py-1.5 border-b border-slate-100">
+                <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-luxury border border-slate-200 p-2 z-50 animate-in fade-in slide-in-from-top-1">
+                  <div className="px-3 py-1.5 border-b border-slate-100 flex items-center justify-between">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                       {t('mode.title', 'Travel Experience Mode')}
                     </span>
+                    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-500 font-bold uppercase">
+                      Live Adapt
+                    </span>
                   </div>
-                  {travelModes.map((m) => {
-                    const Icon = m.icon;
-                    const isSelected = travelMode === m.mode;
-                    return (
-                      <button
-                        key={m.mode}
-                        type="button"
-                        onClick={() => {
-                          setTravelMode(m.mode);
-                          setModeDropdownOpen(false);
-                        }}
-                        className={`w-full px-3 py-2.5 text-left text-xs flex items-start gap-2.5 rounded-xl transition-colors ${
-                          isSelected ? 'bg-blue-50/70 font-bold text-blue-900 border border-blue-100' : 'text-slate-700 hover:bg-slate-50'
-                        }`}
-                      >
-                        <Icon className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold">{t(m.key, m.mode)}</span>
-                            {isSelected && <Check className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />}
+                  <div className="space-y-1 mt-1">
+                    {travelModes.map((m) => {
+                      const Icon = m.icon;
+                      const isSelected = travelMode === m.mode;
+                      const activeColors =
+                        m.mode === 'family'
+                          ? 'bg-amber-50/80 font-bold text-amber-950 border-amber-200'
+                          : m.mode === 'accessibility'
+                          ? 'bg-indigo-50/80 font-bold text-indigo-950 border-indigo-200'
+                          : 'bg-blue-50/80 font-bold text-blue-950 border-blue-200';
+                      const iconColor =
+                        m.mode === 'family' ? 'text-amber-600' : m.mode === 'accessibility' ? 'text-indigo-600' : 'text-blue-600';
+
+                      return (
+                        <button
+                          key={m.mode}
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setTravelMode(m.mode);
+                            setModeDropdownOpen(false);
+                            toast.success(`Active Mode: ${t(m.key, m.mode)}`, {
+                              duration: 2500,
+                              id: 'travel-mode',
+                              icon: m.mode === 'family' ? '👨‍👩‍👧' : m.mode === 'accessibility' ? '♿' : '✈️',
+                            });
+                          }}
+                          className={`w-full px-3 py-2.5 text-left text-xs flex items-start gap-2.5 rounded-xl transition-all border ${
+                            isSelected ? activeColors : 'text-slate-700 hover:bg-slate-50 border-transparent'
+                          }`}
+                        >
+                          <div className={`p-1.5 rounded-lg mt-0.5 flex-shrink-0 ${
+                            isSelected ? (m.mode === 'family' ? 'bg-amber-100' : m.mode === 'accessibility' ? 'bg-indigo-100' : 'bg-blue-100') : 'bg-slate-100'
+                          }`}>
+                            <Icon className={`w-4 h-4 ${iconColor}`} />
                           </div>
-                          <span className="text-[10px] text-slate-500 block leading-tight mt-0.5">{t(m.descKey, '')}</span>
-                        </div>
-                      </button>
-                    );
-                  })}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <span className="font-bold text-xs">{t(m.key, m.mode)}</span>
+                              {isSelected && <Check className={`w-3.5 h-3.5 flex-shrink-0 ${iconColor}`} />}
+                            </div>
+                            <span className="text-[10.5px] text-slate-500 block leading-tight mt-0.5">{t(m.descKey, '')}</span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>
@@ -845,20 +874,37 @@ export const Navbar: React.FC = () => {
                 {t('mode.title', 'Travel Experience Mode')}
               </span>
               <div className="grid grid-cols-3 gap-1.5">
-                {travelModes.map((m) => (
-                  <button
-                    key={m.mode}
-                    type="button"
-                    onClick={() => setTravelMode(m.mode)}
-                    className={`py-1.5 px-2 rounded-xl text-[11px] font-bold text-center border transition-all ${
-                      travelMode === m.mode
-                        ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                        : 'bg-white text-slate-700 border-slate-200'
-                    }`}
-                  >
-                    {t(m.key, m.mode)}
-                  </button>
-                ))}
+                {travelModes.map((m) => {
+                  const Icon = m.icon;
+                  const isSelected = travelMode === m.mode;
+                  const activeClass =
+                    m.mode === 'family'
+                      ? 'bg-amber-600 text-white border-amber-600 shadow-sm'
+                      : m.mode === 'accessibility'
+                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                      : 'bg-blue-600 text-white border-blue-600 shadow-sm';
+
+                  return (
+                    <button
+                      key={m.mode}
+                      type="button"
+                      onClick={() => {
+                        setTravelMode(m.mode);
+                        toast.success(`Active Mode: ${t(m.key, m.mode)}`, {
+                          duration: 2500,
+                          id: 'travel-mode',
+                          icon: m.mode === 'family' ? '👨‍👩‍👧' : m.mode === 'accessibility' ? '♿' : '✈️',
+                        });
+                      }}
+                      className={`py-2 px-2 rounded-xl text-[11px] font-bold text-center border transition-all flex flex-col items-center gap-1 ${
+                        isSelected ? activeClass : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                      }`}
+                    >
+                      <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-slate-500'}`} />
+                      <span className="truncate w-full">{t(m.key, m.mode)}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 

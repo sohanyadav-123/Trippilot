@@ -31,6 +31,8 @@ import {
   Check,
   Trash2,
   Sliders,
+  Baby,
+  Accessibility,
 } from 'lucide-react';
 import { aiService } from '../services/aiService';
 import { itineraryService } from '../services/itineraryService';
@@ -44,7 +46,7 @@ import { GroupTripPlanner } from '../components/Itinerary/GroupTripPlanner';
 import { BudgetOptimizerCard } from '../components/Itinerary/BudgetOptimizerCard';
 import { VisualDestinationSearch } from '../components/AI/VisualDestinationSearch';
 import { SmartTripTimeline } from '../components/Itinerary/SmartTripTimeline';
-import { ItineraryDay } from '../types';
+import { ItineraryDay, Activity } from '../types';
 import { useTripBuilder } from '../context/TripBuilderContext';
 
 interface AITripOption {
@@ -87,7 +89,7 @@ export const AIPlanner: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const { t, tPlace, travelMode } = useTravelSettings();
+  const { t, tPlace, travelMode, setTravelMode } = useTravelSettings();
   const {
     changeDestination,
     selectTravelItem,
@@ -321,42 +323,104 @@ export const AIPlanner: React.FC = () => {
     setLoading(true);
     setSaveStatus(null);
     try {
-      const mockDays: ItineraryDay[] = Array.from({ length: durationDays }).map((_, idx) => ({
-        day: idx + 1,
-        date: `Day ${idx + 1}`,
-        accommodation: `${currentOption.hotel.name}`,
-        daily_budget: Math.round(budget / durationDays),
-        activities: [
-          {
-            time: '09:00 AM',
-            activity: idx === 0 ? `Arrival from ${origin} & Hotel Check-in` : 'Morning Coastal Viewpoint & Light Walk',
-            description: `Scenic walk and traditional local breakfast in ${currentOption.destination}.`,
+      const mockDays: ItineraryDay[] = Array.from({ length: durationDays }).map((_, idx) => {
+        let act1: Activity = {
+          time: '09:00 AM',
+          activity: idx === 0 ? `Arrival from ${origin} & Hotel Check-in` : 'Morning Coastal Viewpoint & Light Walk',
+          description: `Scenic walk and traditional local breakfast in ${currentOption.destination}.`,
+          estimated_cost: Math.round((budget / durationDays) * 0.2),
+          type: 'sightseeing',
+        };
+        let act2: Activity = {
+          time: '01:30 PM',
+          activity: 'Authentic Regional Dining & Heritage Stop',
+          description: 'Multi-course coastal seafood lunch and heritage architecture trail.',
+          estimated_cost: Math.round((budget / durationDays) * 0.3),
+          type: 'food',
+        };
+        let act3: Activity = {
+          time: '05:00 PM',
+          activity: 'Sunset Beach Relaxation & Water Sports',
+          description: 'Unwind at uncrowded golden sands as the sun sets over the sea.',
+          estimated_cost: Math.round((budget / durationDays) * 0.3),
+          type: 'adventure',
+        };
+        let act4: Activity = {
+          time: '08:30 PM',
+          activity: 'Waterfront Dinner with Live Acoustic Music',
+          description: 'Chef specials and ocean breeze dining.',
+          estimated_cost: Math.round((budget / durationDays) * 0.2),
+          type: 'food',
+        };
+
+        if (travelMode === 'family') {
+          act1 = {
+            time: '09:30 AM',
+            activity: idx === 0 ? `Family Arrival & Check-in at Kid-Friendly Resort` : 'Kid-Safe Beach Walk & Splash Pool Games',
+            description: `Kid-friendly start to the day with safe shallow waters and play area in ${currentOption.destination}.`,
             estimated_cost: Math.round((budget / durationDays) * 0.2),
             type: 'sightseeing',
-          },
-          {
-            time: '01:30 PM',
-            activity: 'Authentic Regional Dining & Heritage Stop',
-            description: 'Multi-course coastal seafood lunch and heritage architecture trail.',
+          };
+          act2 = {
+            time: '01:00 PM',
+            activity: 'Family Buffet Lunch & Butterfly Sanctuary',
+            description: 'Child-friendly dining options and interactive wildlife sanctuary tour.',
             estimated_cost: Math.round((budget / durationDays) * 0.3),
             type: 'food',
-          },
-          {
-            time: '05:00 PM',
-            activity: 'Sunset Beach Relaxation & Water Sports',
-            description: 'Unwind at uncrowded golden sands as the sun sets over the sea.',
+          };
+          act3 = {
+            time: '04:30 PM',
+            activity: 'Dolphin Safari & Sunset Beach Fun',
+            description: 'Safe boat tour with life jackets and relaxing family sandcastle fun.',
             estimated_cost: Math.round((budget / durationDays) * 0.3),
             type: 'adventure',
-          },
-          {
-            time: '08:30 PM',
-            activity: 'Waterfront Dinner with Live Acoustic Music',
-            description: 'Chef specials and ocean breeze dining.',
+          };
+          act4 = {
+            time: '07:30 PM',
+            activity: 'Early Seaside Family Dinner & Stargazing',
+            description: 'Kid-friendly menu, early dining hours, and peaceful seaside stroll.',
             estimated_cost: Math.round((budget / durationDays) * 0.2),
             type: 'food',
-          },
-        ],
-      }));
+          };
+        } else if (travelMode === 'accessibility') {
+          act1 = {
+            time: '10:00 AM',
+            activity: idx === 0 ? `Assisted Transfer & Step-Free Hotel Check-in` : 'Step-Free Scenic Promenade Roll/Walk',
+            description: `Smooth, ramp-equipped paths with accessible viewpoints in ${currentOption.destination}.`,
+            estimated_cost: Math.round((budget / durationDays) * 0.2),
+            type: 'sightseeing',
+          };
+          act2 = {
+            time: '01:30 PM',
+            activity: 'Accessible Heritage Dining & Elevator Museum Tour',
+            description: 'Ground-floor reserved dining followed by wheelchair-accessible museum exhibit.',
+            estimated_cost: Math.round((budget / durationDays) * 0.3),
+            type: 'food',
+          };
+          act3 = {
+            time: '05:00 PM',
+            activity: 'Panoramic Drive & Barrier-Free Sunset Viewpoint',
+            description: 'Spacious accessible transport to flat terrace overlook with ramp access.',
+            estimated_cost: Math.round((budget / durationDays) * 0.3),
+            type: 'sightseeing',
+          };
+          act4 = {
+            time: '08:00 PM',
+            activity: 'Seated Gourmet Dinner with Wheelchair Accommodations',
+            description: 'Pre-arranged accessible table with step-free entry and dedicated service.',
+            estimated_cost: Math.round((budget / durationDays) * 0.2),
+            type: 'food',
+          };
+        }
+
+        return {
+          day: idx + 1,
+          date: `Day ${idx + 1}`,
+          accommodation: `${currentOption.hotel.name}`,
+          daily_budget: Math.round(budget / durationDays),
+          activities: [act1, act2, act3, act4],
+        };
+      });
 
       setItinerary({
         destination: currentOption.destination,
@@ -378,7 +442,7 @@ export const AIPlanner: React.FC = () => {
 
   useEffect(() => {
     generatePlan();
-  }, [selectedOptionId]);
+  }, [selectedOptionId, travelMode, durationDays]);
 
   // Accept Complete Plan & Route to Canonical Trip Builder
   const handleAcceptPlan = () => {
@@ -478,7 +542,61 @@ export const AIPlanner: React.FC = () => {
               {t('ai.hero_desc', 'Describe your dream trip in plain English or select from tailored alternatives. TripPilot calculates flights, hotels, activities, and budget seamlessly.')}
             </p>
           </div>
+
+          {/* Travel Experience Mode Switcher */}
+          <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-slate-100/90 border border-slate-200 self-start md:self-auto">
+            <span className="text-[10px] font-bold text-slate-400 uppercase px-1.5">Mode:</span>
+            <button
+              type="button"
+              onClick={() => setTravelMode('standard')}
+              className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
+                travelMode === 'standard' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Compass className="w-3 h-3" />
+              <span>Standard</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setTravelMode('family')}
+              className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
+                travelMode === 'family' ? 'bg-amber-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Baby className="w-3 h-3" />
+              <span>Family</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setTravelMode('accessibility')}
+              className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
+                travelMode === 'accessibility' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Accessibility className="w-3 h-3" />
+              <span>Accessibility</span>
+            </button>
+          </div>
         </div>
+
+        {/* Travel Mode Tuning Notice */}
+        {travelMode !== 'standard' && (
+          <div
+            className={`p-3 rounded-2xl text-xs font-semibold flex items-center gap-2 border ${
+              travelMode === 'family'
+                ? 'bg-amber-50 border-amber-200 text-amber-950'
+                : 'bg-indigo-50 border-indigo-200 text-indigo-950'
+            }`}
+          >
+            {travelMode === 'family' ? <Baby className="w-4 h-4 text-amber-600 flex-shrink-0" /> : <Accessibility className="w-4 h-4 text-indigo-600 flex-shrink-0" />}
+            <span>
+              <strong>{travelMode === 'family' ? 'Family Mode Tuning:' : 'Accessibility Mode Tuning:'}</strong>{' '}
+              {travelMode === 'family'
+                ? 'Generated itinerary includes kid-safe shallow beaches, family wildlife tours, and child-friendly meal spots.'
+                : 'Generated itinerary includes step-free walking promenades, ramp-accessible viewpoints, and ground-floor reserved dining.'}
+            </span>
+          </div>
+        )}
 
         {/* Natural Language Prompt Input Bar */}
         <form onSubmit={handleParsePrompt} className="p-2 rounded-2xl bg-slate-50 border border-slate-200/90 flex flex-col sm:flex-row items-center gap-2">

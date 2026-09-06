@@ -12,6 +12,9 @@ import {
   Save,
   CheckCircle2,
   Sliders,
+  Baby,
+  Accessibility,
+  Globe2,
 } from 'lucide-react';
 import { useTripBuilder } from '../context/TripBuilderContext';
 import { useTravelSettings } from '../context/TravelSettingsContext';
@@ -113,6 +116,94 @@ export const TravelPreferencesPage: React.FC = () => {
       )}
 
       <form onSubmit={handleSave} className="space-y-6">
+        {/* 0. Travel Experience Mode Selector */}
+        <div className="surface-card p-6 rounded-3xl border border-slate-200 bg-white shadow-sm space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900 flex items-center gap-2">
+              <Compass className="w-4 h-4 text-blue-600" /> Travel Experience Mode
+            </h3>
+            <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-800 font-bold border border-blue-200">
+              Active: {travelMode === 'family' ? 'Family with Kids' : travelMode === 'accessibility' ? 'Accessibility Mode' : 'Standard Travel'}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {[
+              {
+                mode: 'standard' as const,
+                title: 'Standard Travel',
+                desc: 'Full interactive catalog, standard seats & AI itinerary builder',
+                icon: Globe2,
+                color: 'blue',
+              },
+              {
+                mode: 'family' as const,
+                title: 'Family with Kids',
+                desc: 'Kid-safe resorts, adjacent family flight seats & play zones',
+                icon: Baby,
+                color: 'amber',
+              },
+              {
+                mode: 'accessibility' as const,
+                title: 'Accessibility Mode',
+                desc: 'Wheelchair access, step-free hotels, elevators & mobility cabs',
+                icon: Accessibility,
+                color: 'indigo',
+              },
+            ].map((item) => {
+              const Icon = item.icon;
+              const isSelected = travelMode === item.mode;
+              return (
+                <button
+                  key={item.mode}
+                  type="button"
+                  onClick={() => setTravelMode(item.mode)}
+                  className={`p-4 rounded-2xl border text-left transition-all relative ${
+                    isSelected
+                      ? item.color === 'family'
+                        ? 'bg-amber-50/90 border-amber-300 ring-2 ring-amber-400/40 shadow-sm'
+                        : item.color === 'accessibility'
+                        ? 'bg-indigo-50/90 border-indigo-300 ring-2 ring-indigo-400/40 shadow-sm'
+                        : 'bg-blue-50/90 border-blue-300 ring-2 ring-blue-400/40 shadow-sm'
+                      : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100/80'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div
+                      className={`w-8 h-8 rounded-xl flex items-center justify-center ${
+                        isSelected
+                          ? item.color === 'family'
+                            ? 'bg-amber-200 text-amber-900'
+                            : item.color === 'accessibility'
+                            ? 'bg-indigo-200 text-indigo-900'
+                            : 'bg-blue-200 text-blue-900'
+                          : 'bg-white text-slate-600 border border-slate-200'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    {isSelected && (
+                      <span
+                        className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                          item.color === 'family'
+                            ? 'bg-amber-600 text-white'
+                            : item.color === 'accessibility'
+                            ? 'bg-indigo-600 text-white'
+                            : 'bg-blue-600 text-white'
+                        }`}
+                      >
+                        SELECTED
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-sm font-bold block text-slate-900">{item.title}</span>
+                  <span className="text-[11px] text-slate-500 block mt-1 leading-snug">{item.desc}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* 1. Travel Style Tier */}
         <div className="surface-card p-6 rounded-3xl border border-slate-200 bg-white shadow-sm space-y-4">
           <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900 pb-3 border-b border-slate-100 flex items-center gap-2">

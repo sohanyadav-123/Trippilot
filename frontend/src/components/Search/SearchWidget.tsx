@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Plane,
@@ -15,6 +15,8 @@ import {
   Image as ImageIcon,
   Wallet,
   X,
+  Baby,
+  Accessibility,
 } from 'lucide-react';
 import { LocationItem, LOCATIONS_DATA } from '../../data/locationData';
 import { LocationSelectorModal } from './LocationSelectorModal';
@@ -30,8 +32,22 @@ type FareType = 'regular' | 'student' | 'senior' | 'armed_forces' | 'doctor_nurs
 
 export const SearchWidget: React.FC = () => {
   const navigate = useNavigate();
-  const { t, tPlace } = useTravelSettings();
+  const { travelMode, setTravelMode, t, tPlace } = useTravelSettings();
   const { budget: savedBudget, setTripSearch, setStep } = useTripBuilder();
+
+  // Auto-adapt travellers when Travel Experience Mode switches
+  useEffect(() => {
+    if (travelMode === 'family') {
+      if (adults === 1 && children === 0) {
+        setAdults(2);
+        setChildren(1);
+      }
+      if (hotelAdults === 1 && hotelChildren === 0) {
+        setHotelAdults(2);
+        setHotelChildren(1);
+      }
+    }
+  }, [travelMode]);
 
   // Active Tab
   const [activeTab, setActiveTab] = useState<SearchTab>('flights');
@@ -237,6 +253,46 @@ export const SearchWidget: React.FC = () => {
           );
         })}
       </div>
+
+      {/* Travel Experience Mode Live Adaptive Perks Indicator */}
+      {travelMode !== 'standard' && (
+        <div
+          className={`mb-4 px-3.5 py-2.5 rounded-2xl text-xs font-semibold flex flex-col sm:flex-row sm:items-center justify-between gap-2 animate-in fade-in slide-in-from-top-1 border ${
+            travelMode === 'family'
+              ? 'bg-amber-50/90 border-amber-200 text-amber-950 shadow-xs'
+              : 'bg-indigo-50/90 border-indigo-200 text-indigo-950 shadow-xs'
+          }`}
+        >
+          <div className="flex items-center gap-2.5">
+            <div
+              className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                travelMode === 'family' ? 'bg-amber-200/80 text-amber-800' : 'bg-indigo-200/80 text-indigo-800'
+              }`}
+            >
+              {travelMode === 'family' ? <Baby className="w-4 h-4" /> : <Accessibility className="w-4 h-4" />}
+            </div>
+            <div className="leading-tight">
+              <span className="font-extrabold uppercase tracking-wide text-[11px] block">
+                {travelMode === 'family' ? 'Family with Kids Active' : 'Accessibility Mode Active'}
+              </span>
+              <span className="text-[11px] opacity-80 block mt-0.5">
+                {travelMode === 'family'
+                  ? 'Auto-prioritizing adjacent family seating, kid-friendly hotels, and family rooms.'
+                  : 'Auto-requesting wheelchair assistance, step-free hotels, and accessible mobility cabs.'}
+              </span>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setTravelMode('standard')}
+            className={`text-[11px] font-bold underline whitespace-nowrap self-end sm:self-auto ${
+              travelMode === 'family' ? 'text-amber-800 hover:text-amber-950' : 'text-indigo-800 hover:text-indigo-950'
+            }`}
+          >
+            Reset to Standard
+          </button>
+        </div>
+      )}
 
       {/* Validation Banner */}
       {validationError && (

@@ -24,7 +24,10 @@ import {
   CloudSun,
   TrendingDown,
   Globe2,
+  Baby,
+  Accessibility,
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { SearchWidget } from '../components/Search/SearchWidget';
 import { searchService } from '../services/searchService';
 import { Destination, Offer, HolidayPackage } from '../types';
@@ -32,7 +35,7 @@ import { CurrencyDisplay } from '../components/Common/CurrencyDisplay';
 import { useTravelSettings } from '../context/TravelSettingsContext';
 
 export const Home: React.FC = () => {
-  const { language, setLanguage, t, tPlace, tRoute } = useTravelSettings();
+  const { language, setLanguage, travelMode, setTravelMode, t, tPlace, tRoute } = useTravelSettings();
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -326,6 +329,61 @@ export const Home: React.FC = () => {
             </div>
           </div>
 
+          {/* Travel Experience Mode Hero Switcher */}
+          <div className="flex flex-col items-center justify-center gap-2 pt-1">
+            <span className="text-[10.5px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+              <Compass className="w-3 h-3 text-[#C8A96B]" />
+              {t('mode.title', 'Travel Experience Mode')}
+            </span>
+            <div className="inline-flex flex-wrap items-center justify-center p-1 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-xs gap-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setTravelMode('standard');
+                  toast.success('Active: Standard Travel (Full Inventory)', { id: 'home-mode', icon: '✈️' });
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  travelMode === 'standard'
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+              >
+                <Globe2 className="w-3.5 h-3.5" />
+                <span>{t('mode.standard', 'Standard Travel')}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setTravelMode('family');
+                  toast.success('Active: Family with Kids (Kid-Safe Resorts & Family Seats)', { id: 'home-mode', icon: '👨‍👩‍👧' });
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  travelMode === 'family'
+                    ? 'bg-amber-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+              >
+                <Baby className="w-3.5 h-3.5" />
+                <span>{t('mode.family', 'Family with Kids')}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setTravelMode('accessibility');
+                  toast.success('Active: Accessibility Mode (Wheelchair & Step-Free)', { id: 'home-mode', icon: '♿' });
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  travelMode === 'accessibility'
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+              >
+                <Accessibility className="w-3.5 h-3.5" />
+                <span>{t('mode.accessibility', 'Accessibility Mode')}</span>
+              </button>
+            </div>
+          </div>
+
           <div className="flex items-center justify-center gap-3 pt-2">
             <button
               onClick={() => navigate('/ai-planner')}
@@ -341,6 +399,75 @@ export const Home: React.FC = () => {
             </button>
           </div>
         </div>
+
+        {/* Active Travel Experience Mode Dynamic Notification & Feature Banner */}
+        {travelMode !== 'standard' && (
+          <div className="max-w-5xl mx-auto mb-4 animate-in fade-in slide-in-from-top-2 duration-300">
+            {travelMode === 'family' ? (
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-950 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-700 flex-shrink-0">
+                    <Baby className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-extrabold text-xs uppercase tracking-wider text-amber-900">
+                        {t('mode.family', 'Family with Kids')} Mode Active
+                      </span>
+                      <span className="text-[10px] bg-amber-200/80 text-amber-900 px-2 py-0.5 rounded-full font-bold">
+                        Kid-Safe Resorts & Family Seating
+                      </span>
+                    </div>
+                    <p className="text-xs text-amber-900/80 mt-0.5">
+                      {t('mode.family_desc', 'Kid-safe resorts, play zones & family seats')} — search results automatically prioritize adjoining rooms, swimming pools, and child-safe routes.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTravelMode('standard');
+                    toast.success('Switched to Standard Travel mode', { id: 'home-mode' });
+                  }}
+                  className="text-xs font-bold text-amber-800 hover:text-amber-950 underline flex-shrink-0 self-end sm:self-auto"
+                >
+                  Reset to Standard
+                </button>
+              </div>
+            ) : (
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-950 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-100 border border-indigo-300 flex items-center justify-center text-indigo-700 flex-shrink-0">
+                    <Accessibility className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-extrabold text-xs uppercase tracking-wider text-indigo-900">
+                        {t('mode.accessibility', 'Accessibility Mode')} Active
+                      </span>
+                      <span className="text-[10px] bg-indigo-200/80 text-indigo-900 px-2 py-0.5 rounded-full font-bold">
+                        Step-Free & Wheelchair Ready
+                      </span>
+                    </div>
+                    <p className="text-xs text-indigo-900/80 mt-0.5">
+                      {t('mode.accessibility_desc', 'Wheelchair access, step-free hotels & cabs')} — highlighting ramp-equipped hotels, elevator access, airport wheelchair assistance & accessible cabs.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTravelMode('standard');
+                    toast.success('Switched to Standard Travel mode', { id: 'home-mode' });
+                  }}
+                  className="text-xs font-bold text-indigo-800 hover:text-indigo-950 underline flex-shrink-0 self-end sm:self-auto"
+                >
+                  Reset to Standard
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Search Engine Centerpiece */}
         <div className="max-w-5xl mx-auto">
