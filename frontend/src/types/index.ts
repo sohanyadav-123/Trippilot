@@ -292,17 +292,35 @@ export interface SettlementBalance {
 
 
 export interface ChatMessage {
+  id?: string;
   role: 'user' | 'assistant' | 'system';
   content: string;
   timestamp?: string;
+  created_at?: string;
+  actions?: AICopilotActionCard[];
+  suggestions?: string[];
+}
+
+export interface AIConversationSummary {
+  id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+  message_count: number;
+  last_message?: string;
 }
 
 export interface AIResponse {
   source: 'ai' | 'fallback';
   reply: string;
-  suggestions: string[];
-  requires_action: boolean;
-  action_type: string | null;
+  message?: string;
+  suggestions?: string[];
+  actions?: AICopilotActionCard[];
+  requires_action?: boolean;
+  action_type?: string | null;
+  conversation_id?: string;
+  title?: string;
+  messages?: ChatMessage[];
 }
 
 export interface SearchFlightParams {
