@@ -727,3 +727,273 @@ def modify_itinerary(itinerary: dict, modification_type: str, user_preferences: 
     if result:
         return {"source": "ai", **result}
     return {"source": "fallback", **itinerary}
+
+
+# ── AI Weather-Aware Itinerary Adaptation ────────────────────────────────────
+
+def adapt_itinerary_day(params: dict) -> dict:
+    """
+    Intelligently adapts ONLY the weather-affected day of an itinerary.
+    Preserves all unaffected days, budget, user travel mode, base hotel, and bookings.
+    Supports English ('en'), Hindi ('hi'), and Telugu ('te').
+    """
+    destination = params.get("destination", "Goa")
+    day_num = params.get("affected_day_number", 1)
+    travel_mode = (params.get("travel_mode") or params.get("travelExperienceMode") or "standard").lower()
+    user_prefs = params.get("user_preferences") or []
+    weather = params.get("weather_forecast") or {}
+    daily_budget = params.get("daily_budget", 6000)
+    current_activities = params.get("current_day_activities") or []
+    hotel = params.get("hotel_location") or f"Hotel in {destination}"
+    lang = (params.get("language") or "en").lower()
+
+    cond = weather.get("condition", "Heavy Rain")
+    rain_p = weather.get("rain_probability", 75)
+    max_t = weather.get("max_temp", 28.0)
+    wind = weather.get("wind_speed_kmh", 20.0)
+    uv = weather.get("uv_index", 6.0)
+
+    # Determine mode specific guidelines
+    mode_rules = ""
+    if travel_mode == "family":
+        mode_rules = (
+            "- Travel Mode: FAMILY WITH CHILDREN & ELDERS.\n"
+            "- Strict safety: Avoid slippery outdoor terrain, dangerous rocks, open waters during rough swells, and long walks.\n"
+            "- Prioritize: 100% sheltered indoor attractions, engaging cultural museums, interactive workshops, and family-friendly dining.\n"
+            "- Keep a relaxed pace with ample rest."
+        )
+    elif travel_mode in ["friends", "students", "group"]:
+        mode_rules = (
+            "- Travel Mode: FRIENDS / STUDENTS GROUP.\n"
+            "- Safety first, but preserve fun, adventure, and social entertainment.\n"
+            "- Suggest: Indoor arcades, bowling, craft cafes, escape rooms, covered adventure sports, and interactive dining.\n"
+            "- Avoid cancelled open-sea or dangerous outdoor treks."
+        )
+    elif travel_mode == "sustainable":
+        mode_rules = (
+            "- Travel Mode: SUSTAINABLE & ECO-CONSCIOUS.\n"
+            "- Prioritize: Nearby attractions accessible by foot or public transit to eliminate unnecessary vehicle emissions.\n"
+            "- Suggest: Local heritage centers, organic covered markets, eco-workshops, and sheltered artisan cooperatives."
+        )
+    else:
+        mode_rules = (
+            "- Travel Mode: STANDARD.\n"
+            "- Balance comfort, safety, and sightseeing value.\n"
+            "- KEY RULE: Whenever possible, REARRANGE TIMING before replacing activities (e.g. shift outdoor sightseeing to early morning or sunset, and schedule indoor activities during harsh weather/midday)."
+        )
+
+    heat_rules = ""
+    if max_t >= 38.0 or uv >= 8.5:
+        heat_rules = (
+            f"- EXTREME HEAT ({max_t}°C) / HIGH UV ({uv}): Avoid outdoor sightseeing between 11:30 AM and 4:00 PM.\n"
+            "- Move outdoor activities to early morning (07:30 - 09:30 AM) or sunset (05:30 - 07:30 PM).\n"
+            "- Schedule indoor museums, air-conditioned dining, or covered markets during midday."
+        )
+
+    lang_rule = "Respond in English."
+    if lang == "hi":
+        lang_rule = "Respond in Hindi (Devanagari script for activity titles, descriptions, reasons, and safety notes)."
+    elif lang == "te":
+        lang_rule = "Respond in Telugu (Telugu script for activity titles, descriptions, reasons, and safety notes)."
+
+    system_prompt = f"""You are TripPilot's Intelligent Weather-Aware Itinerary Adaptation Engine.
+Your task: Adapt ONLY Day {day_num} of the user's trip to {destination} due to adverse weather: {cond} (Rain probability: {rain_p}%, Max Temp: {max_t}°C, Wind: {wind} km/h, UV: {uv}).
+
+STRICT ADAPTATION CONSTRAINTS:
+1. ONLY modify Day {day_num}. Do NOT touch or return other days.
+2. DO NOT change the trip dates or base hotel accommodation ({hotel}).
+3. PRESERVE THE USER'S BUDGET: Estimated cost of new activities must stay within or under {daily_budget}.
+4. PRESERVE TRAVEL MODE:
+{mode_rules}
+{heat_rules}
+5. PRESERVE USER PREFERENCES: Align alternatives with {', '.join(user_prefs) if user_prefs else 'general travel discovery'}.
+6. PROTECT EXISTING BOOKINGS: If an activity is marked booked (is_booked: true), NEVER delete it or claim it was cancelled. Suggest a safe contingency or time adjustment, and include booking_advisory.
+7. LANGUAGE: {lang_rule}
+
+Return ONLY valid JSON matching this schema:
+{{
+  "affected_day": {day_num},
+  "weather_impact": "high" | "moderate" | "low",
+  "action": "modify" | "reschedule",
+  "reason": "Clear explanation of why Day {day_num} was adapted",
+  "changes": [
+    {{
+      "original_activity": "string",
+      "original_time": "HH:MM AM/PM",
+      "replacement_activity": "string",
+      "new_time": "HH:MM AM/PM",
+      "type": "activity" | "dining" | "sightseeing" | "transport" | "custom",
+      "cost": number,
+      "cost_difference": number,
+      "reason": "Why this change or timing shift was made",
+      "is_booked": boolean,
+      "booking_advisory": "string or null"
+    }}
+  ],
+  "proposed_activities": [
+    {{
+      "time": "HH:MM AM/PM",
+      "activity": "string",
+      "description": "string",
+      "estimated_cost": number,
+      "type": "activity" | "dining" | "sightseeing" | "transport" | "custom",
+      "location": "string",
+      "is_weather_sheltered": boolean,
+      "is_booked": boolean
+    }}
+  ],
+  "estimated_budget_change": number,
+  "travel_time_change": "string (e.g. Minimal / 15 mins saved)",
+  "safety_notes": "string"
+}}"""
+
+    user_message = f"""
+    Destination: {destination}
+    Day Number: {day_num}
+    Travel Mode: {travel_mode}
+    Daily Budget: {daily_budget}
+    Base Accommodation: {hotel}
+    Current Day Activities:
+    {json.dumps(current_activities, indent=2)}
+    
+    Weather Conditions for Day {day_num}:
+    - Condition: {cond}
+    - Rain Probability: {rain_p}%
+    - Max Temperature: {max_t}°C
+    - Wind Speed: {wind} km/h
+    - UV Index: {uv}
+    """
+
+    result = _call_grok(system_prompt, user_message)
+    if result and isinstance(result, dict) and "proposed_activities" in result:
+        return {"source": "ai", **result}
+
+    return _fallback_adapted_day(params)
+
+
+def _fallback_adapted_day(params: dict) -> dict:
+    """
+    Deterministic, rule-based algorithmic travel intelligence fallback.
+    Guarantees reliable, mode-aware adaptation with 0 hallucination.
+    """
+    destination = params.get("destination", "Goa")
+    day_num = params.get("affected_day_number", 1)
+    travel_mode = (params.get("travel_mode") or params.get("travelExperienceMode") or "standard").lower()
+    weather = params.get("weather_forecast") or {}
+    daily_budget = params.get("daily_budget", 6000)
+    current_activities = params.get("current_day_activities") or []
+    hotel = params.get("hotel_location") or f"Central Stay in {destination}"
+    lang = (params.get("language") or "en").lower()
+
+    rain_p = weather.get("rain_probability", 75)
+    max_t = weather.get("max_temp", 28.0)
+    cond = weather.get("condition", "Heavy Rain")
+    is_extreme_heat = max_t >= 38.0
+    is_rain = rain_p >= 60 or "rain" in cond.lower() or "storm" in cond.lower()
+
+    # Destination-aware indoor & sheltered alternatives repository
+    sheltered_catalogue = {
+        "family": [
+            {"time": "10:00 AM", "activity": f"Museum of {destination} & Interactive Cultural Workshop", "desc": "Air-conditioned interactive gallery with hands-on art and sweet crafting for all ages.", "cost": 650, "type": "activity"},
+            {"time": "01:00 PM", "activity": "Family Lunch at Heritage Sheltered Veranda", "desc": "Comfortable family dining with regional delicacies in a covered courtyard.", "cost": 900, "type": "dining"},
+            {"time": "03:00 PM", "activity": f"Indoor Discovery Center & Planetarium / Craft Pavilion", "desc": "Safe educational exhibits sheltered from heavy precipitation and excessive heat.", "cost": 500, "type": "activity"},
+            {"time": "06:30 PM", "activity": "Covered Boutique Artisan Arcade & Souvenirs", "desc": "Relaxed indoor shopping for spices, handicrafts, and local teas.", "cost": 300, "type": "custom"},
+        ],
+        "friends": [
+            {"time": "10:30 AM", "activity": f"{destination} Coastal Bowling Lounge & VR Arcade", "desc": "High-energy indoor bowling, air-hockey challenge, and VR games.", "cost": 750, "type": "activity"},
+            {"time": "01:30 PM", "activity": "Craft Brewery / Artisan Cafe Tasting Lunch", "desc": "Wood-fired sourdough pizza and craft beverage flight in a sheltered social lounge.", "cost": 1100, "type": "dining"},
+            {"time": "04:30 PM", "activity": "Indoor Escape Room Mystery Quest", "desc": "Interactive 60-minute group puzzle challenge fully protected from weather.", "cost": 800, "type": "activity"},
+            {"time": "08:00 PM", "activity": "Acoustic Live Music at Sheltered Cliff View Lounge", "desc": "Dinner and indie acoustic performance with rain-sheltered panoramic vistas.", "cost": 950, "type": "dining"},
+        ],
+        "sustainable": [
+            {"time": "10:00 AM", "activity": f"Nearby Local Heritage Center & Organic Tea Atelier", "desc": "Walking-distance cultural center promoting local heritage and biodiversity.", "cost": 400, "type": "activity"},
+            {"time": "01:00 PM", "activity": "Farm-to-Table Organic Community Cafe", "desc": "Locally sourced seasonal meal within walking radius of base stay.", "cost": 650, "type": "dining"},
+            {"time": "03:30 PM", "activity": "Artisan Textile Cooperative & Sustainable Craft Studio", "desc": "Indoor handloom and natural dyeing exhibition supporting local artisans.", "cost": 350, "type": "activity"},
+            {"time": "06:30 PM", "activity": "Covered Farmers & Herbal Spice Market", "desc": "Sheltered bazaar supporting regional eco-producers.", "cost": 250, "type": "custom"},
+        ],
+        "standard": [
+            {"time": "08:00 AM", "activity": f"Morning Panoramic Viewpoint & Temple / Fort Walk", "desc": "Early morning visit during cool, clear weather before afternoon rainfall or midday heat.", "cost": 300, "type": "sightseeing"},
+            {"time": "12:00 PM", "activity": f"{destination} State Art & History Museum", "desc": "Sheltered exploration of rich regional artifacts and paintings.", "cost": 500, "type": "activity"},
+            {"time": "02:00 PM", "activity": "Authentic Regional Coastal Restaurant Lunch", "desc": "Relaxed dining in covered heritage setting.", "cost": 850, "type": "dining"},
+            {"time": "05:00 PM", "activity": "Covered Central Market & Local Delicacy Crawl", "desc": "Protected bazaar lanes exploring teas, spices, and handmade treats.", "cost": 400, "type": "activity"},
+        ],
+    }
+
+    selected_mode_key = travel_mode if travel_mode in sheltered_catalogue else "standard"
+    new_template = sheltered_catalogue[selected_mode_key]
+
+    # Map changes
+    changes = []
+    proposed_activities = []
+    total_cost_diff = 0
+
+    for idx, act in enumerate(new_template):
+        orig = current_activities[idx] if idx < len(current_activities) else {}
+        orig_title = orig.get("activity") or orig.get("title") or f"Outdoor sightseeing {idx+1}"
+        orig_time = orig.get("time") or act["time"]
+        orig_cost = orig.get("estimated_cost") or orig.get("cost") or 600
+        is_booked = orig.get("is_booked", False)
+
+        cost_diff = act["cost"] - orig_cost
+        total_cost_diff += cost_diff
+
+        reason = (
+            f"Rescheduled to avoid severe midday temperatures ({max_t}°C)"
+            if is_extreme_heat
+            else f"Replaced outdoor activity with sheltered experience due to {cond} ({rain_p}% rain probability)."
+        )
+
+        booking_adv = (
+            "⚠️ This activity is already booked. Trippilot recommends reviewing cancellation and rescheduling conditions before confirming changes."
+            if is_booked
+            else None
+        )
+
+        changes.append({
+            "original_activity": orig_title,
+            "original_time": orig_time,
+            "replacement_activity": act["activity"],
+            "new_time": act["time"],
+            "type": act["type"],
+            "cost": act["cost"],
+            "cost_difference": cost_diff,
+            "reason": reason,
+            "is_booked": is_booked,
+            "booking_advisory": booking_adv,
+        })
+
+        proposed_activities.append({
+            "time": act["time"],
+            "activity": act["activity"],
+            "description": act["desc"],
+            "estimated_cost": act["cost"],
+            "type": act["type"],
+            "location": f"{destination} Central",
+            "is_weather_sheltered": True,
+            "is_booked": is_booked,
+        })
+
+    # Localized descriptions for Hindi and Telugu
+    reason_text = f"Severe weather ({cond}, {rain_p}% rain) expected on Day {day_num}. Outdoor activities adapted into safe, enjoyable alternatives while preserving travel mode and budget."
+    safety_notes = f"Safety priority: Avoid slippery trails, open water excursions, and exposed cliffs during {cond}."
+    
+    if lang == "hi":
+        reason_text = f"दिन {day_num} को खराब मौसम ({cond}, {rain_p}% बारिश) की संभावना है। बाहरी गतिविधियों को सुरक्षित इनडोर विकल्पों में बदला गया है।"
+        safety_notes = f"सुरक्षा चेतावनी: {cond} के दौरान खुले पानी और फिसलन वाले रास्तों से बचें।"
+    elif lang == "te":
+        reason_text = f"రోజు {day_num} న ప్రతికూల వాతావరణం ({cond}, {rain_p}% వర్షం) కారణంగా బయటి కార్యకలాపాలను సురక్షితమైన ప్రత్యామ్నాయాలతో సర్దుబాటు చేసాము."
+        safety_notes = f"భద్రతా సలహా: {cond} సమయంలో ప్రమాదకర ప్రదేశాలను నివారించండి."
+
+    return {
+        "source": "fallback",
+        "affected_day": day_num,
+        "weather_impact": "high" if (is_rain or is_extreme_heat) else "moderate",
+        "action": "modify",
+        "reason": reason_text,
+        "changes": changes,
+        "proposed_activities": proposed_activities,
+        "estimated_budget_change": total_cost_diff,
+        "travel_time_change": "0 mins (Nearby sheltered locations)",
+        "safety_notes": safety_notes,
+    }
+

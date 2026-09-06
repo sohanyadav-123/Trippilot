@@ -4,7 +4,7 @@ import { TRANSLATIONS } from '../i18n/translations';
 import { translatePlace, translateRoute, normalizePlaceKey, PLACE_TRANSLATIONS } from '../i18n/places';
 
 export type LanguageCode = 'en' | 'hi' | 'te';
-export type TravelMode = 'standard' | 'family' | 'accessibility';
+export type TravelMode = 'standard' | 'family' | 'sustainable' | 'friends' | 'accessibility';
 
 export interface SmartNotification {
   id: string;
@@ -42,7 +42,7 @@ interface TravelSettingsContextType {
   addNotification: (notif: Omit<SmartNotification, 'id' | 'read' | 'time'>) => void;
   notificationSettings: NotificationCategorySettings;
   updateNotificationSettings: (settings: Partial<NotificationCategorySettings>) => void;
-  t: (key: string, paramsOrFallback?: Record<string, any> | string, fallback?: string) => string;
+  t: (key: string, arg1?: Record<string, any> | string, arg2?: Record<string, any> | string) => string;
   tPlace: (name: string) => string;
   tRoute: (routeOrOrigin: string, dest?: string) => string;
 }
@@ -297,7 +297,11 @@ export const TravelSettingsProvider: React.FC<{ children: React.ReactNode }> = (
     [language]
   );
 
-  const t = (key: string, paramsOrFallback?: Record<string, any> | string, fallback?: string): string => {
+  const t = (
+    key: string,
+    paramsOrFallback?: Record<string, any> | string,
+    fallback?: string | Record<string, any>
+  ): string => {
     // 1. Direct key match in chosen language or English
     let template = TRANSLATIONS[language]?.[key] || TRANSLATIONS.en[key];
 
@@ -317,10 +321,15 @@ export const TravelSettingsProvider: React.FC<{ children: React.ReactNode }> = (
 
     if (typeof paramsOrFallback === 'string') {
       fallbackText = paramsOrFallback;
+      if (fallback && typeof fallback === 'object') {
+        params = fallback as Record<string, any>;
+      }
     } else if (paramsOrFallback && typeof paramsOrFallback === 'object') {
       params = paramsOrFallback;
-      fallbackText = fallback;
-    } else {
+      if (typeof fallback === 'string') {
+        fallbackText = fallback;
+      }
+    } else if (typeof fallback === 'string') {
       fallbackText = fallback;
     }
 

@@ -105,6 +105,7 @@ import {
   TravelGroupType,
   ItineraryConflict,
   NotificationSettings,
+  WeatherPreAdaptationSnapshot,
 } from '../types/adaptiveWeather';
 import {
   TravelStyle,
@@ -155,6 +156,11 @@ export interface TripBuilderContextType {
   togglePlanVersion: (dayNumber: number, version: 'A' | 'B') => void;
   applyConflictOptimization: (conflictId: string, choice: 'time_shift' | 'alternative') => void;
   applyPlanB: (dayNumber: number) => void;
+  lastWeatherSnapshot: WeatherPreAdaptationSnapshot | null;
+  dismissedWeatherDays: number[];
+  applyDayAdaptation: (dayNumber: number, newActivities: any[], reason?: string) => void;
+  undoWeatherAdaptation: () => void;
+  dismissWeatherAlertForDay: (dayNumber: number) => void;
 
   // Step 1: Getting There
   travelModePreference: TravelModePreference;
@@ -429,6 +435,8 @@ export const TripBuilderProvider: React.FC<{ children: ReactNode }> = ({ childre
 
   // Step 5: Itinerary
   const [customItinerary, setCustomItinerary] = useState<ItineraryEvent[]>([]);
+  const [lastWeatherSnapshot, setLastWeatherSnapshot] = useState<WeatherPreAdaptationSnapshot | null>(null);
+  const [dismissedWeatherDays, setDismissedWeatherDays] = useState<number[]>([]);
 
   // ─── 20-FEATURE PRODUCT EXPANSION STATE ───
   const [travelStyle, setTravelStyle] = useState<TravelStyle>('balanced');
@@ -998,6 +1006,55 @@ export const TripBuilderProvider: React.FC<{ children: ReactNode }> = ({ childre
       });
     }
   };
+
+  const applyDayAdaptation = (dayNumber: number, newActivities: any[], reason: string = 'Weather adaptation') => {
+    const originalEventsForDay = customItinerary.filter((ev) => ev.day === dayNumber);
+    setLastWeatherSnapshot({
+      dayNumber,
+      timestamp: Date.now(),
+      originalEvents: originalEventsForDay,
+      reason,
+    });
+
+    setCustomItinerary((prev) => {
+      const withoutDay = prev.filter((ev) => ev.day !== dayNumber);
+      const adaptedEvents: ItineraryEvent[] = newActivities.map((act, idx) => ({
+        id: `ev-adapted-d${dayNumber}-${idx}-${Date.now()}`,
+        day: dayNumber,
+        date: departureDate || '2026-09-15',
+        time: act.time || '10:00 AM',
+        title: act.activity || act.title || 'Adapted Activity',
+        type: (act.type as any) || 'activity',
+        description: act.description || act.reason || '',
+        cost: act.estimated_cost ?? act.cost ?? 0,
+        location: act.location || `${destination} Central`,
+        ...(act.is_booked ? { is_booked: true } : {}),
+      }));
+
+      return [...withoutDay, ...adaptedEvents].sort((a, b) => {
+        if (a.day !== b.day) return a.day - b.day;
+        return a.time.localeCompare(b.time);
+      });
+    });
+  };
+
+  const undoWeatherAdaptation = () => {
+    if (!lastWeatherSnapshot) return;
+    const { dayNumber, originalEvents } = lastWeatherSnapshot;
+    setCustomItinerary((prev) => {
+      const withoutDay = prev.filter((ev) => ev.day !== dayNumber);
+      return [...withoutDay, ...originalEvents].sort((a, b) => {
+        if (a.day !== b.day) return a.day - b.day;
+        return a.time.localeCompare(b.time);
+      });
+    });
+    setLastWeatherSnapshot(null);
+  };
+
+  const dismissWeatherAlertForDay = (dayNumber: number) => {
+    setDismissedWeatherDays((prev) => (prev.includes(dayNumber) ? prev : [...prev, dayNumber]));
+  };
+
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -2034,6 +2091,11 @@ export const TripBuilderProvider: React.FC<{ children: ReactNode }> = ({ childre
     togglePlanVersion,
     applyConflictOptimization,
     applyPlanB,
+    lastWeatherSnapshot,
+    dismissedWeatherDays,
+    applyDayAdaptation,
+    undoWeatherAdaptation,
+    dismissWeatherAlertForDay,
     setTripSearch,
     setStep,
     goToNextStep,

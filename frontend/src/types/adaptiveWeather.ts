@@ -8,6 +8,9 @@ export type TravelGroupType =
   | 'business'
   | 'students';
 
+export type ForecastConfidence = 'high' | 'moderate' | 'low';
+export type WeatherImpactLevel = 'low' | 'moderate' | 'high';
+
 export interface TideInfo {
   highTideTime: string;
   lowTideTime: string;
@@ -21,7 +24,8 @@ export interface WeatherDayForecast {
   dayLabel: string;
   tempC: number;
   tempMinC: number;
-  condition: 'Sunny' | 'Partly Cloudy' | 'Light Rain' | 'Heavy Rain' | 'Thunderstorm' | 'High Wind';
+  feelsLikeC?: number;
+  condition: string;
   rainProbability: number;
   rainTimeWindow?: string; // e.g. '02:00 PM - 06:00 PM'
   windSpeedKmh: number;
@@ -29,6 +33,10 @@ export interface WeatherDayForecast {
   tide?: TideInfo;
   officialSource: string;
   alertLevel: 'none' | 'advisory' | 'warning' | 'severe';
+  confidence: ForecastConfidence;
+  confidenceLabel: string;
+  impactLevel: WeatherImpactLevel;
+  weatherCode?: number;
 }
 
 export interface AlternativeActivitySuggestion {
@@ -37,7 +45,7 @@ export interface AlternativeActivitySuggestion {
   category: string;
   duration: string;
   cost: number;
-  priceDifference: number; // e.g. -2000 means saves 2,000 INR
+  priceDifference: number;
   description: string;
   reason: string;
   suitableGroupTypes: TravelGroupType[];
@@ -54,13 +62,56 @@ export interface ItineraryConflict {
   originalTime: string;
   conflictType: 'rain' | 'tide' | 'wind' | 'heat' | 'rough_sea';
   severity: 'advisory' | 'warning' | 'severe';
-  impactExplanation: string; // The "WHY" explanation
+  impactExplanation: string;
+  isBooked?: boolean;
   suggestedTimeShift?: {
     newTime: string;
     reason: string;
   };
   suggestedAlternative?: AlternativeActivitySuggestion;
   costDifference: number;
+}
+
+export interface WeatherAdaptationChange {
+  original_activity: string;
+  original_time: string;
+  replacement_activity: string;
+  new_time: string;
+  type: 'activity' | 'dining' | 'sightseeing' | 'transport' | 'custom';
+  cost: number;
+  cost_difference: number;
+  reason: string;
+  is_booked?: boolean;
+  booking_advisory?: string | null;
+}
+
+export interface DayAdaptationProposal {
+  affected_day: number;
+  weather_impact: WeatherImpactLevel;
+  action: 'modify' | 'reschedule';
+  reason: string;
+  changes: WeatherAdaptationChange[];
+  proposed_activities: Array<{
+    time: string;
+    activity: string;
+    description?: string;
+    estimated_cost: number;
+    type: string;
+    location?: string;
+    is_weather_sheltered?: boolean;
+    is_booked?: boolean;
+  }>;
+  estimated_budget_change: number;
+  travel_time_change: string;
+  safety_notes: string;
+  source?: string;
+}
+
+export interface WeatherPreAdaptationSnapshot {
+  dayNumber: number;
+  timestamp: number;
+  originalEvents: any[];
+  reason: string;
 }
 
 export interface PlanBScenario {

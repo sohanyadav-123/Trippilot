@@ -76,6 +76,21 @@ def generate_itinerary():
     return success_response(data=result)
 
 
+@ai_bp.route("/adapt-itinerary", methods=["POST"])
+def adapt_itinerary():
+    """
+    Intelligently adapts ONLY the weather-affected day(s) of an itinerary.
+    Preserves all unaffected days, budget, user travel mode, base hotel, and bookings.
+    """
+    data = request.get_json(silent=True) or {}
+    if not data.get("destination"):
+        return error_response("Destination is required for weather adaptation", 400)
+    
+    result = ai_service.adapt_itinerary_day(data)
+    return success_response(data=result)
+
+
+
 # ── Conversation Lifecycle Endpoints ──────────────────────────────────────────
 
 @ai_bp.route("/conversations", methods=["GET"])

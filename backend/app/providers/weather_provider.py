@@ -100,7 +100,8 @@ class LiveWeatherProvider(WeatherProvider):
         url = (
             f"{self.BASE_URL}?latitude={lat}&longitude={lon}"
             f"&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m"
-            f"&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max"
+            f"&daily=weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,precipitation_probability_max,uv_index_max,wind_speed_10m_max,precipitation_sum"
+            f"&forecast_days=10"
             f"&timezone=auto"
         )
 
@@ -126,46 +127,93 @@ class LiveWeatherProvider(WeatherProvider):
         daily_time = daily.get("time", [])
         daily_max = daily.get("temperature_2m_max", [])
         daily_min = daily.get("temperature_2m_min", [])
+        daily_apparent = daily.get("apparent_temperature_max", [])
         daily_rain = daily.get("precipitation_probability_max", [])
         daily_uv = daily.get("uv_index_max", [])
+        daily_wind = daily.get("wind_speed_10m_max", [])
+        daily_precip_sum = daily.get("precipitation_sum", [])
         daily_code = daily.get("weather_code", [])
 
         forecast_days = []
-        for i in range(min(5, len(daily_time))):
+        alerts = []
+        max_rain_prob = max(daily_rain) if daily_rain else 15
+        peak_uv = max(daily_uv) if daily_uv else 6.5
+        peak_temp = max(daily_max) if daily_max else temp
+
+        total_days = min(10, len(daily_time))
+        for i in range(total_days):
             d_code = daily_code[i] if i < len(daily_code) else 0
             d_desc, _, _ = WMO_WEATHER_CODES.get(d_code, ("Sunny", "Sunny", "optimal"))
+            d_rain = daily_rain[i] if i < len(daily_rain) else 10
+            d_max = round(daily_max[i], 1) if i < len(daily_max) else temp + 2
+            d_min = round(daily_min[i], 1) if i < len(daily_min) else temp - 4
+            d_feel = round(daily_apparent[i], 1) if i < len(daily_apparent) else d_max + 2
+            d_uv = round(daily_uv[i], 1) if i < len(daily_uv) else 6.0
+            d_wind = round(daily_wind[i], 1) if i < len(daily_wind) else 14.0
+            d_precip = round(daily_precip_sum[i], 1) if i < len(daily_precip_sum) else 0.0
+
+            # Confidence decreases with forecast horizon (1-2 days: high, 3-5 days: moderate, 6+: low)
+            if i <= 1:
+                confidence = "high"
+                confidence_label = "High Confidence"
+            elif i <= 4:
+                confidence = "moderate"
+                confidence_label = "Moderate Confidence"
+            else:
+                confidence = "low"
+                confidence_label = "Possible (Monitoring)"
+
+            # Determine impact level on planned activities
+            if d_rain >= 70 or d_code in [65, 75, 81, 82, 95, 96, 99] or d_max >= 38.0 or d_wind >= 40.0:
+                impact_level = "high"
+            elif d_rain >= 40 or d_max >= 34.0 or d_wind >= 28.0 or d_code in [51, 53, 55, 61, 63, 80]:
+                impact_level = "moderate"
+            else:
+                impact_level = "low"
+
             forecast_days.append({
+                "day_number": i + 1,
                 "date": daily_time[i],
                 "day_name": datetime.fromisoformat(daily_time[i]).strftime("%a") if "-" in daily_time[i] else f"Day {i+1}",
-                "max_temp": round(daily_max[i], 1) if i < len(daily_max) else temp + 2,
-                "min_temp": round(daily_min[i], 1) if i < len(daily_min) else temp - 4,
-                "rain_probability": daily_rain[i] if i < len(daily_rain) else 10,
-                "uv_index": daily_uv[i] if i < len(daily_uv) else 6.0,
+                "max_temp": d_max,
+                "min_temp": d_min,
+                "feels_like": d_feel,
+                "rain_probability": d_rain,
+                "uv_index": d_uv,
+                "wind_speed_kmh": d_wind,
+                "precipitation_mm": d_precip,
                 "condition": d_desc,
+                "weather_code": d_code,
+                "confidence": confidence,
+                "confidence_label": confidence_label,
+                "impact_level": impact_level,
             })
 
-        max_rain_prob = max(daily_rain) if daily_rain else 15
-        uv_index = daily_uv[0] if daily_uv else 6.5
-
-        # Check for weather alerts
-        alerts = []
-        if max_rain_prob >= 75 or w_code in [65, 82, 95, 96, 99]:
+        # Generate sensible advisory alerts
+        if max_rain_prob >= 70 or w_code in [65, 82, 95, 96, 99]:
             alerts.append({
                 "severity": "warning",
-                "title": "High Rain / Storm Advisory",
-                "message": f"Rain probability reaches {max_rain_prob}% with potential showers. Plan indoor visits or carry umbrellas.",
+                "title": "High Precipitation / Storm Advisory",
+                "message": f"Precipitation probability reaches {max_rain_prob}% with potential heavy showers. Safe indoor alternatives recommended.",
                 "affected_category": "outdoor_activities",
             })
-        elif uv_index >= 8.5:
+        if peak_temp >= 38.0:
+            alerts.append({
+                "severity": "warning",
+                "title": "Extreme Heat Advisory",
+                "message": f"Peak daytime temperatures reach {peak_temp}°C. Avoid midday sun between 11:30 AM and 4:00 PM; schedule outdoor sights for cooler morning hours.",
+                "affected_category": "sightseeing",
+            })
+        elif peak_uv >= 9.0:
             alerts.append({
                 "severity": "info",
-                "title": "High UV Index",
-                "message": f"Peak UV index {uv_index}. Sun protection and sunscreen recommended between 11 AM - 3 PM.",
-                "affected_category": "sightseeing",
+                "title": "Very High UV Index",
+                "message": f"Peak UV index reaches {peak_uv}. High SPF sunscreen, shaded rest, and hats recommended during afternoon hours.",
+                "affected_category": "outdoor_activities",
             })
 
         result = {
-            "provider": "Open-Meteo Live Forecast",
+            "provider": "Open-Meteo Global Meteorological Network",
             "source": "OPEN_METEO_API",
             "data_type": "LIVE",
             "is_live": True,
@@ -179,10 +227,11 @@ class LiveWeatherProvider(WeatherProvider):
             "suitability": suitability,
             "wind_speed_kmh": wind_speed,
             "rain_probability": max_rain_prob,
-            "uv_index": uv_index,
+            "uv_index": peak_uv,
             "precipitation_mm": precip,
             "alerts": alerts,
             "forecast": forecast_days,
+            "forecast_days_count": len(forecast_days),
             "last_updated": datetime.now(timezone.utc).isoformat(),
         }
 
@@ -218,16 +267,57 @@ class MockWeatherProvider(WeatherProvider):
         uv = round(rng.uniform(5.5, 8.5), 1)
 
         forecast = []
-        days = ["Mon", "Tue", "Wed", "Thu", "Fri"]
-        for d in days:
+        now = datetime.now()
+        day_names = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun", "Mon", "Tue", "Wed"]
+        for idx in range(10):
+            d_time = (now.timestamp() + idx * 86400)
+            d_dt = datetime.fromtimestamp(d_time)
+            d_name = d_dt.strftime("%a")
+            d_date = d_dt.strftime("%Y-%m-%d")
+
+            # Introduce realistic meteorological variation based on seed & day
+            d_rain = max(5, min(95, rain_prob + rng.randint(-15, 45) if idx in [3, 5] else rng.randint(10, 40)))
+            d_max = temp + rng.randint(-1, 4)
+            d_min = temp - rng.randint(3, 6)
+            d_uv = round(rng.uniform(4.5, 9.2), 1)
+            d_wind = round(rng.uniform(10.0, 36.0), 1)
+
+            if idx <= 1:
+                conf = "high"
+                conf_lbl = "High Confidence"
+            elif idx <= 4:
+                conf = "moderate"
+                conf_lbl = "Moderate Confidence"
+            else:
+                conf = "low"
+                conf_lbl = "Possible (Monitoring)"
+
+            if d_rain >= 70 or d_max >= 38.0 or d_wind >= 38.0:
+                imp = "high"
+                cond = "Heavy Rain" if d_rain >= 70 else ("Extreme Heat" if d_max >= 38 else "Strong Winds")
+            elif d_rain >= 40 or d_max >= 34.0:
+                imp = "moderate"
+                cond = "Scattered Showers" if d_rain >= 40 else "Warm & Humid"
+            else:
+                imp = "low"
+                cond = "Pleasant & Clear" if d_rain < 25 else "Partly Cloudy"
+
             forecast.append({
-                "date": datetime.now().strftime("%Y-%m-%d"),
-                "day_name": d,
-                "max_temp": temp + rng.randint(1, 3),
-                "min_temp": temp - rng.randint(3, 6),
-                "rain_probability": rng.randint(10, 40),
-                "uv_index": uv,
-                "condition": "Partly Cloudy" if rain_prob < 30 else "Light Showers",
+                "day_number": idx + 1,
+                "date": d_date,
+                "day_name": d_name,
+                "max_temp": d_max,
+                "min_temp": d_min,
+                "feels_like": d_max + 2,
+                "rain_probability": d_rain,
+                "uv_index": d_uv,
+                "wind_speed_kmh": d_wind,
+                "precipitation_mm": round(d_rain * 0.15, 1) if d_rain > 40 else 0.0,
+                "condition": cond,
+                "weather_code": 65 if d_rain >= 70 else (61 if d_rain >= 40 else 1),
+                "confidence": conf,
+                "confidence_label": conf_lbl,
+                "impact_level": imp,
             })
 
         return {
@@ -249,6 +339,7 @@ class MockWeatherProvider(WeatherProvider):
             "precipitation_mm": 0.0,
             "alerts": [],
             "forecast": forecast,
+            "forecast_days_count": len(forecast),
             "last_updated": datetime.now(timezone.utc).isoformat(),
         }
 

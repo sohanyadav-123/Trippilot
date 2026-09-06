@@ -4,7 +4,8 @@ import { Calendar, Clock, MapPin, Plus, Trash2, Edit2, RotateCcw, ChevronRight, 
 import { useTripBuilder, ItineraryEvent } from '../../../context/TripBuilderContext';
 import { useTravelSettings } from '../../../context/TravelSettingsContext';
 import { CurrencyDisplay } from '../../Common/CurrencyDisplay';
-import { AdaptiveIntelligenceBanner } from '../../Itinerary/AdaptiveIntelligenceBanner';
+import { WeatherMonitoringDashboard } from '../../Weather/WeatherMonitoringDashboard';
+import { SmartWeatherAlertBanner } from '../../Weather/SmartWeatherAlertBanner';
 import { AdaptiveIntelligenceModal } from '../../Itinerary/AdaptiveIntelligenceModal';
 import { TravelTimeOptimizationBanner } from '../../Itinerary/TravelTimeOptimizationBanner';
 import { SmartTripTimeline } from '../../Itinerary/SmartTripTimeline';
@@ -25,6 +26,8 @@ export const ItineraryStep: React.FC = () => {
     addCustomItineraryEvent,
     removeItineraryEvent,
     regenerateItinerary,
+    lastWeatherSnapshot,
+    undoWeatherAdaptation,
     goToNextStep,
     goToPrevStep,
   } = useTripBuilder();
@@ -221,8 +224,40 @@ export const ItineraryStep: React.FC = () => {
         </div>
       </div>
 
-      {/* Adaptive Weather & Tide Intelligence Banner */}
-      <AdaptiveIntelligenceBanner />
+      {/* Smart Proactive Weather Alert Banner */}
+      <SmartWeatherAlertBanner destination={destination} departureDate={departureDate} />
+
+      {/* Weather Monitoring Dashboard */}
+      <WeatherMonitoringDashboard
+        destination={destination}
+        departureDate={departureDate}
+        totalDays={totalDays}
+        selectedDay={selectedDay}
+        onSelectDay={setSelectedDay}
+      />
+
+      {/* Undo Weather Adaptation Toast */}
+      {lastWeatherSnapshot && (
+        <div className="p-3.5 rounded-2xl bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-900 flex items-center justify-between text-xs">
+          <div className="flex items-center gap-2 text-blue-900 dark:text-blue-200">
+            <RotateCcw className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <span className="font-semibold">
+              {t('weather.undo_available', 'Weather adaptation was applied to Day {day}.', {
+                day: lastWeatherSnapshot.dayNumber,
+              })}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={undoWeatherAdaptation}
+            className="font-bold text-blue-700 dark:text-blue-300 underline hover:text-blue-900"
+          >
+            {t('weather.undo_btn', 'Undo & Revert to Original Day {day}', {
+              day: lastWeatherSnapshot.dayNumber,
+            })}
+          </button>
+        </div>
+      )}
 
       {/* Smart Travel Time Optimization Banner */}
       <TravelTimeOptimizationBanner />

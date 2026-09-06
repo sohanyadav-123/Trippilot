@@ -24,6 +24,7 @@ import { LoadingSpinner } from '../components/Common/LoadingSpinner';
 import { EmptyState } from '../components/Common/EmptyState';
 import { CurrencyDisplay } from '../components/Common/CurrencyDisplay';
 import { Modal } from '../components/Common/Modal';
+import { WeatherMonitoringDashboard } from '../components/Weather/WeatherMonitoringDashboard';
 
 export const ItineraryPage: React.FC = () => {
   const { isAuthenticated } = useAuth();
@@ -163,6 +164,13 @@ export const ItineraryPage: React.FC = () => {
         </div>
       ) : selectedItinerary ? (
         <div className="space-y-6">
+          {/* Weather Monitoring Dashboard */}
+          <WeatherMonitoringDashboard
+            destination={selectedItinerary.destination || 'Goa'}
+            departureDate={selectedItinerary.start_date || '2026-09-15'}
+            totalDays={selectedItinerary.days.length}
+          />
+
           {/* Day Cards Stream */}
           {selectedItinerary.days.map((day, dIdx) => (
             <motion.div
