@@ -263,13 +263,13 @@ export const DestinationsList: React.FC = () => {
                         type="button"
                         onClick={() => handleToggleWishlist(dest)}
                         aria-label={saved ? 'Remove from Wishlist' : 'Save to Wishlist'}
-                        className={`w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-all ${
+                        className={`w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-all active:scale-90 duration-150 ${
                           saved
-                            ? 'bg-rose-500 text-white shadow-xs'
+                            ? 'bg-rose-500 text-white shadow-xs heart-pop-active'
                             : 'bg-black/30 hover:bg-black/50 text-white'
                         }`}
                       >
-                        <Heart className={`w-4 h-4 ${saved ? 'fill-current' : ''}`} />
+                        <Heart className={`w-4 h-4 transition-transform duration-150 ${saved ? 'fill-current scale-110' : ''}`} />
                       </button>
                     </div>
 

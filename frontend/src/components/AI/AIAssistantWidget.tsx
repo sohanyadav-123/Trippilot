@@ -125,10 +125,18 @@ export const AIAssistantWidget: React.FC = () => {
     loadConversations(sessionId);
   }, []);
 
-  // Scroll to bottom when messages or loading changes
+  // Smart scroll to bottom only if user is already near the bottom (within 120px) or on initial open
   useEffect(() => {
-    if (isOpen && !showHistory) {
-      chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (isOpen && !showHistory && chatEndRef.current) {
+      const container = chatEndRef.current.parentElement;
+      if (container) {
+        const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 120;
+        if (isNearBottom || messages.length <= 2) {
+          chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+      } else {
+        chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
     }
   }, [messages, isOpen, loading, showHistory]);
 
@@ -406,7 +414,7 @@ export const AIAssistantWidget: React.FC = () => {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="bg-[#0B1220] hover:bg-[#1a2440] text-white px-4 py-3 rounded-full shadow-2xl flex items-center gap-2.5 transition-all hover:scale-105 border border-slate-700 group"
+          className="bg-[#0B1220] hover:bg-[#1a2440] text-white px-4 py-3 rounded-full shadow-2xl flex items-center gap-2.5 transition-all hover:scale-105 active:scale-95 border border-slate-700 group"
           title="Open AI Co-Pilot"
         >
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white shadow-sm">
@@ -425,7 +433,7 @@ export const AIAssistantWidget: React.FC = () => {
       {/* Chat Window */}
       {isOpen && (
         <div
-          className={`bg-white rounded-3xl border border-slate-200 shadow-2xl flex flex-col overflow-hidden animate-fade-in transition-all duration-300 ${
+          className={`bg-white rounded-3xl border border-slate-200 shadow-2xl flex flex-col overflow-hidden animate-modal-panel transition-all duration-300 ${
             isExpanded
               ? 'fixed inset-4 sm:inset-10 md:inset-x-auto md:right-8 md:bottom-8 md:top-8 md:w-[680px] z-50 rounded-3xl'
               : 'w-[92vw] sm:w-[440px] h-[600px] max-h-[85vh]'
@@ -556,7 +564,7 @@ export const AIAssistantWidget: React.FC = () => {
                 {messages.map((m, idx) => (
                   <div
                     key={m.id || idx}
-                    className={`flex gap-2.5 group relative ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                    className={`flex gap-2.5 group relative animate-message-enter ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     {m.role === 'assistant' && (
                       <div className="w-7 h-7 rounded-xl bg-[#0B1220] text-[#C8A96B] flex items-center justify-center flex-shrink-0 text-xs mt-0.5 shadow-xs">
@@ -671,9 +679,13 @@ export const AIAssistantWidget: React.FC = () => {
                   ))}
 
                 {loading && (
-                  <div className="flex items-center gap-2 text-slate-500 text-xs pl-9 py-1 animate-fade-in">
-                    <Loader2 className="w-3.5 h-3.5 animate-spin text-[#C8A96B]" />
-                    <span>TripPilot AI is thinking...</span>
+                  <div className="flex items-center gap-2 pl-9 py-1 animate-fade-in">
+                    <div className="flex items-center gap-1.5 bg-white border border-slate-200 px-3.5 py-2 rounded-2xl rounded-bl-none shadow-xs">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#C8A96B] typing-dot-1 block" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#C8A96B] typing-dot-2 block" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#C8A96B] typing-dot-3 block" />
+                    </div>
+                    <span className="text-[11px] text-slate-400 font-medium">TripPilot is typing...</span>
                   </div>
                 )}
                 <div ref={chatEndRef} />
@@ -706,15 +718,19 @@ export const AIAssistantWidget: React.FC = () => {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Ask anything or plan your trip..."
-                  className="flex-1 bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-600 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none transition-colors"
+                  className="flex-1 bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none transition-all duration-150"
                 />
                 <button
                   type="submit"
                   disabled={!input.trim() || loading}
-                  className="p-2.5 rounded-xl bg-[#0B1220] text-white hover:bg-slate-800 disabled:opacity-35 transition-colors shadow-xs flex-shrink-0"
+                  className="p-2.5 rounded-xl bg-[#0B1220] text-white hover:bg-slate-800 disabled:opacity-35 transition-all duration-150 active:scale-95 shadow-xs flex-shrink-0"
                   title="Send message"
                 >
-                  <Send className="w-4 h-4 text-[#C8A96B]" />
+                  {loading ? (
+                    <Loader2 className="w-4 h-4 text-[#C8A96B] animate-spin" />
+                  ) : (
+                    <Send className="w-4 h-4 text-[#C8A96B]" />
+                  )}
                 </button>
               </form>
             </>

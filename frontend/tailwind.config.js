@@ -61,9 +61,14 @@ export default {
         'brand': '0 4px 14px 0 rgba(37, 99, 235, 0.35)',
       },
       animation: {
-        'fade-in': 'fadeIn 0.2s ease-out',
-        'slide-up': 'slideUp 0.25s ease-out',
-        'dropdown': 'dropdown 0.15s ease-out',
+        'fade-in': 'fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+        'slide-up': 'slideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+        'dropdown': 'dropdown 0.18s cubic-bezier(0.16, 1, 0.3, 1)',
+        'page-enter': 'pageEnter 0.18s cubic-bezier(0.16, 1, 0.3, 1)',
+        'modal-panel': 'modalPanel 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+        'modal-backdrop': 'modalBackdrop 0.2s ease-out',
+        'message-enter': 'messageEnter 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+        'scale-pop': 'scalePop 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
       },
       keyframes: {
         fadeIn: {
@@ -71,12 +76,33 @@ export default {
           to: { opacity: '1' },
         },
         slideUp: {
-          from: { opacity: '0', transform: 'translateY(10px)' },
+          from: { opacity: '0', transform: 'translateY(6px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
         },
         dropdown: {
-          from: { opacity: '0', transform: 'scale(0.97) translateY(-4px)' },
+          from: { opacity: '0', transform: 'scale(0.98) translateY(-4px)' },
           to: { opacity: '1', transform: 'scale(1) translateY(0)' },
+        },
+        pageEnter: {
+          from: { opacity: '0', transform: 'translateY(4px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        modalPanel: {
+          from: { opacity: '0', transform: 'scale(0.98) translateY(4px)' },
+          to: { opacity: '1', transform: 'scale(1) translateY(0)' },
+        },
+        modalBackdrop: {
+          from: { opacity: '0' },
+          to: { opacity: '1' },
+        },
+        messageEnter: {
+          from: { opacity: '0', transform: 'translateY(4px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        scalePop: {
+          '0%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.15)' },
+          '100%': { transform: 'scale(1)' },
         },
       },
       borderRadius: {

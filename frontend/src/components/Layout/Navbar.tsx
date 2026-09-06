@@ -212,7 +212,7 @@ export const Navbar: React.FC = () => {
               </button>
 
               {activeDropdown === 'explore' && (
-                <div className="absolute top-full left-0 mt-2 w-[760px] bg-white rounded-3xl shadow-2xl border border-slate-200/90 p-7 z-50 animate-in fade-in slide-in-from-top-1">
+                <div className="absolute top-full left-0 mt-2 w-[760px] bg-white rounded-3xl shadow-2xl border border-slate-200/90 p-7 z-50 animate-dropdown">
                   <div className="grid grid-cols-12 gap-6">
                     {/* Left Showcase Spotlight Column */}
                     <div className="col-span-5 pr-4 border-r border-slate-100 flex flex-col justify-between">
@@ -296,7 +296,7 @@ export const Navbar: React.FC = () => {
               </button>
 
               {activeDropdown === 'plan' && (
-                <div className="absolute top-full -left-20 mt-2 w-[720px] bg-white rounded-3xl shadow-2xl border border-slate-200/90 p-7 z-50 animate-in fade-in slide-in-from-top-1">
+                <div className="absolute top-full -left-20 mt-2 w-[720px] bg-white rounded-3xl shadow-2xl border border-slate-200/90 p-7 z-50 animate-dropdown">
                   <div className="grid grid-cols-12 gap-6">
                     {/* Left Showcase Spotlight Column */}
                     <div className="col-span-5 pr-4 border-r border-slate-100 flex flex-col justify-between">
@@ -391,7 +391,7 @@ export const Navbar: React.FC = () => {
               </button>
 
               {activeDropdown === 'book' && (
-                <div className="absolute top-full -left-28 mt-2 w-[660px] bg-white rounded-3xl shadow-2xl border border-slate-200/90 p-7 z-50 animate-in fade-in slide-in-from-top-1">
+                <div className="absolute top-full -left-28 mt-2 w-[660px] bg-white rounded-3xl shadow-2xl border border-slate-200/90 p-7 z-50 animate-dropdown">
                   <div className="grid grid-cols-12 gap-6">
                     <div className="col-span-5 pr-4 border-r border-slate-100 flex flex-col justify-between">
                       <div>
@@ -472,7 +472,7 @@ export const Navbar: React.FC = () => {
               </button>
 
               {activeDropdown === 'trips' && (
-                <div className="absolute top-full -left-36 mt-2 w-[680px] bg-white rounded-3xl shadow-2xl border border-slate-200/90 p-7 z-50 animate-in fade-in slide-in-from-top-1">
+                <div className="absolute top-full -left-36 mt-2 w-[680px] bg-white rounded-3xl shadow-2xl border border-slate-200/90 p-7 z-50 animate-dropdown">
                   <div className="grid grid-cols-12 gap-6">
                     <div className="col-span-5 pr-4 border-r border-slate-100 flex flex-col justify-between">
                       <div>
@@ -553,7 +553,7 @@ export const Navbar: React.FC = () => {
               </button>
 
               {activeDropdown === 'budget' && (
-                <div className="absolute top-full -left-48 mt-2 w-[620px] bg-white rounded-3xl shadow-2xl border border-slate-200/90 p-7 z-50 animate-in fade-in slide-in-from-top-1">
+                <div className="absolute top-full -left-48 mt-2 w-[620px] bg-white rounded-3xl shadow-2xl border border-slate-200/90 p-7 z-50 animate-dropdown">
                   <div className="grid grid-cols-12 gap-6">
                     <div className="col-span-5 pr-4 border-r border-slate-100 flex flex-col justify-between">
                       <div>
@@ -625,19 +625,19 @@ export const Navbar: React.FC = () => {
                   setNotificationsOpen(!notificationsOpen);
                   setUserDropdownOpen(false);
                 }}
-                className="relative p-2 rounded-xl border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors"
+                className="relative p-2 rounded-xl border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 btn-icon-interactive active:scale-95 transition-all"
                 title={t('notif.title', 'Smart Travel Alerts')}
               >
                 <Bell className="w-4 h-4" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-white text-[9px] font-black flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-white text-[9px] font-black flex items-center justify-center animate-scale-pop">
                     {unreadCount}
                   </span>
                 )}
               </button>
 
               {notificationsOpen && (
-                <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-3xl shadow-luxury border border-slate-200 p-4 z-50 space-y-3 animate-in fade-in slide-in-from-top-1">
+                <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-3xl shadow-luxury border border-slate-200 p-4 z-50 space-y-3 animate-dropdown">
                   <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                     <div className="flex items-center gap-1.5">
                       <Bell className="w-4 h-4 text-blue-600" />
@@ -692,12 +692,12 @@ export const Navbar: React.FC = () => {
             {/* Wishlist Icon */}
             <Link
               to="/wishlist"
-              className="relative p-2 rounded-xl border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors"
+              className="relative p-2 rounded-xl border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 btn-icon-interactive active:scale-95 transition-all"
               title="Saved Items"
             >
               <Heart className="w-4 h-4" />
               {wishlistItems.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#0B1220] text-white text-[9px] font-black flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#0B1220] text-white text-[9px] font-black flex items-center justify-center animate-scale-pop">
                   {wishlistItems.length}
                 </span>
               )}
@@ -706,12 +706,12 @@ export const Navbar: React.FC = () => {
             {/* Cart Icon */}
             <Link
               to="/cart"
-              className="relative p-2 rounded-xl border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors"
+              className="relative p-2 rounded-xl border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 btn-icon-interactive active:scale-95 transition-all"
               title="Cart / Checkout"
             >
               <ShoppingBag className="w-4 h-4" />
               {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#2563EB] text-white text-[9px] font-black flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#2563EB] text-white text-[9px] font-black flex items-center justify-center animate-scale-pop">
                   {itemCount}
                 </span>
               )}
@@ -731,7 +731,7 @@ export const Navbar: React.FC = () => {
                     setUserDropdownOpen(!userDropdownOpen);
                     setNotificationsOpen(false);
                   }}
-                  className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors text-xs font-bold text-slate-900"
+                  className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 btn-icon-interactive active:scale-98 transition-all text-xs font-bold text-slate-900"
                 >
                   <div className="w-6 h-6 rounded-lg bg-[#0B1220] text-white flex items-center justify-center text-[10px]">
                     {user?.name ? user.name[0].toUpperCase() : 'U'}
@@ -739,11 +739,11 @@ export const Navbar: React.FC = () => {
                   <span className="hidden sm:inline font-bold truncate max-w-[85px]">
                     {user?.name?.split(' ')[0]}
                   </span>
-                  <ChevronDown className="w-3 h-3 text-slate-400" />
+                  <ChevronDown className={`w-3 h-3 text-slate-400 transition-transform duration-200 ${userDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {userDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-luxury border border-slate-200 py-2 z-50 animate-in fade-in slide-in-from-top-1 text-xs">
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-luxury border border-slate-200 py-2 z-50 animate-dropdown text-xs">
                     <div className="px-4 py-2 border-b border-slate-100">
                       <p className="font-bold text-slate-900 truncate">{user?.name}</p>
                       <p className="text-[11px] text-slate-400 truncate">{user?.email}</p>
@@ -848,7 +848,7 @@ export const Navbar: React.FC = () => {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="xl:hidden p-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50"
+              className="xl:hidden p-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 btn-icon-interactive active:scale-95 transition-all"
               aria-label="Toggle mobile menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -858,7 +858,7 @@ export const Navbar: React.FC = () => {
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="xl:hidden mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 space-y-4 pb-4 animate-in fade-in">
+          <div className="xl:hidden mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 space-y-4 pb-4 animate-dropdown">
             {/* Mobile Theme Toggle Slide Switch */}
             <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-100 dark:border-slate-700">
               <span className="text-xs font-bold text-slate-700 dark:text-slate-200">

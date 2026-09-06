@@ -561,13 +561,15 @@ export const TripBuilderPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Main Step Workspace */}
           <div className="lg:col-span-8 space-y-6">
-            <DestinationWeatherBanner destination={destination} />
-            {currentStep === 'travel' && <GettingThereStep />}
-            {currentStep === 'stays' && <StayStep />}
-            {currentStep === 'local_transport' && <LocalMobilityStep />}
-            {currentStep === 'activities' && <ActivityStep />}
-            {currentStep === 'itinerary' && <ItineraryStep />}
-            {currentStep === 'review' && <ReviewStep />}
+            <div key={currentStep} className="animate-fade-in space-y-6">
+              <DestinationWeatherBanner destination={destination} />
+              {currentStep === 'travel' && <GettingThereStep />}
+              {currentStep === 'stays' && <StayStep />}
+              {currentStep === 'local_transport' && <LocalMobilityStep />}
+              {currentStep === 'activities' && <ActivityStep />}
+              {currentStep === 'itinerary' && <ItineraryStep />}
+              {currentStep === 'review' && <ReviewStep />}
+            </div>
           </div>
 
           {/* Sticky Summary Sidebar (Desktop) */}
