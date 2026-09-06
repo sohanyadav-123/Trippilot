@@ -1,4 +1,5 @@
 import React from 'react';
+import { TripPilotLogo } from '../Brand/TripPilotLogo';
 import { Link } from 'react-router-dom';
 import {
   Compass,
@@ -25,6 +26,7 @@ export const Footer: React.FC = () => {
           {/* Brand & Newsletter */}
           <div className="lg:col-span-2 space-y-4">
             <Link to="/" className="flex items-center gap-2.5">
+              <TripPilotLogo size={36} />
               <div className="flex flex-col">
                 <div className="flex items-center gap-1.5">
                   <span className="text-2xl font-black tracking-tight text-white leading-none">

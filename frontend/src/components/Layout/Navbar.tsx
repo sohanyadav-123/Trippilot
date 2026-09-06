@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { TripPilotLogo } from '../Brand/TripPilotLogo';
 import toast from 'react-hot-toast';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -193,6 +194,7 @@ export const Navbar: React.FC = () => {
         <div className="flex items-center justify-between gap-4 h-11">
           {/* ─── 1. LEFT: LUXURY BRAND LOGO ─── */}
           <Link to="/" className="flex items-center gap-2.5 group flex-shrink-0">
+            <TripPilotLogo size={36} className="group-hover:scale-105 transition-transform duration-200" />
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5">
                 <span className="text-2xl font-black tracking-tight text-[#0B1220] leading-none">
