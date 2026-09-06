@@ -47,3 +47,6 @@ coverage.xml
 # Frontend build
 frontend/dist/
 frontend/.vite/
+
+# Vercel
+.vercel

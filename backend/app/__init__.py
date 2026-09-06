@@ -3,6 +3,7 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from config import current_config
 from datetime import timedelta
+import os
 
 
 def create_app():
@@ -15,16 +16,23 @@ def create_app():
     app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(seconds=current_config.JWT_REFRESH_TOKEN_EXPIRES)
     app.config["DEBUG"] = current_config.DEBUG
 
-    # CORS
+    # CORS — allow local dev + Vercel production
+    allowed_origins = [
+        current_config.FRONTEND_URL,
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:3000",
+    ]
+
+    # Dynamically allow any *.vercel.app subdomain
+    vercel_url = os.environ.get("VERCEL_URL")
+    if vercel_url:
+        allowed_origins.append(f"https://{vercel_url}")
+
     CORS(
         app,
-        origins=[
-            current_config.FRONTEND_URL,
-            "http://localhost:5173",
-            "http://localhost:3000",
-            "http://127.0.0.1:5173",
-            "http://127.0.0.1:3000",
-        ],
+        origins=allowed_origins,
         supports_credentials=True,
     )
 
