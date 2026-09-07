@@ -799,16 +799,22 @@ def adapt_itinerary_day(params: dict) -> dict:
     system_prompt = f"""You are TripPilot's Intelligent Weather-Aware Itinerary Adaptation Engine.
 Your task: Adapt ONLY Day {day_num} of the user's trip to {destination} due to adverse weather: {cond} (Rain probability: {rain_p}%, Max Temp: {max_t}°C, Wind: {wind} km/h, UV: {uv}).
 
-STRICT ADAPTATION CONSTRAINTS:
-1. ONLY modify Day {day_num}. Do NOT touch or return other days.
-2. DO NOT change the trip dates or base hotel accommodation ({hotel}).
-3. PRESERVE THE USER'S BUDGET: Estimated cost of new activities must stay within or under {daily_budget}.
-4. PRESERVE TRAVEL MODE:
+CRITICAL INSTRUCTIONS — GRANULAR ACTIVITY-LEVEL UNDERSTANDING & TIMING ADJUSTMENT FIRST:
+1. DO NOT REGENERATE OR REPLACE THE ENTIRE DAY. Analyze EACH activity individually.
+2. KEEP UNAFFECTED / INDOOR ACTIVITIES:
+   - If an activity is already sheltered/indoor (such as dining, lunch, dinner, museums, indoor galleries, shopping, covered markets, hotel check-in), KEEP IT! Set action_type to "kept".
+3. ALWAYS TRY TIMING ADJUSTMENT FIRST:
+   - For outdoor activities affected by weather (e.g. midday extreme heat >=38°C/high UV, or a specific rain window), FIRST check if the activity can be rescheduled to a cooler or clearer time window (e.g. 07:30 AM / 08:00 AM early morning, or 05:30 PM sunset).
+   - If a timing shift works, KEEP the activity and change only the time! Set action_type to "rescheduled".
+4. ONLY REPLACE WHEN NECESSARY:
+   - If an outdoor activity cannot be safely rescheduled (e.g. all-day heavy rain/thunderstorm), replace ONLY that specific activity with a travel-mode-aware sheltered alternative. Set action_type to "replaced".
+5. PRESERVE TRAVEL MODE:
 {mode_rules}
 {heat_rules}
-5. PRESERVE USER PREFERENCES: Align alternatives with {', '.join(user_prefs) if user_prefs else 'general travel discovery'}.
-6. PROTECT EXISTING BOOKINGS: If an activity is marked booked (is_booked: true), NEVER delete it or claim it was cancelled. Suggest a safe contingency or time adjustment, and include booking_advisory.
-7. LANGUAGE: {lang_rule}
+6. PRESERVE USER PREFERENCES & BUDGET: Align alternatives with {', '.join(user_prefs) if user_prefs else 'general travel discovery'}. Keep total daily cost within or near {daily_budget}.
+7. PROTECT EXISTING BOOKINGS: If an activity has is_booked: true, NEVER delete it or claim it was cancelled. Keep it or adjust surrounding activities, and include a clear booking_advisory.
+8. ONLY MODIFY Day {day_num}. Days 1..{day_num-1} and {day_num+1}..N remain untouched.
+9. LANGUAGE: {lang_rule}
 
 Return ONLY valid JSON matching this schema:
 {{
@@ -823,9 +829,10 @@ Return ONLY valid JSON matching this schema:
       "replacement_activity": "string",
       "new_time": "HH:MM AM/PM",
       "type": "activity" | "dining" | "sightseeing" | "transport" | "custom",
+      "action_type": "kept" | "rescheduled" | "replaced",
       "cost": number,
       "cost_difference": number,
-      "reason": "Why this change or timing shift was made",
+      "reason": "Why this was kept, rescheduled, or replaced",
       "is_booked": boolean,
       "booking_advisory": "string or null"
     }}
@@ -838,12 +845,13 @@ Return ONLY valid JSON matching this schema:
       "estimated_cost": number,
       "type": "activity" | "dining" | "sightseeing" | "transport" | "custom",
       "location": "string",
+      "action_type": "kept" | "rescheduled" | "replaced",
       "is_weather_sheltered": boolean,
       "is_booked": boolean
     }}
   ],
   "estimated_budget_change": number,
-  "travel_time_change": "string (e.g. Minimal / 15 mins saved)",
+  "travel_time_change": "string (e.g. Minimal / 10 mins saved)",
   "safety_notes": "string"
 }}"""
 
@@ -866,6 +874,24 @@ Return ONLY valid JSON matching this schema:
 
     result = _call_grok(system_prompt, user_message)
     if result and isinstance(result, dict) and "proposed_activities" in result:
+        # Guarantee booking preservation integrity deterministically
+        booked_titles = {
+            (a.get("activity") or a.get("title") or "").strip().lower()
+            for a in current_activities
+            if a.get("is_booked")
+        }
+        for prop in result.get("proposed_activities", []):
+            p_title = (prop.get("activity") or prop.get("title") or "").strip().lower()
+            if any(bt in p_title or p_title in bt for bt in booked_titles if bt):
+                prop["is_booked"] = True
+
+        for ch in result.get("changes", []):
+            orig = (ch.get("original_activity") or "").strip().lower()
+            if ch.get("is_booked") or any(bt in orig or orig in bt for bt in booked_titles if bt):
+                ch["is_booked"] = True
+                if not ch.get("booking_advisory"):
+                    ch["booking_advisory"] = "Your booking is protected. Trippilot keeps this reservation and adapts other activities around it."
+
         return {"source": "ai", **result}
 
     return _fallback_adapted_day(params)
@@ -874,7 +900,8 @@ Return ONLY valid JSON matching this schema:
 def _fallback_adapted_day(params: dict) -> dict:
     """
     Deterministic, rule-based algorithmic travel intelligence fallback.
-    Guarantees reliable, mode-aware adaptation with 0 hallucination.
+    Understands individual activities: keeps indoor/safe items, prioritizes timing adjustments,
+    and replaces ONLY genuinely affected outdoor activities.
     """
     destination = params.get("destination", "Goa")
     day_num = params.get("affected_day_number", 1)
@@ -888,112 +915,299 @@ def _fallback_adapted_day(params: dict) -> dict:
     rain_p = weather.get("rain_probability", 75)
     max_t = weather.get("max_temp", 28.0)
     cond = weather.get("condition", "Heavy Rain")
-    is_extreme_heat = max_t >= 38.0
-    is_rain = rain_p >= 60 or "rain" in cond.lower() or "storm" in cond.lower()
+    wind = weather.get("wind_speed_kmh", 20.0)
+    uv = weather.get("uv_index", 6.0)
+    vis_km = weather.get("visibility_km")
 
-    # Destination-aware indoor & sheltered alternatives repository
-    sheltered_catalogue = {
+    is_extreme_heat = max_t >= 38.0 or uv >= 8.5
+    is_severe_rain = rain_p >= 70 or any(w in cond.lower() for w in ["heavy rain", "downpour", "torrential", "thunderstorm", "storm", "violent"])
+    is_moderate_rain = (40 <= rain_p < 70 and not is_severe_rain) or any(w in cond.lower() for w in ["moderate rain", "shower", "drizzle", "light rain"])
+    is_poor_visibility = vis_km is not None and vis_km < 1.5
+    is_strong_wind = wind >= 40.0
+
+    # Curated mode-aware sheltered replacements pool
+    sheltered_pool = {
         "family": [
-            {"time": "10:00 AM", "activity": f"Museum of {destination} & Interactive Cultural Workshop", "desc": "Air-conditioned interactive gallery with hands-on art and sweet crafting for all ages.", "cost": 650, "type": "activity"},
-            {"time": "01:00 PM", "activity": "Family Lunch at Heritage Sheltered Veranda", "desc": "Comfortable family dining with regional delicacies in a covered courtyard.", "cost": 900, "type": "dining"},
-            {"time": "03:00 PM", "activity": f"Indoor Discovery Center & Planetarium / Craft Pavilion", "desc": "Safe educational exhibits sheltered from heavy precipitation and excessive heat.", "cost": 500, "type": "activity"},
-            {"time": "06:30 PM", "activity": "Covered Boutique Artisan Arcade & Souvenirs", "desc": "Relaxed indoor shopping for spices, handicrafts, and local teas.", "cost": 300, "type": "custom"},
+            {"activity": f"Museum of {destination} & Interactive Art Gallery", "desc": "Air-conditioned indoor discovery exhibits and cultural workshop for all ages.", "cost": 500, "type": "activity"},
+            {"activity": f"{destination} Artisanal Chocolate & Craft Workshop", "desc": "Sheltered interactive crafting and sweet-making session ideal for families.", "cost": 650, "type": "activity"},
+            {"activity": "Indoor Marine Discovery Center & Planetarium", "desc": "Educational indoor marine pavilion sheltered from weather.", "cost": 450, "type": "activity"},
         ],
         "friends": [
-            {"time": "10:30 AM", "activity": f"{destination} Coastal Bowling Lounge & VR Arcade", "desc": "High-energy indoor bowling, air-hockey challenge, and VR games.", "cost": 750, "type": "activity"},
-            {"time": "01:30 PM", "activity": "Craft Brewery / Artisan Cafe Tasting Lunch", "desc": "Wood-fired sourdough pizza and craft beverage flight in a sheltered social lounge.", "cost": 1100, "type": "dining"},
-            {"time": "04:30 PM", "activity": "Indoor Escape Room Mystery Quest", "desc": "Interactive 60-minute group puzzle challenge fully protected from weather.", "cost": 800, "type": "activity"},
-            {"time": "08:00 PM", "activity": "Acoustic Live Music at Sheltered Cliff View Lounge", "desc": "Dinner and indie acoustic performance with rain-sheltered panoramic vistas.", "cost": 950, "type": "dining"},
+            {"activity": f"{destination} Coastal Bowling & VR Gaming Lounge", "desc": "High-energy indoor bowling, air hockey, and VR multiplayer games.", "cost": 750, "type": "activity"},
+            {"activity": "Indoor Escape Room Mystery Quest", "desc": "60-minute immersive team puzzle adventure sheltered from rain.", "cost": 800, "type": "activity"},
+            {"activity": "Craft Cafe & Board Game Social Lounge", "desc": "Artisan beverage tasting and social parlor games in covered lounge.", "cost": 600, "type": "dining"},
         ],
         "sustainable": [
-            {"time": "10:00 AM", "activity": f"Nearby Local Heritage Center & Organic Tea Atelier", "desc": "Walking-distance cultural center promoting local heritage and biodiversity.", "cost": 400, "type": "activity"},
-            {"time": "01:00 PM", "activity": "Farm-to-Table Organic Community Cafe", "desc": "Locally sourced seasonal meal within walking radius of base stay.", "cost": 650, "type": "dining"},
-            {"time": "03:30 PM", "activity": "Artisan Textile Cooperative & Sustainable Craft Studio", "desc": "Indoor handloom and natural dyeing exhibition supporting local artisans.", "cost": 350, "type": "activity"},
-            {"time": "06:30 PM", "activity": "Covered Farmers & Herbal Spice Market", "desc": "Sheltered bazaar supporting regional eco-producers.", "cost": 250, "type": "custom"},
+            {"activity": f"Nearby {destination} Heritage Center & Eco Atelier", "desc": "Walking-distance community cultural center promoting local heritage.", "cost": 350, "type": "activity"},
+            {"activity": "Covered Organic Farmers & Spice Bazaar", "desc": "Protected local marketplace supporting zero-emission regional producers.", "cost": 250, "type": "custom"},
+            {"activity": "Artisan Textile Cooperative & Sustainable Studio", "desc": "Sheltered handloom weaving and natural dyeing workshop.", "cost": 400, "type": "activity"},
         ],
         "standard": [
-            {"time": "08:00 AM", "activity": f"Morning Panoramic Viewpoint & Temple / Fort Walk", "desc": "Early morning visit during cool, clear weather before afternoon rainfall or midday heat.", "cost": 300, "type": "sightseeing"},
-            {"time": "12:00 PM", "activity": f"{destination} State Art & History Museum", "desc": "Sheltered exploration of rich regional artifacts and paintings.", "cost": 500, "type": "activity"},
-            {"time": "02:00 PM", "activity": "Authentic Regional Coastal Restaurant Lunch", "desc": "Relaxed dining in covered heritage setting.", "cost": 850, "type": "dining"},
-            {"time": "05:00 PM", "activity": "Covered Central Market & Local Delicacy Crawl", "desc": "Protected bazaar lanes exploring teas, spices, and handmade treats.", "cost": 400, "type": "activity"},
+            {"activity": f"{destination} State Art & Cultural Museum", "desc": "Sheltered exploration of rich regional artifacts and paintings.", "cost": 450, "type": "activity"},
+            {"activity": "Covered Central Market & Local Delicacy Walk", "desc": "Protected heritage bazaar lanes exploring teas, spices, and treats.", "cost": 400, "type": "activity"},
+            {"activity": "Heritage Cultural Palace & Indoor Gallery", "desc": "Historic royal residence with covered architecture and art.", "cost": 550, "type": "activity"},
         ],
     }
 
-    selected_mode_key = travel_mode if travel_mode in sheltered_catalogue else "standard"
-    new_template = sheltered_catalogue[selected_mode_key]
+    mode_key = travel_mode if travel_mode in sheltered_pool else "standard"
+    replacements_queue = list(sheltered_pool[mode_key])
 
-    # Map changes
     changes = []
     proposed_activities = []
     total_cost_diff = 0
 
-    for idx, act in enumerate(new_template):
-        orig = current_activities[idx] if idx < len(current_activities) else {}
-        orig_title = orig.get("activity") or orig.get("title") or f"Outdoor sightseeing {idx+1}"
-        orig_time = orig.get("time") or act["time"]
-        orig_cost = orig.get("estimated_cost") or orig.get("cost") or 600
-        is_booked = orig.get("is_booked", False)
+    # If no activities were passed, create a standard day
+    if not current_activities:
+        current_activities = [
+            {"time": "09:30 AM", "activity": f"{destination} Panoramic Viewpoint & Fort", "type": "sightseeing", "estimated_cost": 400},
+            {"time": "01:00 PM", "activity": "Seaside Heritage Lunch", "type": "dining", "estimated_cost": 800},
+            {"time": "03:30 PM", "activity": f"{destination} Beachfront Walk & Market", "type": "sightseeing", "estimated_cost": 300},
+            {"time": "07:30 PM", "activity": "Traditional Coastal Dinner", "type": "dining", "estimated_cost": 900},
+        ]
 
-        cost_diff = act["cost"] - orig_cost
-        total_cost_diff += cost_diff
+    for act in current_activities:
+        title = (act.get("activity") or act.get("title") or f"Activity in {destination}").strip()
+        time_str = act.get("time") or "10:00 AM"
+        act_type = (act.get("type") or "activity").lower()
+        cost = act.get("estimated_cost") or act.get("cost") or 0
+        desc = act.get("description") or ""
+        is_booked = act.get("is_booked", False)
 
-        reason = (
-            f"Rescheduled to avoid severe midday temperatures ({max_t}°C)"
-            if is_extreme_heat
-            else f"Replaced outdoor activity with sheltered experience due to {cond} ({rain_p}% rain probability)."
+        t_lower = title.lower()
+        # Classify if inherently sheltered/indoor
+        is_indoor = (
+            any(k in t_lower for k in ["museum", "gallery", "lunch", "dinner", "breakfast", "cafe", "restaurant", "dining", "shopping", "mall", "market", "arcade", "bowling", "spa", "hotel", "check-in", "workshop", "cooking", "chocolate", "brewery", "indoor"])
+            or act_type in ["dining", "food", "accommodation", "shopping"]
         )
+        is_outdoor = not is_indoor or any(k in t_lower for k in ["beach", "sightseeing", "trek", "cruise", "boat", "fort", "viewpoint", "safari", "cliff", "water sports", "paragliding", "garden", "park", "temple walk", "outdoor"])
+        is_viewpoint = any(k in t_lower for k in ["viewpoint", "lookout", "panorama", "peak", "cliff view", "paragliding", "skyline", "balloon"])
+        is_marine_or_cliff = any(k in t_lower for k in ["boat", "cruise", "cliff", "paragliding", "sailing", "kayak", "speed", "water sports", "diving"])
 
-        booking_adv = (
-            "⚠️ This activity is already booked. Trippilot recommends reviewing cancellation and rescheduling conditions before confirming changes."
-            if is_booked
-            else None
-        )
+        # Check if activity is during midday (11:30 AM to 03:30 PM)
+        is_midday = any(h in time_str for h in ["11:", "12:", "01:", "02:", "03:", "1:00", "2:00", "3:00", "1:30", "2:30", "3:30"])
 
-        changes.append({
-            "original_activity": orig_title,
-            "original_time": orig_time,
-            "replacement_activity": act["activity"],
-            "new_time": act["time"],
-            "type": act["type"],
-            "cost": act["cost"],
-            "cost_difference": cost_diff,
-            "reason": reason,
-            "is_booked": is_booked,
-            "booking_advisory": booking_adv,
-        })
+        # Decision Logic:
+        # Rule 1: Inherently indoor activity (lunch, museum, indoor dinner) -> KEEP
+        if is_indoor and not is_viewpoint:
+            changes.append({
+                "original_activity": title,
+                "original_time": time_str,
+                "replacement_activity": title,
+                "new_time": time_str,
+                "type": act_type,
+                "action_type": "kept",
+                "cost": cost,
+                "cost_difference": 0,
+                "reason": "Kept as planned — activity is already sheltered and comfortable indoors.",
+                "is_booked": is_booked,
+                "booking_advisory": "Your booking is protected and Trippilot recommends keeping it." if is_booked else None,
+            })
+            proposed_activities.append({
+                "time": time_str,
+                "activity": title,
+                "description": desc or "Sheltered indoor experience protected from weather.",
+                "estimated_cost": cost,
+                "type": act_type,
+                "location": act.get("location") or f"{destination} Center",
+                "action_type": "kept",
+                "is_weather_sheltered": True,
+                "is_booked": is_booked,
+            })
 
-        proposed_activities.append({
-            "time": act["time"],
-            "activity": act["activity"],
-            "description": act["desc"],
-            "estimated_cost": act["cost"],
-            "type": act["type"],
-            "location": f"{destination} Central",
-            "is_weather_sheltered": True,
-            "is_booked": is_booked,
-        })
+        # Rule 2: Extreme Heat & Midday Outdoor Activity -> TRY TIMING SHIFT FIRST!
+        elif is_extreme_heat and is_outdoor and is_midday:
+            new_time = "07:30 AM" if "07:" not in [p["time"] for p in proposed_activities] else "05:30 PM"
+            reason = f"Rescheduled from midday sun ({max_t}°C, UV {uv}) to cooler {new_time} window."
+            booking_adv = "⚠️ Activity is booked. Rescheduling to a cooler morning/sunset window recommended." if is_booked else None
 
-    # Localized descriptions for Hindi and Telugu
-    reason_text = f"Severe weather ({cond}, {rain_p}% rain) expected on Day {day_num}. Outdoor activities adapted into safe, enjoyable alternatives while preserving travel mode and budget."
-    safety_notes = f"Safety priority: Avoid slippery trails, open water excursions, and exposed cliffs during {cond}."
-    
+            changes.append({
+                "original_activity": title,
+                "original_time": time_str,
+                "replacement_activity": title,
+                "new_time": new_time,
+                "type": act_type,
+                "action_type": "rescheduled",
+                "cost": cost,
+                "cost_difference": 0,
+                "reason": reason,
+                "is_booked": is_booked,
+                "booking_advisory": booking_adv,
+            })
+            proposed_activities.append({
+                "time": new_time,
+                "activity": title,
+                "description": f"Moved to pleasant cooler hours to avoid dangerous midday heat ({max_t}°C).",
+                "estimated_cost": cost,
+                "type": act_type,
+                "location": act.get("location") or f"{destination} Center",
+                "action_type": "rescheduled",
+                "is_weather_sheltered": False,
+                "is_booked": is_booked,
+            })
+
+        # Rule 3: Moderate Rain in Friends/Student or Standard Mode -> Keep or Shift if reasonably safe
+        elif is_moderate_rain and not is_severe_rain and travel_mode in ["friends", "students", "standard"] and not is_viewpoint:
+            new_time = "08:30 AM" if is_outdoor and "08:" not in [p["time"] for p in proposed_activities] else time_str
+            action_type = "rescheduled" if new_time != time_str else "kept"
+            reason = (
+                "Moved to earlier morning window before afternoon rain showers."
+                if action_type == "rescheduled"
+                else "Kept as planned — moderate rain acceptable for friends travel with light rainwear."
+            )
+
+            changes.append({
+                "original_activity": title,
+                "original_time": time_str,
+                "replacement_activity": title,
+                "new_time": new_time,
+                "type": act_type,
+                "action_type": action_type,
+                "cost": cost,
+                "cost_difference": 0,
+                "reason": reason,
+                "is_booked": is_booked,
+                "booking_advisory": None,
+            })
+            proposed_activities.append({
+                "time": new_time,
+                "activity": title,
+                "description": desc or "Outdoor activity proceeding with flexible weather preparedness.",
+                "estimated_cost": cost,
+                "type": act_type,
+                "location": act.get("location") or f"{destination} Center",
+                "action_type": action_type,
+                "is_weather_sheltered": False,
+                "is_booked": is_booked,
+            })
+
+        # Rule 4: Poor Visibility on Viewpoint/Trek or Severe Rain/Thunderstorm or Strong Wind on Marine/Cliff or Family Mode -> REPLACE SPECIFIC ACTIVITY
+        elif is_severe_rain or (is_poor_visibility and is_viewpoint) or (is_strong_wind and is_marine_or_cliff) or (travel_mode == "family" and is_outdoor and (is_moderate_rain or is_severe_rain)):
+            # Pick a replacement from queue or fallback
+            sub = replacements_queue.pop(0) if replacements_queue else {
+                "activity": f"{destination} Cultural Heritage Gallery & Pavilion",
+                "desc": "Covered exhibition and authentic artisan showcases protected from weather.",
+                "cost": 450,
+                "type": "activity",
+            }
+
+            cost_diff = sub["cost"] - cost
+            total_cost_diff += cost_diff
+
+            if is_poor_visibility and is_viewpoint:
+                reason = f"Replaced viewpoint activity due to heavy mist/fog ({vis_km} km visibility)."
+            elif is_strong_wind and is_marine_or_cliff:
+                reason = f"Replaced exposed marine/cliff activity with sheltered alternative due to high wind ({wind} km/h)."
+            elif is_severe_rain:
+                reason = f"Replaced exposed outdoor activity with safe sheltered alternative due to {cond} ({rain_p}% rain)."
+            else:
+                reason = f"Replaced with family-safe indoor alternative to protect children/elders from wet conditions."
+
+            booking_adv = (
+                "⚠️ This activity is already booked. Trippilot recommends reviewing cancellation and rescheduling conditions before making changes."
+                if is_booked
+                else None
+            )
+
+            changes.append({
+                "original_activity": title,
+                "original_time": time_str,
+                "replacement_activity": sub["activity"],
+                "new_time": time_str,
+                "type": sub["type"],
+                "action_type": "replaced",
+                "cost": sub["cost"],
+                "cost_difference": cost_diff,
+                "reason": reason,
+                "is_booked": is_booked,
+                "booking_advisory": booking_adv,
+            })
+            proposed_activities.append({
+                "time": time_str,
+                "activity": sub["activity"],
+                "description": sub["desc"],
+                "estimated_cost": sub["cost"],
+                "type": sub["type"],
+                "location": f"{destination} Cultural District",
+                "action_type": "replaced",
+                "is_weather_sheltered": True,
+                "is_booked": is_booked,
+            })
+
+        # Rule 5: Default outdoor that has reasonable weather -> KEEP
+        else:
+            changes.append({
+                "original_activity": title,
+                "original_time": time_str,
+                "replacement_activity": title,
+                "new_time": time_str,
+                "type": act_type,
+                "action_type": "kept",
+                "cost": cost,
+                "cost_difference": 0,
+                "reason": "Kept as planned — weather conditions do not significantly disrupt this activity.",
+                "is_booked": is_booked,
+                "booking_advisory": None,
+            })
+            proposed_activities.append({
+                "time": time_str,
+                "activity": title,
+                "description": desc,
+                "estimated_cost": cost,
+                "type": act_type,
+                "location": act.get("location") or f"{destination} Center",
+                "action_type": "kept",
+                "is_weather_sheltered": False,
+                "is_booked": is_booked,
+            })
+
+    # Sort proposed activities by chronological time
+    def _parse_time(t_str: str) -> int:
+        try:
+            parts = t_str.strip().split(" ")
+            hm = parts[0].split(":")
+            h = int(hm[0])
+            m = int(hm[1]) if len(hm) > 1 else 0
+            if len(parts) > 1 and parts[1].upper() == "PM" and h != 12:
+                h += 12
+            elif len(parts) > 1 and parts[1].upper() == "AM" and h == 12:
+                h = 0
+            return h * 60 + m
+        except Exception:
+            return 720
+
+    proposed_activities.sort(key=lambda x: _parse_time(x.get("time", "12:00 PM")))
+
+    # Summary rationale
+    rescheduled_count = sum(1 for c in changes if c.get("action_type") == "rescheduled")
+    replaced_count = sum(1 for c in changes if c.get("action_type") == "replaced")
+    kept_count = sum(1 for c in changes if c.get("action_type") == "kept")
+
+    action_label = "reschedule" if (rescheduled_count > 0 and replaced_count == 0) else "modify"
+
+    reason_summary = (
+        f"Weather intelligence for Day {day_num} ({cond}, {max_t}°C): "
+        f"Kept {kept_count} safe activities, adjusted timing for {rescheduled_count}, and replaced {replaced_count} outdoor items."
+    )
+
+    safety_notes = f"Safety priority: Stay hydrated during heat ({max_t}°C) and avoid exposed water/cliff activities during {cond}."
+
     if lang == "hi":
-        reason_text = f"दिन {day_num} को खराब मौसम ({cond}, {rain_p}% बारिश) की संभावना है। बाहरी गतिविधियों को सुरक्षित इनडोर विकल्पों में बदला गया है।"
-        safety_notes = f"सुरक्षा चेतावनी: {cond} के दौरान खुले पानी और फिसलन वाले रास्तों से बचें।"
+        reason_summary = f"दिन {day_num} के लिए मौसम विश्लेषण: {kept_count} सुरक्षित गतिविधियां यथावत रखी गईं, {rescheduled_count} का समय बदला गया, और {replaced_count} का सुरक्षित विकल्प दिया गया।"
+        safety_notes = f"सुरक्षा दिशानिर्देश: {cond} के दौरान खुले और फिसलन वाले क्षेत्रों में जाने से बचें।"
     elif lang == "te":
-        reason_text = f"రోజు {day_num} న ప్రతికూల వాతావరణం ({cond}, {rain_p}% వర్షం) కారణంగా బయటి కార్యకలాపాలను సురక్షితమైన ప్రత్యామ్నాయాలతో సర్దుబాటు చేసాము."
-        safety_notes = f"భద్రతా సలహా: {cond} సమయంలో ప్రమాదకర ప్రదేశాలను నివారించండి."
+        reason_summary = f"రోజు {day_num} వాతావరణ సమాచారం: {kept_count} సురక్షిత కార్యక్రమాలు అలాగే ఉంచబడ్డాయి, {rescheduled_count} సమయాలు సర్దుబాటు చేయబడ్డాయి."
+        safety_notes = f"భద్రతా సమాచారం: {cond} సమయంలో సురక్షిత ప్రదేశాల్లో ఉండండి."
 
     return {
         "source": "fallback",
         "affected_day": day_num,
-        "weather_impact": "high" if (is_rain or is_extreme_heat) else "moderate",
-        "action": "modify",
-        "reason": reason_text,
+        "weather_impact": "high" if (is_severe_rain or is_extreme_heat) else "moderate",
+        "action": action_label,
+        "reason": reason_summary,
         "changes": changes,
         "proposed_activities": proposed_activities,
         "estimated_budget_change": total_cost_diff,
-        "travel_time_change": "0 mins (Nearby sheltered locations)",
+        "travel_time_change": "Minimal / 10 mins saved",
         "safety_notes": safety_notes,
     }
 

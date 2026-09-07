@@ -100,26 +100,38 @@ export const SmartWeatherAlertBanner: React.FC<SmartWeatherAlertBannerProps> = (
 
               <h4 className="text-sm font-extrabold text-slate-900 dark:text-white">
                 {isSingle
-                  ? t(
-                      'weather.alert_headline_single',
-                      '{condition} is expected on Day {day}. Some of your outdoor activities may be affected.',
-                      { condition: conditionText, day: primaryDay }
-                    )
+                  ? primaryForecast?.confidence === 'low'
+                    ? t(
+                        'weather.alert_headline_soft',
+                        'Precipitation is currently possible on Day {day} (Monitoring). Outdoor activities may be affected.',
+                        { day: primaryDay }
+                      )
+                    : t(
+                        'weather.alert_headline_single',
+                        '{condition} is expected on Day {day} and may affect your outdoor sightseeing.',
+                        { condition: conditionText, day: primaryDay }
+                      )
                   : t(
                       'weather.alert_headline_multi',
-                      'Adverse weather conditions may affect Days {days}. Some planned activities may be uncomfortable or unsafe.',
+                      'Adverse weather conditions may affect Days {days}. Each affected day can be reviewed and adapted independently.',
                       { days: affectedDays.join(' and ') }
                     )}
               </h4>
 
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                {t(
-                  'weather.alert_prompt',
-                  'Would you like Trippilot to adapt only the affected day(s) with safer alternatives, while keeping the rest of your trip unchanged?'
-                )}
+                {isSingle
+                  ? t(
+                      'weather.alert_prompt_single',
+                      'Would you like Trippilot to create an alternative itinerary for Day {day}?',
+                      { day: primaryDay }
+                    )
+                  : t(
+                      'weather.alert_prompt_multi',
+                      'Select an affected day to generate a safer alternative proposal, keeping the rest of your trip unchanged.'
+                    )}
                 {affectedActivityTitles && (
                   <span className="block text-[11px] text-amber-800 dark:text-amber-300/90 mt-0.5 font-medium">
-                    {t('weather.affected_preview', 'Affected: {activities}', {
+                    {t('weather.affected_preview', 'Affected activities: {activities}', {
                       activities: affectedActivityTitles,
                     })}
                   </span>
@@ -129,21 +141,29 @@ export const SmartWeatherAlertBanner: React.FC<SmartWeatherAlertBannerProps> = (
           </div>
 
           {/* Action Buttons: YES vs KEEP PLAN */}
-          <div className="flex items-center gap-2 self-stretch md:self-auto flex-shrink-0">
-            <button
-              type="button"
-              onClick={() => setActiveModalDay(primaryDay)}
-              className="flex-1 md:flex-none btn-primary !py-2.5 px-4 text-xs font-bold shadow-sm flex items-center justify-center gap-1.5 whitespace-nowrap"
-            >
-              <span>
-                {isSingle
-                  ? t('weather.btn_update_day', 'YES, UPDATE DAY {day}', { day: primaryDay })
-                  : t('weather.btn_update_days', 'YES, UPDATE DAYS {days}', {
-                      days: affectedDays.join(' & '),
-                    })}
-              </span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
+          <div className="flex items-center gap-2 self-stretch md:self-auto flex-wrap md:flex-nowrap flex-shrink-0">
+            {isSingle ? (
+              <button
+                type="button"
+                onClick={() => setActiveModalDay(primaryDay)}
+                className="flex-1 md:flex-none btn-primary !py-2.5 px-4 text-xs font-bold shadow-sm flex items-center justify-center gap-1.5 whitespace-nowrap"
+              >
+                <span>{t('weather.btn_update_day', 'YES, UPDATE DAY {day}', { day: primaryDay })}</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            ) : (
+              affectedDays.map((dayNum) => (
+                <button
+                  key={dayNum}
+                  type="button"
+                  onClick={() => setActiveModalDay(dayNum)}
+                  className="flex-1 md:flex-none btn-primary !py-2 px-3 text-xs font-bold shadow-sm flex items-center justify-center gap-1 whitespace-nowrap"
+                >
+                  <span>{t('weather.btn_update_day', 'YES, UPDATE DAY {day}', { day: dayNum })}</span>
+                  <ArrowRight className="w-3 h-3" />
+                </button>
+              ))
+            )}
 
             <button
               type="button"

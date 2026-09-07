@@ -217,7 +217,7 @@ export const WeatherMonitoringDashboard: React.FC<WeatherMonitoringDashboardProp
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-3 self-stretch sm:self-auto text-center">
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 self-stretch sm:self-auto text-center">
                     <div className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
                       <span className="text-[10px] text-slate-400 block">{t('weather.wind', 'Wind')}</span>
                       <span className="font-bold text-slate-800 dark:text-slate-200">
@@ -228,6 +228,22 @@ export const WeatherMonitoringDashboard: React.FC<WeatherMonitoringDashboardProp
                       <span className="text-[10px] text-slate-400 block">{t('weather.uv', 'UV Index')}</span>
                       <span className="font-bold text-slate-800 dark:text-slate-200">
                         {day.uvIndex}
+                      </span>
+                    </div>
+                    <div className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                      <span className="text-[10px] text-slate-400 block">{t('weather.visibility', 'Visibility')}</span>
+                      <span className="font-bold text-slate-800 dark:text-slate-200">
+                        {day.visibilityKm !== undefined && day.visibilityKm !== null
+                          ? `${day.visibilityKm} km`
+                          : t('weather.unavailable', 'Unavailable')}
+                      </span>
+                    </div>
+                    <div className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                      <span className="text-[10px] text-slate-400 block">{t('weather.precip', 'Precipitation')}</span>
+                      <span className="font-bold text-slate-800 dark:text-slate-200">
+                        {day.precipitationMm !== undefined && day.precipitationMm !== null
+                          ? `${day.precipitationMm} mm`
+                          : `${day.rainProbability}% prob`}
                       </span>
                     </div>
                     <div className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">

@@ -30,6 +30,8 @@ export interface WeatherDayForecast {
   rainTimeWindow?: string; // e.g. '02:00 PM - 06:00 PM'
   windSpeedKmh: number;
   uvIndex: number;
+  visibilityKm?: number | null;
+  precipitationMm?: number;
   tide?: TideInfo;
   officialSource: string;
   alertLevel: 'none' | 'advisory' | 'warning' | 'severe';
@@ -60,7 +62,7 @@ export interface ItineraryConflict {
   eventTitle: string;
   eventType: string;
   originalTime: string;
-  conflictType: 'rain' | 'tide' | 'wind' | 'heat' | 'rough_sea';
+  conflictType: 'rain' | 'tide' | 'wind' | 'heat' | 'rough_sea' | 'poor_visibility' | 'snow';
   severity: 'advisory' | 'warning' | 'severe';
   impactExplanation: string;
   isBooked?: boolean;
@@ -78,6 +80,7 @@ export interface WeatherAdaptationChange {
   replacement_activity: string;
   new_time: string;
   type: 'activity' | 'dining' | 'sightseeing' | 'transport' | 'custom';
+  action_type?: 'kept' | 'rescheduled' | 'replaced';
   cost: number;
   cost_difference: number;
   reason: string;
@@ -98,6 +101,7 @@ export interface DayAdaptationProposal {
     estimated_cost: number;
     type: string;
     location?: string;
+    action_type?: 'kept' | 'rescheduled' | 'replaced';
     is_weather_sheltered?: boolean;
     is_booked?: boolean;
   }>;

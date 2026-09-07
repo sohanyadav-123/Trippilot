@@ -99,7 +99,8 @@ class LiveWeatherProvider(WeatherProvider):
 
         url = (
             f"{self.BASE_URL}?latitude={lat}&longitude={lon}"
-            f"&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m"
+            f"&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,visibility"
+            f"&hourly=visibility"
             f"&daily=weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,precipitation_probability_max,uv_index_max,wind_speed_10m_max,precipitation_sum"
             f"&forecast_days=10"
             f"&timezone=auto"
@@ -114,6 +115,7 @@ class LiveWeatherProvider(WeatherProvider):
 
         current = data.get("current", {})
         daily = data.get("daily", {})
+        hourly = data.get("hourly", {})
 
         w_code = current.get("weather_code", 0)
         desc, summary, suitability = WMO_WEATHER_CODES.get(w_code, ("Clear", "Sunny", "optimal"))
@@ -123,6 +125,12 @@ class LiveWeatherProvider(WeatherProvider):
         humidity = current.get("relative_humidity_2m", 65)
         wind_speed = round(current.get("wind_speed_10m", 12.0), 1)
         precip = current.get("precipitation", 0.0)
+
+        # Real visibility data in kilometers (meters / 1000)
+        curr_vis_meters = current.get("visibility")
+        current_visibility_km = round(curr_vis_meters / 1000.0, 1) if curr_vis_meters is not None else None
+
+        hourly_vis = hourly.get("visibility", [])
 
         daily_time = daily.get("time", [])
         daily_max = daily.get("temperature_2m_max", [])
@@ -152,6 +160,16 @@ class LiveWeatherProvider(WeatherProvider):
             d_wind = round(daily_wind[i], 1) if i < len(daily_wind) else 14.0
             d_precip = round(daily_precip_sum[i], 1) if i < len(daily_precip_sum) else 0.0
 
+            # Compute real daytime visibility if available from hourly data (08:00 - 18:00)
+            day_vis_slice = hourly_vis[i * 24 + 8 : i * 24 + 19] if len(hourly_vis) >= (i + 1) * 24 else []
+            valid_vis = [v for v in day_vis_slice if v is not None]
+            if valid_vis:
+                d_vis_km = round(min(valid_vis) / 1000.0, 1)
+            elif i == 0 and current_visibility_km is not None:
+                d_vis_km = current_visibility_km
+            else:
+                d_vis_km = None  # Explicitly None if API did not supply
+
             # Confidence decreases with forecast horizon (1-2 days: high, 3-5 days: moderate, 6+: low)
             if i <= 1:
                 confidence = "high"
@@ -164,9 +182,10 @@ class LiveWeatherProvider(WeatherProvider):
                 confidence_label = "Possible (Monitoring)"
 
             # Determine impact level on planned activities
+            has_poor_visibility = d_vis_km is not None and d_vis_km < 1.5
             if d_rain >= 70 or d_code in [65, 75, 81, 82, 95, 96, 99] or d_max >= 38.0 or d_wind >= 40.0:
                 impact_level = "high"
-            elif d_rain >= 40 or d_max >= 34.0 or d_wind >= 28.0 or d_code in [51, 53, 55, 61, 63, 80]:
+            elif d_rain >= 40 or d_max >= 34.0 or d_wind >= 28.0 or d_code in [51, 53, 55, 61, 63, 80] or has_poor_visibility:
                 impact_level = "moderate"
             else:
                 impact_level = "low"
@@ -182,6 +201,7 @@ class LiveWeatherProvider(WeatherProvider):
                 "uv_index": d_uv,
                 "wind_speed_kmh": d_wind,
                 "precipitation_mm": d_precip,
+                "visibility_km": d_vis_km,
                 "condition": d_desc,
                 "weather_code": d_code,
                 "confidence": confidence,
@@ -211,6 +231,13 @@ class LiveWeatherProvider(WeatherProvider):
                 "message": f"Peak UV index reaches {peak_uv}. High SPF sunscreen, shaded rest, and hats recommended during afternoon hours.",
                 "affected_category": "outdoor_activities",
             })
+        if current_visibility_km is not None and current_visibility_km < 2.0:
+            alerts.append({
+                "severity": "info",
+                "title": "Reduced Visibility Advisory",
+                "message": f"Surface visibility is currently {current_visibility_km} km. Viewpoints, hill lookouts, and scenic drives will experience reduced panorama.",
+                "affected_category": "sightseeing",
+            })
 
         result = {
             "provider": "Open-Meteo Global Meteorological Network",
@@ -229,6 +256,7 @@ class LiveWeatherProvider(WeatherProvider):
             "rain_probability": max_rain_prob,
             "uv_index": peak_uv,
             "precipitation_mm": precip,
+            "visibility_km": current_visibility_km,
             "alerts": alerts,
             "forecast": forecast_days,
             "forecast_days_count": len(forecast_days),
@@ -313,6 +341,7 @@ class MockWeatherProvider(WeatherProvider):
                 "uv_index": d_uv,
                 "wind_speed_kmh": d_wind,
                 "precipitation_mm": round(d_rain * 0.15, 1) if d_rain > 40 else 0.0,
+                "visibility_km": None,
                 "condition": cond,
                 "weather_code": 65 if d_rain >= 70 else (61 if d_rain >= 40 else 1),
                 "confidence": conf,
@@ -337,6 +366,7 @@ class MockWeatherProvider(WeatherProvider):
             "rain_probability": rain_prob,
             "uv_index": uv,
             "precipitation_mm": 0.0,
+            "visibility_km": None,
             "alerts": [],
             "forecast": forecast,
             "forecast_days_count": len(forecast),

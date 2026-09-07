@@ -1007,6 +1007,18 @@ export const TripBuilderProvider: React.FC<{ children: ReactNode }> = ({ childre
     }
   };
 
+  const parseTimeToMinutes = (timeStr?: string): number => {
+    if (!timeStr) return 0;
+    const match = timeStr.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+    if (!match) return 0;
+    let hours = parseInt(match[1], 10);
+    const minutes = parseInt(match[2], 10);
+    const period = match[3] ? match[3].toUpperCase() : '';
+    if (period === 'PM' && hours < 12) hours += 12;
+    if (period === 'AM' && hours === 12) hours = 0;
+    return hours * 60 + minutes;
+  };
+
   const applyDayAdaptation = (dayNumber: number, newActivities: any[], reason: string = 'Weather adaptation') => {
     const originalEventsForDay = customItinerary.filter((ev) => ev.day === dayNumber);
     setLastWeatherSnapshot({
@@ -1033,7 +1045,7 @@ export const TripBuilderProvider: React.FC<{ children: ReactNode }> = ({ childre
 
       return [...withoutDay, ...adaptedEvents].sort((a, b) => {
         if (a.day !== b.day) return a.day - b.day;
-        return a.time.localeCompare(b.time);
+        return parseTimeToMinutes(a.time) - parseTimeToMinutes(b.time);
       });
     });
   };
@@ -1045,7 +1057,7 @@ export const TripBuilderProvider: React.FC<{ children: ReactNode }> = ({ childre
       const withoutDay = prev.filter((ev) => ev.day !== dayNumber);
       return [...withoutDay, ...originalEvents].sort((a, b) => {
         if (a.day !== b.day) return a.day - b.day;
-        return a.time.localeCompare(b.time);
+        return parseTimeToMinutes(a.time) - parseTimeToMinutes(b.time);
       });
     });
     setLastWeatherSnapshot(null);
@@ -1081,6 +1093,8 @@ export const TripBuilderProvider: React.FC<{ children: ReactNode }> = ({ childre
           if (parsed.selectedMobility) setSelectedMobility(parsed.selectedMobility);
           if (parsed.selectedActivities) setSelectedActivities(parsed.selectedActivities);
           if (parsed.customItinerary) setCustomItinerary(parsed.customItinerary);
+          if (Array.isArray(parsed.dismissedWeatherDays)) setDismissedWeatherDays(parsed.dismissedWeatherDays);
+          if (parsed.lastWeatherSnapshot) setLastWeatherSnapshot(parsed.lastWeatherSnapshot);
           setIsDraftEmpty(false);
         } else {
           setIsDraftEmpty(true);
@@ -1118,6 +1132,8 @@ export const TripBuilderProvider: React.FC<{ children: ReactNode }> = ({ childre
         selectedMobility,
         selectedActivities,
         customItinerary,
+        dismissedWeatherDays,
+        lastWeatherSnapshot,
       };
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stateToSave));
     } catch (e) {
@@ -1143,6 +1159,8 @@ export const TripBuilderProvider: React.FC<{ children: ReactNode }> = ({ childre
     selectedMobility,
     selectedActivities,
     customItinerary,
+    dismissedWeatherDays,
+    lastWeatherSnapshot,
   ]);
 
   // Calculated Trip Nights

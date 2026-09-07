@@ -249,48 +249,61 @@ export const WeatherAdaptationReviewModal: React.FC<WeatherAdaptationReviewModal
           {!isLoading && proposal && (
             <>
               {/* Preserved Constraints Bar */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 text-xs">
-                <div>
-                  <span className="text-[10px] text-slate-400 font-semibold block">
-                    {t('weather.preserved_mode', 'Travel Mode')}
-                  </span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200 capitalize">
-                    {travelMode}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-400 font-semibold block">
-                    {t('weather.preserved_budget', 'Budget Impact')}
-                  </span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-0.5">
-                    {proposal.estimated_budget_change <= 0 ? (
-                      <span className="text-emerald-600 dark:text-emerald-400">
-                        {proposal.estimated_budget_change === 0
-                          ? 'No Budget Increase'
-                          : `Saves ₹${Math.abs(proposal.estimated_budget_change)}`}
+              {(() => {
+                const originalDayCost = originalDayEvents.reduce((sum, ev) => sum + (ev.cost || 0), 0);
+                const proposedDayCost =
+                  proposal.proposed_activities?.reduce((sum, act) => sum + (act.estimated_cost || 0), 0) ?? 0;
+                const budgetDiff = proposedDayCost - originalDayCost;
+
+                return (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 text-xs">
+                    <div>
+                      <span className="text-[10px] text-slate-400 font-semibold block">
+                        {t('weather.preserved_mode', 'Travel Mode')}
                       </span>
-                    ) : (
-                      <span>+₹{proposal.estimated_budget_change}</span>
-                    )}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-400 font-semibold block">
-                    {t('weather.preserved_hotel', 'Accommodation')}
-                  </span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200 truncate block">
-                    {selectedStay?.name || destination}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-400 font-semibold block">
-                    {t('weather.preserved_days', 'Trip Scope')}
-                  </span>
-                  <span className="font-bold text-emerald-600 dark:text-emerald-400">
-                    Day {dayNumber} Only
-                  </span>
-                </div>
-              </div>
+                      <span className="font-bold text-slate-800 dark:text-slate-200 capitalize">
+                        {travelMode}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 font-semibold block">
+                        {t('weather.preserved_budget', 'Budget Impact')}
+                      </span>
+                      <span className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-0.5">
+                        {budgetDiff < 0 ? (
+                          <span className="text-emerald-600 dark:text-emerald-400">
+                            Saves ₹{Math.abs(budgetDiff)} (₹{originalDayCost} → ₹{proposedDayCost})
+                          </span>
+                        ) : budgetDiff === 0 ? (
+                          <span className="text-emerald-600 dark:text-emerald-400">
+                            Same budget (₹{originalDayCost})
+                          </span>
+                        ) : (
+                          <span className="text-amber-600 dark:text-amber-400">
+                            Costs +₹{budgetDiff} (₹{originalDayCost} → ₹{proposedDayCost})
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 font-semibold block">
+                        {t('weather.preserved_hotel', 'Accommodation')}
+                      </span>
+                      <span className="font-bold text-slate-800 dark:text-slate-200 truncate block">
+                        {selectedStay?.name || destination}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 font-semibold block">
+                        {t('weather.preserved_days', 'Trip Scope')}
+                      </span>
+                      <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                        Day {dayNumber} Only
+                      </span>
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Rationale & Safety Note */}
               <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/60 text-xs space-y-1">
@@ -336,7 +349,7 @@ export const WeatherAdaptationReviewModal: React.FC<WeatherAdaptationReviewModal
                                 {ev.time}
                               </span>
                               {isBooked && (
-                                <span className="text-[9.5px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-200 flex items-center gap-0.5">
+                                <span className="text-[9.5px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-200 flex items-center gap-0.5">
                                   <Lock className="w-2.5 h-2.5" />
                                   {t('weather.badge_booked', 'BOOKED')}
                                 </span>
@@ -371,33 +384,46 @@ export const WeatherAdaptationReviewModal: React.FC<WeatherAdaptationReviewModal
                       {t('weather.col_after', 'PROPOSED ADAPTED DAY {day}', { day: dayNumber })}
                     </span>
                     <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
-                      {proposal.proposed_activities.length} safe activities
+                      {proposal.proposed_activities.length} activities
                     </span>
                   </div>
 
                   <div className="space-y-2.5">
                     {proposal.proposed_activities.map((act, idx) => {
                       const matchingChange = proposal.changes[idx];
+                      const actionType = act.action_type || (matchingChange?.action_type) || 'replaced';
+
                       return (
                         <div
                           key={idx}
                           className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-emerald-300/80 dark:border-emerald-800 text-xs space-y-1.5 shadow-xs"
                         >
-                          <div className="flex items-center justify-between">
+                          <div className="flex items-center justify-between gap-1 flex-wrap">
                             <span className="font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
                               <Clock className="w-3 h-3" />
                               {act.time}
                             </span>
-                            {act.is_booked ? (
-                              <span className="text-[9.5px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-200 flex items-center gap-0.5">
-                                <Lock className="w-2.5 h-2.5" />
-                                {t('weather.badge_booked', 'BOOKED')}
-                              </span>
-                            ) : (
-                              <span className="text-[9.5px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200">
-                                {t('weather.badge_sheltered', 'SHELTERED')}
-                              </span>
-                            )}
+
+                            <div className="flex items-center gap-1">
+                              {act.is_booked ? (
+                                <span className="text-[9.5px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-200 flex items-center gap-0.5">
+                                  <Lock className="w-2.5 h-2.5" />
+                                  {t('weather.badge_booked_protected', 'BOOKED (PROTECTED)')}
+                                </span>
+                              ) : actionType === 'kept' ? (
+                                <span className="text-[9.5px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                                  {t('weather.badge_kept', 'KEPT (SAFE / INDOOR)')}
+                                </span>
+                              ) : actionType === 'rescheduled' ? (
+                                <span className="text-[9.5px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200">
+                                  {t('weather.badge_rescheduled', 'RESCHEDULED (TIMING SHIFT)')}
+                                </span>
+                              ) : (
+                                <span className="text-[9.5px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200">
+                                  {t('weather.badge_sheltered', 'SHELTERED ALTERNATIVE')}
+                                </span>
+                              )}
+                            </div>
                           </div>
 
                           <h5 className="font-bold text-slate-900 dark:text-white">
@@ -416,7 +442,14 @@ export const WeatherAdaptationReviewModal: React.FC<WeatherAdaptationReviewModal
                             </p>
                           )}
 
-                          {matchingChange?.booking_advisory && (
+                          {act.is_booked && (
+                            <div className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-[10.5px] text-blue-900 dark:text-blue-200 font-medium flex items-center gap-1">
+                              <Lock className="w-3 h-3 text-blue-600 flex-shrink-0" />
+                              <span>Your booking is protected. Trippilot keeps this reservation and adapts other activities around it.</span>
+                            </div>
+                          )}
+
+                          {matchingChange?.booking_advisory && !act.is_booked && (
                             <div className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 text-[10.5px] text-amber-900 dark:text-amber-200 font-medium">
                               {matchingChange.booking_advisory}
                             </div>
@@ -452,7 +485,7 @@ export const WeatherAdaptationReviewModal: React.FC<WeatherAdaptationReviewModal
                 onClick={handleReject}
                 className="flex-1 sm:flex-none py-2.5 px-4 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors"
               >
-                {t('weather.btn_keep_original', 'KEEP ORIGINAL')}
+                {t('weather.btn_keep_original', 'KEEP ORIGINAL PLAN')}
               </button>
 
               <button

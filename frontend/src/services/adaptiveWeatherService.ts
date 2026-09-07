@@ -178,8 +178,10 @@ export const adaptiveWeatherService = {
           feelsLikeC: Math.round(item.feels_like || item.max_temp || 29),
           condition: item.condition || 'Partly Cloudy',
           rainProbability: item.rain_probability || 15,
+          precipitationMm: item.precipitation_mm || 0,
           windSpeedKmh: Math.round(item.wind_speed_kmh || 14),
           uvIndex: item.uv_index || 6.5,
+          visibilityKm: item.visibility_km !== undefined ? item.visibility_km : null,
           confidence: item.confidence || (idx <= 1 ? 'high' : idx <= 4 ? 'moderate' : 'low'),
           confidenceLabel: item.confidence_label || (idx <= 1 ? 'High Confidence' : idx <= 4 ? 'Moderate' : 'Possible (Monitoring)'),
           impactLevel: item.impact_level || (item.rain_probability >= 70 ? 'high' : item.rain_probability >= 40 ? 'moderate' : 'low'),
@@ -232,9 +234,24 @@ export const adaptiveWeatherService = {
         titleLower.includes('paragliding') ||
         titleLower.includes('diving');
 
+      const isViewpoint =
+        titleLower.includes('viewpoint') ||
+        titleLower.includes('lookout') ||
+        titleLower.includes('panorama') ||
+        titleLower.includes('cliff') ||
+        titleLower.includes('paragliding');
+
+      const isMarineOrExposed =
+        titleLower.includes('boat') ||
+        titleLower.includes('cruise') ||
+        titleLower.includes('water') ||
+        titleLower.includes('paragliding') ||
+        titleLower.includes('diving') ||
+        titleLower.includes('cliff');
+
       const isBooked = (ev as any).is_booked === true || (ev as any).isBooked === true;
 
-      // Conflict 1: Heavy Rain / Thunderstorm / Rough Swell
+      // Conflict 1: Heavy Rain / Thunderstorm
       const isSevereRain = dayForecast.rainProbability >= 70 || dayForecast.condition.includes('Rain') || dayForecast.condition.includes('Thunderstorm');
       if (isOutdoor && isSevereRain) {
         const alt = this.getGroupAwareAlternative(mode as any, destination, 'rain_shelter', travellers);
@@ -291,6 +308,49 @@ export const adaptiveWeatherService = {
           costDifference: alt.cost - (ev.cost || 0),
         });
       }
+
+      // Conflict 3: Poor Visibility on Viewpoints (< 1.5 km)
+      if (
+        isViewpoint &&
+        dayForecast.visibilityKm !== null &&
+        dayForecast.visibilityKm !== undefined &&
+        dayForecast.visibilityKm < 1.5
+      ) {
+        const alt = this.getGroupAwareAlternative(mode as any, destination, 'cultural_indoor', travellers);
+        conflicts.push({
+          id: `conflict-vis-d${ev.day}-${ev.id}`,
+          eventId: ev.id,
+          dayNumber: ev.day,
+          eventTitle: ev.title,
+          eventType: ev.type,
+          originalTime: ev.time,
+          conflictType: 'poor_visibility',
+          severity: 'advisory',
+          isBooked,
+          impactExplanation: `Surface visibility is restricted to ${dayForecast.visibilityKm} km by fog/mist. Viewpoints and panoramas will be obscured.`,
+          suggestedAlternative: alt,
+          costDifference: alt.cost - (ev.cost || 0),
+        });
+      }
+
+      // Conflict 4: Strong Wind on Marine/Exposed activities (>= 40 km/h)
+      if (isMarineOrExposed && dayForecast.windSpeedKmh >= 40) {
+        const alt = this.getGroupAwareAlternative(mode as any, destination, 'rain_shelter', travellers);
+        conflicts.push({
+          id: `conflict-wind-d${ev.day}-${ev.id}`,
+          eventId: ev.id,
+          dayNumber: ev.day,
+          eventTitle: ev.title,
+          eventType: ev.type,
+          originalTime: ev.time,
+          conflictType: 'wind',
+          severity: 'warning',
+          isBooked,
+          impactExplanation: `High winds (${dayForecast.windSpeedKmh} km/h) create rough water conditions and unsafe cliff edges.`,
+          suggestedAlternative: alt,
+          costDifference: alt.cost - (ev.cost || 0),
+        });
+      }
     });
 
     return conflicts;
@@ -315,6 +375,7 @@ export const adaptiveWeatherService = {
           min_temp: params.weatherForecast.tempMinC,
           wind_speed_kmh: params.weatherForecast.windSpeedKmh,
           uv_index: params.weatherForecast.uvIndex,
+          visibility_km: params.weatherForecast.visibilityKm,
           confidence: params.weatherForecast.confidence,
         },
         hotel_location: params.hotelLocation,
@@ -334,93 +395,271 @@ export const adaptiveWeatherService = {
 
   /**
    * Fallback deterministic adaptation engine running locally in the browser.
+   * Granular activity-level evaluation: keeps indoor/safe items, tries timing shifts first,
+   * and replaces ONLY genuinely affected outdoor items.
    */
   generateLocalFallbackAdaptation(params: WeatherAdaptationRequestParams): DayAdaptationProposal {
     const { affectedDayNumber, destination, travelMode, weatherForecast, currentDayActivities } = params;
     const mode = (travelMode || 'standard').toLowerCase();
-    const isHeat = weatherForecast.tempC >= 38;
+    const isExtremeHeat = weatherForecast.tempC >= 38 || (weatherForecast.uvIndex && weatherForecast.uvIndex >= 8.5);
+    const rainP = weatherForecast.rainProbability || 10;
+    const condLower = (weatherForecast.condition || '').toLowerCase();
+    const isSevereRain = rainP >= 70 || ['heavy rain', 'downpour', 'torrential', 'thunderstorm', 'storm', 'violent'].some((w) => condLower.includes(w));
+    const isModerateRain = (rainP >= 40 && rainP < 70 && !isSevereRain) || ['moderate rain', 'shower', 'drizzle', 'light rain'].some((w) => condLower.includes(w));
+    const isPoorVisibility = weatherForecast.visibilityKm !== null && weatherForecast.visibilityKm !== undefined && weatherForecast.visibilityKm < 1.5;
+    const isStrongWind = (weatherForecast.windSpeedKmh || 0) >= 40;
 
     const changes: WeatherAdaptationChange[] = [];
     const proposed: DayAdaptationProposal['proposed_activities'] = [];
 
-    const modeTemplates: Record<string, Array<{ time: string; name: string; desc: string; cost: number; type: string }>> = {
+    const modeReplacements: Record<string, Array<{ name: string; desc: string; cost: number; type: string }>> = {
       family: [
-        { time: '10:00 AM', name: `Museum of ${destination} & Interactive Cultural Workshop`, desc: 'Air-conditioned interactive gallery with hands-on art and sweet crafting for all ages.', cost: 650, type: 'activity' },
-        { time: '01:00 PM', name: 'Family Lunch at Sheltered Heritage Veranda', desc: 'Comfortable family dining with regional delicacies in a covered courtyard.', cost: 900, type: 'dining' },
-        { time: '03:00 PM', name: 'Indoor Marine Discovery Center & Planetarium', desc: 'Engaging educational exhibits sheltered from precipitation and high temperatures.', cost: 500, type: 'activity' },
-        { time: '06:30 PM', name: 'Covered Boutique Artisan Arcade & Souvenirs', desc: 'Relaxed indoor shopping for spices, handicrafts, and local teas.', cost: 300, type: 'custom' },
+        { name: `Museum of ${destination} & Interactive Art Gallery`, desc: 'Air-conditioned indoor discovery exhibits and cultural workshop for all ages.', cost: 500, type: 'activity' },
+        { name: `${destination} Artisanal Chocolate & Craft Workshop`, desc: 'Sheltered interactive crafting and sweet-making session ideal for families.', cost: 650, type: 'activity' },
+        { name: 'Indoor Marine Discovery Center & Planetarium', desc: 'Educational indoor marine pavilion sheltered from weather.', cost: 450, type: 'activity' },
       ],
       friends: [
-        { time: '10:30 AM', name: `${destination} Coastal Bowling Lounge & VR Arcade`, desc: 'High-energy indoor bowling, air-hockey challenge, and VR games.', cost: 750, type: 'activity' },
-        { time: '01:30 PM', name: 'Craft Brewery / Artisan Cafe Tasting Lunch', desc: 'Wood-fired sourdough pizza and craft beverage flight in a sheltered lounge.', cost: 1100, type: 'dining' },
-        { time: '04:30 PM', name: 'Indoor Escape Room Mystery Quest', desc: 'Interactive 60-minute group puzzle challenge fully sheltered from weather.', cost: 800, type: 'activity' },
-        { time: '08:00 PM', name: 'Acoustic Live Music at Sheltered Cliff View Lounge', desc: 'Dinner and indie acoustic performance with rain-sheltered panoramic vistas.', cost: 950, type: 'dining' },
+        { name: `${destination} Coastal Bowling & VR Gaming Lounge`, desc: 'High-energy indoor bowling, air hockey, and VR multiplayer games.', cost: 750, type: 'activity' },
+        { name: 'Indoor Escape Room Mystery Quest', desc: '60-minute immersive team puzzle adventure sheltered from rain.', cost: 800, type: 'activity' },
+        { name: 'Craft Cafe & Board Game Social Lounge', desc: 'Artisan beverage tasting and social parlor games in covered lounge.', cost: 600, type: 'dining' },
       ],
       sustainable: [
-        { time: '10:00 AM', name: `Nearby Local Heritage Center & Organic Tea Atelier`, desc: 'Walking-distance cultural center promoting local heritage and biodiversity.', cost: 400, type: 'activity' },
-        { time: '01:00 PM', name: 'Farm-to-Table Organic Community Cafe', desc: 'Locally sourced seasonal meal within walking radius of base stay.', cost: 650, type: 'dining' },
-        { time: '03:30 PM', name: 'Artisan Textile Cooperative & Sustainable Craft Studio', desc: 'Indoor handloom and natural dyeing exhibition supporting local artisans.', cost: 350, type: 'activity' },
-        { time: '06:30 PM', name: 'Covered Farmers & Herbal Spice Market', desc: 'Sheltered bazaar supporting regional eco-producers.', cost: 250, type: 'custom' },
+        { name: `Nearby ${destination} Heritage Center & Eco Atelier`, desc: 'Walking-distance community cultural center promoting local heritage.', cost: 350, type: 'activity' },
+        { name: 'Covered Organic Farmers & Spice Bazaar', desc: 'Protected local marketplace supporting zero-emission regional producers.', cost: 250, type: 'custom' },
+        { name: 'Artisan Textile Cooperative & Sustainable Studio', desc: 'Sheltered handloom weaving and natural dyeing workshop.', cost: 400, type: 'activity' },
       ],
       standard: [
-        { time: '08:00 AM', name: `Morning Panoramic Viewpoint & Fort Walk`, desc: 'Early morning visit during cool, clear weather before afternoon rainfall or midday heat.', cost: 300, type: 'sightseeing' },
-        { time: '12:00 PM', name: `${destination} State Art & History Museum`, desc: 'Sheltered exploration of rich regional artifacts and paintings.', cost: 500, type: 'activity' },
-        { time: '02:00 PM', name: 'Authentic Regional Coastal Restaurant Lunch', desc: 'Relaxed dining in covered heritage setting.', cost: 850, type: 'dining' },
-        { time: '05:00 PM', name: 'Covered Central Market & Local Delicacy Crawl', desc: 'Protected bazaar lanes exploring teas, spices, and handmade treats.', cost: 400, type: 'activity' },
+        { name: `${destination} State Art & Cultural Museum`, desc: 'Sheltered exploration of rich regional artifacts and paintings.', cost: 450, type: 'activity' },
+        { name: 'Covered Central Market & Local Delicacy Walk', desc: 'Protected heritage bazaar lanes exploring teas, spices, and treats.', cost: 400, type: 'activity' },
+        { name: 'Heritage Cultural Palace & Indoor Gallery', desc: 'Historic royal residence with covered architecture and art.', cost: 550, type: 'activity' },
       ],
     };
 
-    const template = modeTemplates[mode] || modeTemplates.standard;
-    let budgetDiff = 0;
+    const replacementPool = listReplacements(modeReplacements[mode] || modeReplacements.standard);
+    function listReplacements(arr: any[]) { return [...arr]; }
 
-    template.forEach((item, idx) => {
-      const orig = currentDayActivities[idx] || {};
-      const origCost = orig.estimated_cost || 600;
-      const origTime = orig.time || item.time;
-      const origTitle = orig.activity || `Outdoor Sightseeing ${idx + 1}`;
-      const isBooked = orig.is_booked === true;
+    let totalBudgetDiff = 0;
 
-      const costDifference = item.cost - origCost;
-      budgetDiff += costDifference;
+    const activitiesToProcess = currentDayActivities.length > 0 ? currentDayActivities : [
+      { time: '09:30 AM', activity: `${destination} Panoramic Viewpoint & Fort`, type: 'sightseeing', estimated_cost: 400 },
+      { time: '01:00 PM', activity: 'Seaside Heritage Lunch', type: 'dining', estimated_cost: 800 },
+      { time: '03:30 PM', activity: `${destination} Beachfront Walk & Market`, type: 'sightseeing', estimated_cost: 300 },
+      { time: '07:30 PM', activity: 'Traditional Coastal Dinner', type: 'dining', estimated_cost: 900 },
+    ];
 
-      changes.push({
-        original_activity: origTitle,
-        original_time: origTime,
-        replacement_activity: item.name,
-        new_time: item.time,
-        type: item.type as any,
-        cost: item.cost,
-        cost_difference: costDifference,
-        reason: isHeat
-          ? `Shifted out of peak midday heat (${weatherForecast.tempC}°C) into sheltered comfort.`
-          : `Replaced outdoor activity with safe indoor experience due to ${weatherForecast.condition} (${weatherForecast.rainProbability}% rain).`,
-        is_booked: isBooked,
-        booking_advisory: isBooked
-          ? '⚠️ This activity is already booked. Trippilot recommends reviewing cancellation and rescheduling conditions before making changes.'
-          : null,
-      });
+    activitiesToProcess.forEach((act) => {
+      const title = act.activity || 'Sightseeing Activity';
+      const timeStr = act.time || '10:00 AM';
+      const actType = (act.type || 'activity').toLowerCase();
+      const origCost = act.estimated_cost || 0;
+      const isBooked = act.is_booked === true;
 
-      proposed.push({
-        time: item.time,
-        activity: item.name,
-        description: item.desc,
-        estimated_cost: item.cost,
-        type: item.type,
-        location: `${destination} Center`,
-        is_weather_sheltered: true,
-        is_booked: isBooked,
-      });
+      const tLower = title.toLowerCase();
+      const isIndoor =
+        tLower.includes('museum') ||
+        tLower.includes('gallery') ||
+        tLower.includes('lunch') ||
+        tLower.includes('dinner') ||
+        tLower.includes('breakfast') ||
+        tLower.includes('cafe') ||
+        tLower.includes('restaurant') ||
+        tLower.includes('dining') ||
+        tLower.includes('shopping') ||
+        tLower.includes('mall') ||
+        tLower.includes('market') ||
+        tLower.includes('arcade') ||
+        tLower.includes('bowling') ||
+        tLower.includes('spa') ||
+        tLower.includes('hotel') ||
+        tLower.includes('workshop') ||
+        actType === 'dining' ||
+        actType === 'shopping';
+
+      const isOutdoor = !isIndoor || tLower.includes('beach') || tLower.includes('fort') || tLower.includes('viewpoint') || tLower.includes('trek') || tLower.includes('walk');
+      const isViewpoint = tLower.includes('viewpoint') || tLower.includes('lookout') || tLower.includes('panorama') || tLower.includes('cliff');
+      const isMarineOrCliff = ['boat', 'cruise', 'cliff', 'paragliding', 'sailing', 'kayak', 'speed', 'water', 'diving'].some((k) => tLower.includes(k));
+      const isMidday = ['11:', '12:', '01:', '02:', '03:', '1:00', '2:00', '3:00', '1:30', '2:30', '3:30'].some((h) => timeStr.includes(h));
+
+      // Rule 1: Inherently indoor (lunch, museums, shopping) -> KEEP AS PLANNED
+      if (isIndoor && !isViewpoint) {
+        changes.push({
+          original_activity: title,
+          original_time: timeStr,
+          replacement_activity: title,
+          new_time: timeStr,
+          type: actType as any,
+          action_type: 'kept',
+          cost: origCost,
+          cost_difference: 0,
+          reason: 'Kept as planned — activity is already sheltered and comfortable indoors.',
+          is_booked: isBooked,
+          booking_advisory: null,
+        });
+        proposed.push({
+          time: timeStr,
+          activity: title,
+          description: act.description || 'Sheltered indoor experience protected from weather.',
+          estimated_cost: origCost,
+          type: actType,
+          location: `${destination} Center`,
+          action_type: 'kept',
+          is_weather_sheltered: true,
+          is_booked: isBooked,
+        });
+      }
+      // Rule 2: Extreme Heat & Midday Outdoor -> TIMING ADJUSTMENT FIRST (07:30 AM or 05:30 PM)
+      else if (isExtremeHeat && isOutdoor && isMidday) {
+        const newTime = proposed.some((p) => p.time.includes('07:')) ? '05:30 PM' : '07:30 AM';
+        changes.push({
+          original_activity: title,
+          original_time: timeStr,
+          replacement_activity: title,
+          new_time: newTime,
+          type: actType as any,
+          action_type: 'rescheduled',
+          cost: origCost,
+          cost_difference: 0,
+          reason: `Moved from intense midday sun (${weatherForecast.tempC}°C) to pleasant ${newTime} hours.`,
+          is_booked: isBooked,
+          booking_advisory: isBooked
+            ? '⚠️ Activity is booked. Rescheduling to a cooler morning/sunset window is recommended.'
+            : null,
+        });
+        proposed.push({
+          time: newTime,
+          activity: title,
+          description: `Rescheduled to cooler hours to avoid dangerous midday heat (${weatherForecast.tempC}°C).`,
+          estimated_cost: origCost,
+          type: actType,
+          location: `${destination} Center`,
+          action_type: 'rescheduled',
+          is_weather_sheltered: false,
+          is_booked: isBooked,
+        });
+      }
+      // Rule 3: Moderate Rain in Friends/Student or Standard Mode -> Keep or shift slightly
+      else if (isModerateRain && !isSevereRain && ['friends', 'students', 'standard'].includes(mode) && !isViewpoint) {
+        const newTime = isOutdoor && !proposed.some((p) => p.time.includes('08:')) ? '08:30 AM' : timeStr;
+        const actionType = newTime !== timeStr ? 'rescheduled' : 'kept';
+        changes.push({
+          original_activity: title,
+          original_time: timeStr,
+          replacement_activity: title,
+          new_time: newTime,
+          type: actType as any,
+          action_type: actionType,
+          cost: origCost,
+          cost_difference: 0,
+          reason: actionType === 'rescheduled'
+            ? 'Moved to morning window before afternoon rain showers.'
+            : 'Kept as planned — moderate rain acceptable with light waterproofs.',
+          is_booked: isBooked,
+          booking_advisory: null,
+        });
+        proposed.push({
+          time: newTime,
+          activity: title,
+          description: act.description || 'Outdoor exploration with flexible weather preparedness.',
+          estimated_cost: origCost,
+          type: actType,
+          location: `${destination} Center`,
+          action_type: actionType,
+          is_weather_sheltered: false,
+          is_booked: isBooked,
+        });
+      }
+      // Rule 4: Severe Rain / Thunderstorms / Poor Visibility on Viewpoint / Strong Wind on Marine / Family Mode with Rain -> REPLACE SPECIFIC ACTIVITY
+      else if (isSevereRain || (isPoorVisibility && isViewpoint) || (isStrongWind && isMarineOrCliff) || (mode === 'family' && isOutdoor && (isModerateRain || isSevereRain))) {
+        const sub = replacementPool.shift() || {
+          name: `${destination} Cultural Heritage Gallery & Pavilion`,
+          desc: 'Covered exhibition and authentic artisan showcases protected from weather.',
+          cost: 450,
+          type: 'activity',
+        };
+
+        const costDiff = sub.cost - origCost;
+        totalBudgetDiff += costDiff;
+
+        let reason = `Replaced outdoor activity with sheltered experience due to ${weatherForecast.condition} (${rainP}% rain).`;
+        if (isPoorVisibility && isViewpoint) {
+          reason = `Replaced viewpoint due to heavy fog/mist (${weatherForecast.visibilityKm} km visibility).`;
+        } else if (isStrongWind && isMarineOrCliff) {
+          reason = `Replaced exposed marine/cliff activity with sheltered alternative due to high wind (${weatherForecast.windSpeedKmh} km/h).`;
+        } else if (mode === 'family') {
+          reason = 'Replaced with family-friendly indoor discovery to protect children/elders from wet conditions.';
+        }
+
+        changes.push({
+          original_activity: title,
+          original_time: timeStr,
+          replacement_activity: sub.name,
+          new_time: timeStr,
+          type: sub.type as any,
+          action_type: 'replaced',
+          cost: sub.cost,
+          cost_difference: costDiff,
+          reason,
+          is_booked: isBooked,
+          booking_advisory: isBooked
+            ? '⚠️ This activity is already booked. Trippilot recommends reviewing cancellation and rescheduling conditions before making changes.'
+            : null,
+        });
+        proposed.push({
+          time: timeStr,
+          activity: sub.name,
+          description: sub.desc,
+          estimated_cost: sub.cost,
+          type: sub.type,
+          location: `${destination} Cultural Quarter`,
+          action_type: 'replaced',
+          is_weather_sheltered: true,
+          is_booked: isBooked,
+        });
+      }
+      // Rule 5: Default outdoor that is safe -> KEEP
+      else {
+        changes.push({
+          original_activity: title,
+          original_time: timeStr,
+          replacement_activity: title,
+          new_time: timeStr,
+          type: actType as any,
+          action_type: 'kept',
+          cost: origCost,
+          cost_difference: 0,
+          reason: 'Kept as planned — weather conditions do not disrupt this activity.',
+          is_booked: isBooked,
+          booking_advisory: null,
+        });
+        proposed.push({
+          time: timeStr,
+          activity: title,
+          description: act.description,
+          estimated_cost: origCost,
+          type: actType,
+          location: `${destination} Center`,
+          action_type: 'kept',
+          is_weather_sheltered: false,
+          is_booked: isBooked,
+        });
+      }
     });
+
+    const rescheduledCount = changes.filter((c) => c.action_type === 'rescheduled').length;
+    const replacedCount = changes.filter((c) => c.action_type === 'replaced').length;
+    const keptCount = changes.filter((c) => c.action_type === 'kept').length;
+
+    const action = rescheduledCount > 0 && replacedCount === 0 ? 'reschedule' : 'modify';
 
     return {
       affected_day: affectedDayNumber,
       weather_impact: weatherForecast.impactLevel,
-      action: isHeat ? 'reschedule' : 'modify',
-      reason: `Adverse conditions (${weatherForecast.condition}, ${weatherForecast.rainProbability}% rain probability) detected for Day ${affectedDayNumber}. Re-planned into safe alternatives tailored for ${mode.toUpperCase()} mode.`,
+      action,
+      reason: `Weather intelligence for Day ${affectedDayNumber} (${weatherForecast.condition}, ${weatherForecast.tempC}°C): Kept ${keptCount} safe activities, adjusted timing for ${rescheduledCount}, and substituted ${replacedCount} outdoor items.`,
       changes,
       proposed_activities: proposed,
-      estimated_budget_change: budgetDiff,
-      travel_time_change: '0 mins (Locations within central perimeter)',
+      estimated_budget_change: totalBudgetDiff,
+      travel_time_change: 'Minimal / 10 mins saved',
       safety_notes: `High safety priority: Avoid open water excursions and slippery rock trails during ${weatherForecast.condition}.`,
       source: 'local_intelligence_engine',
     };
