@@ -269,14 +269,14 @@ export const SearchWidget: React.FC = () => {
         <div
           className={`mb-4 px-3.5 py-2.5 rounded-2xl text-xs font-semibold flex flex-col sm:flex-row sm:items-center justify-between gap-2 animate-in fade-in slide-in-from-top-1 border ${
             travelMode === 'family'
-              ? 'bg-amber-900/30 border-amber-600/50 text-amber-200 shadow-xs'
-              : 'bg-indigo-900/30 border-indigo-600/50 text-indigo-200 shadow-xs'
+              ? 'bg-amber-50/90 dark:bg-amber-900/30 border-amber-200 dark:border-amber-600/50 text-amber-950 dark:text-amber-200 shadow-xs'
+              : 'bg-indigo-50/90 dark:bg-indigo-900/30 border-indigo-200 dark:border-indigo-600/50 text-indigo-950 dark:text-indigo-200 shadow-xs'
           }`}
         >
           <div className="flex items-center gap-2.5">
             <div
               className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                travelMode === 'family' ? 'bg-amber-700/50 text-amber-200' : 'bg-indigo-700/50 text-indigo-200'
+                travelMode === 'family' ? 'bg-amber-200/80 dark:bg-amber-700/50 text-amber-800 dark:text-amber-200' : 'bg-indigo-200/80 dark:bg-indigo-700/50 text-indigo-800 dark:text-indigo-200'
               }`}
             >
               {travelMode === 'family' ? <Baby className="w-4 h-4" /> : <Accessibility className="w-4 h-4" />}
@@ -296,7 +296,7 @@ export const SearchWidget: React.FC = () => {
             type="button"
             onClick={() => setTravelMode('standard')}
             className={`text-[11px] font-bold underline whitespace-nowrap self-end sm:self-auto ${
-              travelMode === 'family' ? 'text-amber-300 hover:text-amber-100' : 'text-indigo-300 hover:text-indigo-100'
+              travelMode === 'family' ? 'text-amber-800 dark:text-amber-300 hover:text-amber-950 dark:hover:text-amber-100' : 'text-indigo-800 dark:text-indigo-300 hover:text-indigo-950 dark:hover:text-indigo-100'
             }`}
           >
             Reset to Standard
@@ -306,12 +306,12 @@ export const SearchWidget: React.FC = () => {
 
       {/* Validation Banner */}
       {validationError && (
-        <div className="mb-5 p-3.5 rounded-xl bg-rose-900/30 border border-rose-500/50 text-rose-300 text-xs font-semibold flex items-center justify-between animate-fade-in">
+        <div className="mb-5 p-3.5 rounded-xl bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-500/50 text-rose-700 dark:text-rose-300 text-xs font-semibold flex items-center justify-between animate-fade-in">
           <div className="flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-rose-400 flex-shrink-0" />
+            <AlertCircle className="w-4 h-4 text-rose-500 dark:text-rose-400 flex-shrink-0" />
             <span>{validationError}</span>
           </div>
-          <button onClick={() => setValidationError(null)} className="text-rose-400 hover:text-rose-200 font-bold">
+          <button onClick={() => setValidationError(null)} className="text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-200 font-bold">
             {t('action.dismiss', 'Dismiss')}
           </button>
         </div>
@@ -332,7 +332,7 @@ export const SearchWidget: React.FC = () => {
           {/* Trip Type & Special Fares Bar */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             {/* Trip Types: One-Way, Round-Trip, Multi-City */}
-            <div className="flex items-center gap-1 bg-[#131d30] p-1 rounded-xl border border-slate-700/50">
+            <div className="flex items-center gap-1 bg-slate-100/80 dark:bg-[#131d30] p-1 rounded-xl border border-slate-200 dark:border-slate-700/50">
               {[
                 { id: 'one-way', label: t('search.one_way', 'One Way') },
                 { id: 'round-trip', label: t('search.round_trip', 'Round Trip') },
@@ -345,13 +345,13 @@ export const SearchWidget: React.FC = () => {
                     type="button"
                     onClick={() => setTripType(tItem.id as TripType)}
                     className={`relative px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-                      isActive ? 'text-white' : 'text-slate-400 hover:text-slate-200'
+                      isActive ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                     }`}
                   >
                     {isActive && (
                       <motion.span
                         layoutId="activeTripType"
-                        className="absolute inset-0 bg-[#2a3a56] rounded-lg shadow-xs z-0"
+                        className="absolute inset-0 bg-white dark:bg-[#2a3a56] rounded-lg shadow-xs z-0"
                         transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                       />
                     )}
@@ -363,7 +363,7 @@ export const SearchWidget: React.FC = () => {
 
             {/* Special Fare Categories */}
             <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none">
-              <span className="text-[10px] font-bold uppercase text-slate-400 mr-1 hidden lg:inline">
+              <span className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 mr-1 hidden lg:inline">
                 {t('search.special_fares', 'Special Fares:')}
               </span>
               {[
@@ -379,8 +379,8 @@ export const SearchWidget: React.FC = () => {
                   onClick={() => setFareType(fare.id as FareType)}
                   className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition-all whitespace-nowrap ${
                     fareType === fare.id
-                      ? 'bg-blue-900/60 text-blue-300 border-blue-500/60 font-bold'
-                      : 'border-slate-600/50 bg-[#131d30] text-slate-400 hover:text-slate-200 hover:bg-[#1a2740]'
+                      ? 'bg-blue-50 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-500/60 font-bold'
+                      : 'border-slate-200 dark:border-slate-600/50 bg-slate-50 dark:bg-[#131d30] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#1a2740]'
                   }`}
                 >
                   {fare.label}
@@ -390,7 +390,7 @@ export const SearchWidget: React.FC = () => {
               <button
                 type="button"
                 onClick={() => navigate('/ai-planner')}
-                className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold text-purple-300 bg-purple-900/40 hover:bg-purple-800/50 border border-purple-600/50 transition-all whitespace-nowrap"
+                className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-900/40 hover:bg-purple-100 dark:hover:bg-purple-800/50 border border-purple-200 dark:border-purple-600/50 transition-all whitespace-nowrap"
                 title="Search destinations by uploading a scenery photo"
               >
                 <ImageIcon className="w-3 h-3" />
@@ -405,20 +405,20 @@ export const SearchWidget: React.FC = () => {
             <div className="sm:col-span-1 lg:col-span-3 relative">
               <div
                 onClick={() => setIsFromPickerOpen(true)}
-                className="bg-[#131d30] hover:bg-[#1a2740] border border-slate-700/50 hover:border-blue-500/50 rounded-2xl p-3.5 cursor-pointer transition-all duration-150 group"
+                className="bg-slate-50 dark:bg-[#131d30] hover:bg-slate-100/90 dark:hover:bg-[#1a2740] border border-slate-200/90 dark:border-slate-700/50 hover:border-blue-500/60 dark:hover:border-blue-500/50 rounded-2xl p-3.5 cursor-pointer transition-all duration-150 group"
               >
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
                   {t('search.where_from', 'Where from? (Departure)')}
                 </span>
                 <div className="flex items-baseline justify-between">
-                  <span className="text-lg sm:text-xl font-black text-slate-100 group-hover:text-blue-400 transition-colors">
+                  <span className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                     {tPlace(originLocation.city)}
                   </span>
                   <span className="text-xs font-mono font-bold text-blue-700 px-1.5 py-0.5 rounded bg-blue-50 border border-blue-200">
                     {originLocation.airportCode || originLocation.city.slice(0, 3).toUpperCase()}
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-400 truncate mt-0.5">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
                   {originLocation.airportName || `${tPlace(originLocation.state)}, ${tPlace(originLocation.country)}`}
                 </p>
               </div>
@@ -429,7 +429,7 @@ export const SearchWidget: React.FC = () => {
               <button
                 type="button"
                 onClick={handleSwapLocations}
-                className="w-8 h-8 rounded-full bg-[#1a2740] hover:bg-[#2a3a56] border border-slate-600 text-slate-300 shadow-sm flex items-center justify-center transition-all"
+                className="w-8 h-8 rounded-full bg-white dark:bg-[#1a2740] hover:bg-slate-50 dark:hover:bg-[#2a3a56] border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 shadow-sm flex items-center justify-center transition-all"
                 title={t('search.swap_locations', 'Swap departure & destination')}
               >
                 <ArrowRightLeft className={`w-3.5 h-3.5 transition-transform duration-300 ${swapRotating ? 'rotate-180' : ''}`} />
@@ -440,20 +440,20 @@ export const SearchWidget: React.FC = () => {
             <div className="sm:col-span-1 lg:col-span-3 relative">
               <div
                 onClick={() => setIsToPickerOpen(true)}
-                className="bg-[#131d30] hover:bg-[#1a2740] border border-slate-700/50 hover:border-blue-500/50 rounded-2xl p-3.5 cursor-pointer transition-all duration-150 group"
+                className="bg-slate-50 dark:bg-[#131d30] hover:bg-slate-100/90 dark:hover:bg-[#1a2740] border border-slate-200/90 dark:border-slate-700/50 hover:border-blue-500/60 dark:hover:border-blue-500/50 rounded-2xl p-3.5 cursor-pointer transition-all duration-150 group"
               >
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
                   {t('search.where_to', 'Where to? (Destination)')}
                 </span>
                 <div className="flex items-baseline justify-between">
-                  <span className="text-lg sm:text-xl font-black text-slate-100 group-hover:text-blue-400 transition-colors">
+                  <span className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                     {tPlace(destinationLocation.city)}
                   </span>
                   <span className="text-xs font-mono font-bold text-blue-700 px-1.5 py-0.5 rounded bg-blue-50 border border-blue-200">
                     {destinationLocation.airportCode || destinationLocation.city.slice(0, 3).toUpperCase()}
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-400 truncate mt-0.5">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
                   {destinationLocation.airportName || `${tPlace(destinationLocation.state)}, ${tPlace(destinationLocation.country)}`}
                 </p>
               </div>
@@ -463,13 +463,13 @@ export const SearchWidget: React.FC = () => {
             <div className="sm:col-span-1 lg:col-span-2 grid grid-cols-2 gap-2">
               <div
                 onClick={() => setIsDatePickerOpen(true)}
-                className="bg-[#131d30] hover:bg-[#1a2740] border border-slate-700/50 hover:border-blue-500/50 rounded-2xl p-3 cursor-pointer transition-colors"
+                className="bg-slate-50 dark:bg-[#131d30] hover:bg-slate-100/90 dark:hover:bg-[#1a2740] border border-slate-200/90 dark:border-slate-700/50 hover:border-blue-500/60 dark:hover:border-blue-500/50 rounded-2xl p-3 cursor-pointer transition-colors"
               >
-                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
                   {t('search.departure', 'Departure')}
                 </label>
-                <span className="text-xs sm:text-sm font-bold text-slate-100 block truncate">{departureDate}</span>
-                <span className="text-[10px] text-slate-400 block mt-0.5">{t('search.outbound', 'Outbound')}</span>
+                <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 block truncate">{departureDate}</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5">{t('search.outbound', 'Outbound')}</span>
               </div>
 
               <div
@@ -479,17 +479,17 @@ export const SearchWidget: React.FC = () => {
                   }
                   setIsDatePickerOpen(true);
                 }}
-                className={`bg-[#131d30] border border-slate-700/50 rounded-2xl p-3 transition-colors cursor-pointer ${
-                  tripType === 'one-way' ? 'hover:border-blue-400 opacity-80' : 'hover:border-blue-500/50'
+                className={`bg-slate-50 dark:bg-[#131d30] border border-slate-200/90 dark:border-slate-700/50 rounded-2xl p-3 transition-colors cursor-pointer ${
+                  tripType === 'one-way' ? 'hover:border-blue-400 opacity-80' : 'hover:border-blue-500/60 dark:hover:border-blue-500/50'
                 }`}
               >
-                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
                   {t('search.return', 'Return')}
                 </label>
-                <span className="text-xs sm:text-sm font-bold text-slate-100 block truncate">
+                <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 block truncate">
                   {tripType === 'one-way' ? '+ Return' : returnDate}
                 </span>
-                <span className="text-[10px] text-slate-400 block mt-0.5">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5">
                   {tripType === 'one-way' ? t('search.optional', 'Optional') : t('search.inbound', 'Inbound')}
                 </span>
               </div>
@@ -499,18 +499,18 @@ export const SearchWidget: React.FC = () => {
             <div className="sm:col-span-1 lg:col-span-2 relative">
               <div
                 onClick={() => setIsTravellerPickerOpen(!isTravellerPickerOpen)}
-                className="bg-[#131d30] hover:bg-[#1a2740] border border-slate-700/50 hover:border-blue-500/50 rounded-2xl p-3.5 cursor-pointer transition-colors h-full flex flex-col justify-between"
+                className="bg-slate-50 dark:bg-[#131d30] hover:bg-slate-100/90 dark:hover:bg-[#1a2740] border border-slate-200/90 dark:border-slate-700/50 hover:border-blue-500/60 dark:hover:border-blue-500/50 rounded-2xl p-3.5 cursor-pointer transition-colors h-full flex flex-col justify-between"
               >
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
                   {t('search.travellers_class', 'Travellers & Class')}
                 </span>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs sm:text-sm font-bold text-slate-100 truncate">
+                  <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 truncate">
                     {totalPassengers === 1 ? t('traveller.single', '1 Traveller') : t('traveller.plural', { count: totalPassengers }, `${totalPassengers} Travellers`)}
                   </span>
                   <span className="text-[11px] text-blue-600 font-bold ml-1">{cabinClass}</span>
                 </div>
-                <p className="text-[10px] text-slate-400 mt-0.5 truncate">
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
                   {adults} {t('traveller.adults', 'Adults')}
                   {children > 0 ? `, ${children}C` : ''}
                   {infants > 0 ? `, ${infants}I` : ''}
@@ -536,17 +536,17 @@ export const SearchWidget: React.FC = () => {
             <div className="sm:col-span-2 lg:col-span-2 relative">
               <div
                 onClick={() => setIsBudgetPickerOpen(!isBudgetPickerOpen)}
-                className={`bg-[#131d30] hover:bg-[#1a2740] border rounded-2xl p-3.5 cursor-pointer transition-colors group relative h-full flex flex-col justify-between ${
+                className={`bg-slate-50 dark:bg-[#131d30] hover:bg-slate-100/90 dark:hover:bg-[#1a2740] border rounded-2xl p-3.5 cursor-pointer transition-colors group relative h-full flex flex-col justify-between ${
                   tripBudget
-                    ? 'border-amber-400/60 bg-amber-900/20 ring-1 ring-amber-500/30'
-                    : 'border-slate-700/50 hover:border-blue-500/50'
+                    ? 'border-amber-400/60 bg-amber-50/60 dark:bg-amber-900/20 ring-1 ring-amber-500/30'
+                    : 'border-slate-200/90 dark:border-slate-700/50 hover:border-blue-500/60 dark:hover:border-blue-500/50'
                 }`}
               >
                 <div className="flex items-center justify-between mb-0.5">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
                     {t('search.trip_budget', 'Trip Budget')}
                   </span>
-                  <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.2 rounded bg-slate-700/70 text-slate-400">
+                  <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.2 rounded bg-slate-200 dark:bg-slate-700/70 text-slate-600 dark:text-slate-400">
                     {t('search.optional', 'Optional')}
                   </span>
                 </div>
@@ -613,7 +613,7 @@ export const SearchWidget: React.FC = () => {
                     setOriginLocation(orig);
                     setDestinationLocation(dest);
                   }}
-                  className="px-2.5 py-1 rounded-lg bg-[#131d30] hover:bg-[#1a2740] text-slate-300 text-[11px] font-semibold border border-slate-600/50 transition-colors"
+                  className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-[#131d30] hover:bg-slate-200 dark:hover:bg-[#1a2740] text-slate-700 dark:text-slate-300 text-[11px] font-semibold border border-slate-200 dark:border-slate-600/50 transition-colors"
                 >
                   {route.label}
                 </button>
@@ -640,13 +640,13 @@ export const SearchWidget: React.FC = () => {
             <div className="md:col-span-5 relative">
               <div
                 onClick={() => setIsHotelLocationOpen(true)}
-                className="bg-[#131d30] hover:bg-[#1a2740] border border-slate-700/50 hover:border-blue-500/50 rounded-2xl p-3.5 cursor-pointer transition-colors"
+                className="bg-slate-50 dark:bg-[#131d30] hover:bg-slate-100/90 dark:hover:bg-[#1a2740] border border-slate-200/90 dark:border-slate-700/50 hover:border-blue-500/60 dark:hover:border-blue-500/50 rounded-2xl p-3.5 cursor-pointer transition-colors"
               >
-                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
                   {t('search.destination_city', 'City, Destination or Property')}
                 </label>
-                <div className="text-base font-bold text-slate-100">{tPlace(hotelLocation.city)}</div>
-                <p className="text-[11px] text-slate-400 mt-0.5">
+                <div className="text-base font-bold text-slate-900 dark:text-slate-100">{tPlace(hotelLocation.city)}</div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                   {hotelLocation.state}, {hotelLocation.country} • 500+ verified properties
                 </p>
               </div>
@@ -656,34 +656,34 @@ export const SearchWidget: React.FC = () => {
             <div className="md:col-span-4 grid grid-cols-2 gap-2">
               <div
                 onClick={() => setIsHotelDateOpen(true)}
-                className="bg-[#131d30] hover:bg-[#1a2740] border border-slate-700/50 hover:border-blue-500/50 rounded-2xl p-3.5 cursor-pointer"
+                className="bg-slate-50 dark:bg-[#131d30] hover:bg-slate-100/90 dark:hover:bg-[#1a2740] border border-slate-200/90 dark:border-slate-700/50 hover:border-blue-500/60 dark:hover:border-blue-500/50 rounded-2xl p-3.5 cursor-pointer"
               >
-                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
                   {t('search.check_in', 'Check-In')}
                 </label>
-                <span className="text-xs font-bold text-slate-100 block">{hotelCheckIn}</span>
-                <span className="text-[10px] text-slate-400 block mt-0.5">From 2:00 PM</span>
+                <span className="text-xs font-bold text-slate-900 dark:text-slate-100 block">{hotelCheckIn}</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5">From 2:00 PM</span>
               </div>
 
               <div
                 onClick={() => setIsHotelDateOpen(true)}
-                className="bg-[#131d30] hover:bg-[#1a2740] border border-slate-700/50 hover:border-blue-500/50 rounded-2xl p-3.5 cursor-pointer"
+                className="bg-slate-50 dark:bg-[#131d30] hover:bg-slate-100/90 dark:hover:bg-[#1a2740] border border-slate-200/90 dark:border-slate-700/50 hover:border-blue-500/60 dark:hover:border-blue-500/50 rounded-2xl p-3.5 cursor-pointer"
               >
-                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
                   {t('search.check_out', 'Check-Out')}
                 </label>
-                <span className="text-xs font-bold text-slate-100 block">{hotelCheckOut}</span>
-                <span className="text-[10px] text-slate-400 block mt-0.5">Until 11:00 AM</span>
+                <span className="text-xs font-bold text-slate-900 dark:text-slate-100 block">{hotelCheckOut}</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5">Until 11:00 AM</span>
               </div>
             </div>
 
             {/* Guests & Rooms */}
-            <div className="md:col-span-3 bg-[#131d30] border border-slate-700/50 rounded-2xl p-3.5 flex flex-col justify-between">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+            <div className="md:col-span-3 bg-slate-50 dark:bg-[#131d30] border border-slate-200/90 dark:border-slate-700/50 rounded-2xl p-3.5 flex flex-col justify-between">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
                 {t('search.guests_rooms', 'Guests & Rooms')}
               </label>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-bold text-slate-100">
+                <span className="text-sm font-bold text-slate-900 dark:text-slate-100">
                   {hotelAdults} {t('traveller.adults', 'Adults')}, {hotelRooms} Room{hotelRooms > 1 ? 's' : ''}
                 </span>
                 <div className="flex items-center gap-1">
@@ -691,7 +691,7 @@ export const SearchWidget: React.FC = () => {
                     type="button"
                     disabled={hotelAdults <= 1}
                     onClick={() => setHotelAdults(hotelAdults - 1)}
-                    className="w-6 h-6 rounded bg-[#1a2740] border border-slate-600 text-xs font-bold text-slate-300 disabled:opacity-30 hover:bg-[#2a3a56]"
+                    className="w-6 h-6 rounded bg-white dark:bg-[#1a2740] border border-slate-300 dark:border-slate-600 text-xs font-bold text-slate-700 dark:text-slate-300 disabled:opacity-30 hover:bg-slate-100 dark:hover:bg-[#2a3a56]"
                   >
                     -
                   </button>
@@ -699,7 +699,7 @@ export const SearchWidget: React.FC = () => {
                     type="button"
                     disabled={hotelAdults >= 8}
                     onClick={() => setHotelAdults(hotelAdults + 1)}
-                    className="w-6 h-6 rounded bg-[#1a2740] border border-slate-600 text-xs font-bold text-slate-300 hover:bg-[#2a3a56]"
+                    className="w-6 h-6 rounded bg-white dark:bg-[#1a2740] border border-slate-300 dark:border-slate-600 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#2a3a56]"
                   >
                     +
                   </button>
@@ -711,7 +711,7 @@ export const SearchWidget: React.FC = () => {
 
           <div className="flex items-center justify-between pt-2">
             <div className="flex items-center gap-2 text-xs text-slate-500">
-              <span className="font-bold text-slate-400">{t('search.popular_routes', 'Popular:')}</span>
+              <span className="font-bold text-slate-500 dark:text-slate-400">{t('search.popular_routes', 'Popular:')}</span>
               {['Goa Beachfront', 'Dubai Marina', 'Bali Villas', 'Manali Cottages'].map((destName) => (
                 <button
                   key={destName}
@@ -720,7 +720,7 @@ export const SearchWidget: React.FC = () => {
                     const item = LOCATIONS_DATA.find((l) => l.city.toLowerCase().includes(destName.split(' ')[0].toLowerCase())) || LOCATIONS_DATA[4];
                     setHotelLocation(item);
                   }}
-                  className="px-2.5 py-1 rounded-lg bg-[#131d30] hover:bg-[#1a2740] text-slate-300 text-[11px] font-semibold border border-slate-600/50"
+                  className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-[#131d30] hover:bg-slate-200 dark:hover:bg-[#1a2740] text-slate-700 dark:text-slate-300 text-[11px] font-semibold border border-slate-200 dark:border-slate-600/50"
                 >
                   {destName}
                 </button>
@@ -743,17 +743,17 @@ export const SearchWidget: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
             <div
               onClick={() => setIsPackageDestOpen(true)}
-              className="md:col-span-5 bg-[#131d30] hover:bg-[#1a2740] border border-slate-700/50 hover:border-blue-500/50 rounded-2xl p-3.5 cursor-pointer"
+              className="md:col-span-5 bg-slate-50 dark:bg-[#131d30] hover:bg-slate-100/90 dark:hover:bg-[#1a2740] border border-slate-200/90 dark:border-slate-700/50 hover:border-blue-500/60 dark:hover:border-blue-500/50 rounded-2xl p-3.5 cursor-pointer"
             >
-              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
                 {t('search.package_destination', 'Dream Vacation Destination')}
               </label>
-              <div className="text-base font-bold text-slate-100">{tPlace(packageDestination.city)}</div>
-              <p className="text-[11px] text-slate-400 mt-0.5">Includes Flights + 4★ Stays + Sightseeing</p>
+              <div className="text-base font-bold text-slate-900 dark:text-slate-100">{tPlace(packageDestination.city)}</div>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Includes Flights + 4★ Stays + Sightseeing</p>
             </div>
 
-            <div className="md:col-span-4 bg-[#131d30] border border-slate-700/50 rounded-2xl p-3.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+            <div className="md:col-span-4 bg-slate-50 dark:bg-[#131d30] border border-slate-200/90 dark:border-slate-700/50 rounded-2xl p-3.5">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
                 {t('search.package_duration', 'Trip Duration')}
               </label>
               <div className="flex items-center gap-2 mt-1">
@@ -764,25 +764,25 @@ export const SearchWidget: React.FC = () => {
                     onClick={() => setPackageDuration(days)}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
                       packageDuration === days
-                        ? 'bg-slate-100 text-slate-900'
-                        : 'bg-[#1a2740] border border-slate-600/50 text-slate-300 hover:bg-[#2a3a56]'
+                        ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900'
+                        : 'bg-white dark:bg-[#1a2740] border border-slate-200 dark:border-slate-600/50 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#2a3a56]'
                     }`}
                   >
                     {days} Days
                   </button>
                 ))}
               </div>
-              <p className="text-[10px] text-slate-400 mt-1">Day-by-day customizable blueprint</p>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Day-by-day customizable blueprint</p>
             </div>
 
-            <div className="md:col-span-3 bg-[#131d30] border border-slate-700/50 rounded-2xl p-3.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+            <div className="md:col-span-3 bg-slate-50 dark:bg-[#131d30] border border-slate-200/90 dark:border-slate-700/50 rounded-2xl p-3.5">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
                 {t('search.package_theme', 'Experience Theme')}
               </label>
               <select
                 value={packageTheme}
                 onChange={(e) => setPackageTheme(e.target.value)}
-                className="w-full bg-[#1a2740] border border-slate-600/50 rounded-lg px-2 py-1 text-xs font-bold text-slate-100 focus:outline-none mt-1"
+                className="w-full bg-white dark:bg-[#1a2740] border border-slate-200 dark:border-slate-600/50 rounded-lg px-2 py-1 text-xs font-bold text-slate-900 dark:text-slate-100 focus:outline-none mt-1"
               >
                 {['All', 'Honeymoon', 'Family', 'Adventure', 'Luxury', 'Budget'].map((tOpt) => (
                   <option key={tOpt} value={tOpt}>
@@ -813,24 +813,24 @@ export const SearchWidget: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
             <div
               onClick={() => setIsTrainFromOpen(true)}
-              className="md:col-span-4 bg-[#131d30] hover:bg-[#1a2740] border border-slate-700/50 hover:border-blue-500/50 rounded-2xl p-3.5 cursor-pointer"
+              className="md:col-span-4 bg-slate-50 dark:bg-[#131d30] hover:bg-slate-100/90 dark:hover:bg-[#1a2740] border border-slate-200/90 dark:border-slate-700/50 hover:border-blue-500/60 dark:hover:border-blue-500/50 rounded-2xl p-3.5 cursor-pointer"
             >
-              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
                 {t('search.boarding_station', 'From Station')}
               </label>
-              <div className="text-base font-bold text-slate-100">{tPlace(trainOrigin.city)}</div>
-              <p className="text-[11px] text-slate-400 truncate">{trainOrigin.stationName || 'Central Junction'}</p>
+              <div className="text-base font-bold text-slate-900 dark:text-slate-100">{tPlace(trainOrigin.city)}</div>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{trainOrigin.stationName || 'Central Junction'}</p>
             </div>
 
             <div
               onClick={() => setIsTrainToOpen(true)}
-              className="md:col-span-4 bg-[#131d30] hover:bg-[#1a2740] border border-slate-700/50 hover:border-blue-500/50 rounded-2xl p-3.5 cursor-pointer"
+              className="md:col-span-4 bg-slate-50 dark:bg-[#131d30] hover:bg-slate-100/90 dark:hover:bg-[#1a2740] border border-slate-200/90 dark:border-slate-700/50 hover:border-blue-500/60 dark:hover:border-blue-500/50 rounded-2xl p-3.5 cursor-pointer"
             >
-              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
                 {t('search.arrival_station', 'To Station')}
               </label>
-              <div className="text-base font-bold text-slate-100">{tPlace(trainDestination.city)}</div>
-              <p className="text-[11px] text-slate-400 truncate">{trainDestination.stationName || 'City Station'}</p>
+              <div className="text-base font-bold text-slate-900 dark:text-slate-100">{tPlace(trainDestination.city)}</div>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{trainDestination.stationName || 'City Station'}</p>
             </div>
 
             <div className="md:col-span-4 grid grid-cols-2 gap-2">
@@ -841,16 +841,16 @@ export const SearchWidget: React.FC = () => {
                 <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block mb-0.5">
                   {t('search.travel_date', 'Travel Date')}
                 </label>
-                <div className="text-xs font-bold text-slate-100">{trainDate}</div>
+                <div className="text-xs font-bold text-slate-900 dark:text-slate-100">{trainDate}</div>
               </div>
-              <div className="bg-[#131d30] border border-slate-700/50 rounded-2xl p-3.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+              <div className="bg-slate-50 dark:bg-[#131d30] border border-slate-200/90 dark:border-slate-700/50 rounded-2xl p-3.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
                   {t('search.quota_class', 'Class')}
                 </label>
                 <select
                   value={trainClass}
                   onChange={(e) => setTrainClass(e.target.value)}
-                  className="w-full bg-[#1a2740] border border-slate-600/50 rounded-lg px-2 py-1 text-xs font-bold text-slate-100 focus:outline-none mt-0.5"
+                  className="w-full bg-white dark:bg-[#1a2740] border border-slate-200 dark:border-slate-600/50 rounded-lg px-2 py-1 text-xs font-bold text-slate-900 dark:text-slate-100 focus:outline-none mt-0.5"
                 >
                   <option value="All">All Classes</option>
                   <option value="EC">Exec. Chair (EC)</option>
@@ -877,24 +877,24 @@ export const SearchWidget: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
             <div
               onClick={() => setIsFromPickerOpen(true)}
-              className="md:col-span-4 bg-[#131d30] hover:bg-[#1a2740] border border-slate-700/50 hover:border-blue-500/50 rounded-2xl p-3.5 cursor-pointer"
+              className="md:col-span-4 bg-slate-50 dark:bg-[#131d30] hover:bg-slate-100/90 dark:hover:bg-[#1a2740] border border-slate-200/90 dark:border-slate-700/50 hover:border-blue-500/60 dark:hover:border-blue-500/50 rounded-2xl p-3.5 cursor-pointer"
             >
-              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
                 {t('search.where_from', 'From City')}
               </label>
-              <div className="text-base font-bold text-slate-100">{originLocation.city}</div>
-              <p className="text-[11px] text-slate-400">{originLocation.busTerminal || 'Central Bus Terminal'}</p>
+              <div className="text-base font-bold text-slate-900 dark:text-slate-100">{originLocation.city}</div>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">{originLocation.busTerminal || 'Central Bus Terminal'}</p>
             </div>
 
             <div
               onClick={() => setIsToPickerOpen(true)}
-              className="md:col-span-4 bg-[#131d30] hover:bg-[#1a2740] border border-slate-700/50 hover:border-blue-500/50 rounded-2xl p-3.5 cursor-pointer"
+              className="md:col-span-4 bg-slate-50 dark:bg-[#131d30] hover:bg-slate-100/90 dark:hover:bg-[#1a2740] border border-slate-200/90 dark:border-slate-700/50 hover:border-blue-500/60 dark:hover:border-blue-500/50 rounded-2xl p-3.5 cursor-pointer"
             >
-              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
                 {t('search.where_to', 'To City')}
               </label>
-              <div className="text-base font-bold text-slate-100">{destinationLocation.city}</div>
-              <p className="text-[11px] text-slate-400">{destinationLocation.busTerminal || 'Express Terminal'}</p>
+              <div className="text-base font-bold text-slate-900 dark:text-slate-100">{destinationLocation.city}</div>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">{destinationLocation.busTerminal || 'Express Terminal'}</p>
             </div>
 
             <div className="md:col-span-4 grid grid-cols-2 gap-2">
@@ -905,13 +905,13 @@ export const SearchWidget: React.FC = () => {
                 <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block mb-0.5">
                   {t('search.travel_date', 'Travel Date')}
                 </label>
-                <div className="text-xs font-bold text-slate-100">{departureDate}</div>
+                <div className="text-xs font-bold text-slate-900 dark:text-slate-100">{departureDate}</div>
               </div>
-              <div className="bg-[#131d30] border border-slate-700/50 rounded-2xl p-3.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+              <div className="bg-slate-50 dark:bg-[#131d30] border border-slate-200/90 dark:border-slate-700/50 rounded-2xl p-3.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
                   Bus Type
                 </label>
-                <span className="text-xs font-bold text-slate-100 block mt-0.5">Volvo AC Sleeper</span>
+                <span className="text-xs font-bold text-slate-900 dark:text-slate-100 block mt-0.5">Volvo AC Sleeper</span>
               </div>
             </div>
           </div>
@@ -936,32 +936,32 @@ export const SearchWidget: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
             <div
               onClick={() => setIsFromPickerOpen(true)}
-              className="md:col-span-5 bg-[#131d30] hover:bg-[#1a2740] border border-slate-700/50 hover:border-blue-500/50 rounded-2xl p-3.5 cursor-pointer"
+              className="md:col-span-5 bg-slate-50 dark:bg-[#131d30] hover:bg-slate-100/90 dark:hover:bg-[#1a2740] border border-slate-200/90 dark:border-slate-700/50 hover:border-blue-500/60 dark:hover:border-blue-500/50 rounded-2xl p-3.5 cursor-pointer"
             >
-              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
                 {t('search.pickup_location', 'Pickup Airport / City')}
               </label>
-              <div className="text-base font-bold text-slate-100">{originLocation.city}</div>
-              <p className="text-[11px] text-slate-400">{originLocation.airportName || 'Airport Terminal 1 / 2'}</p>
+              <div className="text-base font-bold text-slate-900 dark:text-slate-100">{originLocation.city}</div>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">{originLocation.airportName || 'Airport Terminal 1 / 2'}</p>
             </div>
 
             <div
               onClick={() => setIsToPickerOpen(true)}
-              className="md:col-span-4 bg-[#131d30] hover:bg-[#1a2740] border border-slate-700/50 hover:border-blue-500/50 rounded-2xl p-3.5 cursor-pointer"
+              className="md:col-span-4 bg-slate-50 dark:bg-[#131d30] hover:bg-slate-100/90 dark:hover:bg-[#1a2740] border border-slate-200/90 dark:border-slate-700/50 hover:border-blue-500/60 dark:hover:border-blue-500/50 rounded-2xl p-3.5 cursor-pointer"
             >
-              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
                 {t('search.dropoff_location', 'Drop Destination')}
               </label>
-              <div className="text-base font-bold text-slate-100">{destinationLocation.city}</div>
-              <p className="text-[11px] text-slate-400">Hotel / Resort / City Center</p>
+              <div className="text-base font-bold text-slate-900 dark:text-slate-100">{destinationLocation.city}</div>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">Hotel / Resort / City Center</p>
             </div>
 
-            <div className="md:col-span-3 bg-[#131d30] border border-slate-700/50 rounded-2xl p-3.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+            <div className="md:col-span-3 bg-slate-50 dark:bg-[#131d30] border border-slate-200/90 dark:border-slate-700/50 rounded-2xl p-3.5">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
                 Vehicle Type
               </label>
-              <span className="text-xs font-bold text-slate-100 block mt-0.5">Sedan (Dzire / Etios)</span>
-              <p className="text-[10px] text-slate-400">Up to 4 Passengers</p>
+              <span className="text-xs font-bold text-slate-900 dark:text-slate-100 block mt-0.5">Sedan (Dzire / Etios)</span>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400">Up to 4 Passengers</p>
             </div>
           </div>
 
