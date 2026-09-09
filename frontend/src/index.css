@@ -936,20 +936,6 @@ html.dark [class*="search-"] {
   border-color: rgba(255, 255, 255, 0.09) !important;
 }
 
-/* ── SEARCH TAB BUTTONS (inactive state) ──
-   Forces dark background on all inactive travel-category tabs
-   regardless of browser defaults or Tailwind JIT cache misses.
-   The active tab uses a motion.span overlay so does NOT need this. */
-.search-tab-inactive {
-  background-color: #131d30 !important;
-  border: 1px solid rgba(100, 116, 139, 0.5) !important;
-  color: #94a3b8 !important;
-}
-.search-tab-inactive:hover {
-  background-color: #1a2740 !important;
-  color: #e2e8f0 !important;
-}
-
 /* ── DROPDOWNS / POPOVERS ── */
 html.dark [class*="dropdown"],
 html.dark [class*="popover"],

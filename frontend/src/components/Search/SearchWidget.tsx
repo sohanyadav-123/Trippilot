@@ -216,9 +216,9 @@ export const SearchWidget: React.FC = () => {
   const totalPassengers = adults + children + infants;
 
   return (
-    <div className="w-full bg-[#0B1220] rounded-2xl sm:rounded-3xl shadow-floating border border-slate-700/60 p-5 sm:p-7 relative z-30 transition-all">
+    <div className="w-full bg-white dark:bg-[#0B1220] rounded-2xl sm:rounded-3xl shadow-floating border border-slate-200 dark:border-slate-700/60 p-5 sm:p-7 relative z-30 transition-all">
       {/* ─── 1. TOP TABS: FLIGHTS, HOTELS, PACKAGES, TRAINS, BUSES, CABS, ACTIVITIES ─── */}
-      <div className="flex items-center gap-1 sm:gap-2 pb-5 border-b border-slate-700/50 overflow-x-auto scrollbar-none mb-6">
+      <div className="flex items-center gap-1 sm:gap-2 pb-5 border-b border-slate-200 dark:border-slate-700/50 overflow-x-auto scrollbar-none mb-6">
         {[
           { id: 'flights', label: t('search.tab_flights', 'Flights'), icon: Plane },
           { id: 'hotels', label: t('search.tab_hotels', 'Hotels & Stays'), icon: Building2 },
@@ -244,14 +244,14 @@ export const SearchWidget: React.FC = () => {
               }}
               className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-colors whitespace-nowrap ${
                 isActive
-                  ? 'text-white'
-                  : 'search-tab-inactive bg-[#131d30] text-slate-400 hover:text-slate-200 hover:bg-[#1a2740] border border-slate-600/50'
+                  ? 'text-blue-600 dark:text-white'
+                  : 'bg-slate-100/80 dark:bg-[#131d30] text-slate-600 dark:text-slate-400 hover:bg-slate-200/70 dark:hover:bg-[#1a2740] hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-700/60'
               }`}
             >
               {isActive && (
                 <motion.span
                   layoutId="activeSearchTab"
-                  className="absolute inset-0 bg-[#0B1220] rounded-xl shadow-md z-0"
+                  className="absolute inset-0 bg-blue-50/90 dark:bg-[#1e2a42] rounded-xl shadow-xs border border-blue-200 dark:border-blue-500/40 z-0"
                   transition={{ type: 'spring', stiffness: 480, damping: 34 }}
                 />
               )}
